@@ -11,7 +11,7 @@
     <meta name="msapplication-navbutton-color" content="#10b981">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <title>VegeOrder - Mobile Manager</title>
+    <title>VegeOrder - Complete Malaysian Vegetable Manager</title>
     
     <!-- Mobile App Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9IiMxMGI5ODEiLz4KPHN2ZyB4PSI0MCIgeT0iNDAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgZmlsbD0id2hpdGUiPgo8dGV4dCB4PSI1MCIgeT0iNjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+luTwvdGV4dD4KPC9zdmc+Cjwvc3ZnPg==">
@@ -401,6 +401,66 @@
         .customer-actions, .product-actions {
             display: flex;
             gap: 8px;
+        }
+        
+        /* Category Filters */
+        .category-filters {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .category-filters::-webkit-scrollbar {
+            height: 3px;
+        }
+        
+        .category-filters::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+        
+        .category-filters::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+        }
+        
+        .category-btn {
+            padding: 10px 16px;
+            border-radius: 20px;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.15);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+        
+        .category-btn.active {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .category-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Product Category Badge */
+        .category-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.9);
+            margin-top: 4px;
         }
         
         /* Bottom Navigation */
@@ -949,7 +1009,7 @@
                 <div class="app-icon">🥬</div>
                 <div class="app-title">
                     <h1>VegeOrder</h1>
-                    <p>Mobile Manager</p>
+                    <p>Complete Malaysian Vegetables</p>
                 </div>
             </div>
             <div class="header-right">
@@ -971,7 +1031,7 @@
                         <div class="stat-value" id="customers-count">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Products</div>
+                        <div class="stat-label">Vegetables</div>
                         <div class="stat-value" id="products-count">0</div>
                     </div>
                     <div class="stat-card">
@@ -1038,7 +1098,7 @@
             <!-- Products View -->
             <div id="products-view" class="view hidden">
                 <div class="section-header">
-                    <h2 class="section-title">Products</h2>
+                    <h2 class="section-title">Vegetables</h2>
                     <button class="add-btn btn-success" onclick="openProductForm()" style="background: linear-gradient(135deg, #10b981, #059669);">
                         <span>➕</span>
                     </button>
@@ -1047,6 +1107,11 @@
                 <div class="search-container">
                     <span class="search-icon">🔍</span>
                     <input type="text" class="input" placeholder="Search vegetables..." id="product-search">
+                </div>
+
+                <!-- Category Filters -->
+                <div class="category-filters" id="category-filters">
+                    <!-- Categories populated by JavaScript -->
                 </div>
 
                 <div class="product-grid" id="products-list"></div>
@@ -1085,8 +1150,8 @@
                     <span>Customers</span>
                 </div>
                 <div class="nav-item" onclick="showView('products')">
-                    <span class="icon">📦</span>
-                    <span>Products</span>
+                    <span class="icon">🥬</span>
+                    <span>Vegetables</span>
                 </div>
                 <div class="nav-item" onclick="showView('orders')">
                     <span class="icon">🛒</span>
@@ -1124,13 +1189,17 @@
     <div id="product-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="product-modal-title">Add Product</h3>
+                <h3 id="product-modal-title">Add Vegetable</h3>
                 <button class="close-btn" onclick="closeProductForm()">✕</button>
             </div>
             <div class="modal-body">
                 <form id="product-form">
-                    <input type="text" class="form-input" placeholder="Product Name *" id="product-name" required>
-                    <input type="text" class="form-input" placeholder="Unit (kg, piece, head, etc.)" id="product-unit">
+                    <input type="text" class="form-input" placeholder="Vegetable Name *" id="product-name" required>
+                    <select class="form-input" id="product-category" style="color: #1f2937; font-weight: 600;">
+                        <option value="">Select Category</option>
+                        <!-- Categories populated by JavaScript -->
+                    </select>
+                    <input type="text" class="form-input" placeholder="Unit (kg, piece, head, bunch, etc.)" id="product-unit">
                     <input type="number" class="form-input" placeholder="Price (RM) *" id="product-price" step="0.01" required>
                     
                     <div class="form-actions">
@@ -1164,6 +1233,11 @@
                                    style="width: 100%; padding: 12px 16px 12px 40px; border-radius: 12px; border: 1px solid #d1d5db; font-size: 14px;"
                                    oninput="filterOrderItems(this.value)">
                             <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280;">🔍</span>
+                        </div>
+                        
+                        <!-- Order Category Filters -->
+                        <div class="category-filters" id="order-category-filters" style="margin-bottom: 16px;">
+                            <!-- Categories populated by JavaScript -->
                         </div>
                         
                         <div id="order-items-list" style="max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
@@ -1209,6 +1283,21 @@
         var editingCustomer = null;
         var editingProduct = null;
         var selectedOrderDetails = null;
+        var selectedCategory = 'all';
+        var selectedOrderCategory = 'all';
+
+        // Get unique categories
+        function getCategories() {
+            var categories = ['All'];
+            var categorySet = new Set();
+            for (var i = 0; i < products.length; i++) {
+                if (products[i].category) {
+                    categorySet.add(products[i].category);
+                }
+            }
+            var sortedCategories = Array.from(categorySet).sort();
+            return categories.concat(sortedCategories);
+        }
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
@@ -1249,7 +1338,7 @@
                 { id: 12, name: 'Kak Yah Nasi Dagang', phone: '016-9990000', address: 'Setapak, KL', email: 'kakyah@nasidagang.my' }
             ];
 
-            // Comprehensive Malaysian vegetable selection with categories
+            // Comprehensive Malaysian vegetable selection with expanded categories
             products = [
                 // === LEAFY GREENS & SALADS ===
                 { id: 1, name: 'Kangkung (Water Spinach)', unit: 'kg', price: 4.50, category: 'Leafy Greens' },
@@ -1258,122 +1347,246 @@
                 { id: 4, name: 'Spinach (Bayam Pasir)', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
                 { id: 5, name: 'Lettuce Iceberg', unit: 'head', price: 4.50, category: 'Leafy Greens' },
                 { id: 6, name: 'Lettuce Butter Head', unit: 'head', price: 3.80, category: 'Leafy Greens' },
-                { id: 7, name: 'Cai Xin (Choy Sum)', unit: 'kg', price: 6.00, category: 'Leafy Greens' },
-                { id: 8, name: 'Pak Choy (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
-                { id: 9, name: 'Pak Choy Baby', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
-                { id: 10, name: 'Kailan (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
-                { id: 11, name: 'Bayam Merah (Red Amaranth)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
-                { id: 12, name: 'Bayam Hijau (Green Amaranth)', unit: 'kg', price: 5.00, category: 'Leafy Greens' },
-                { id: 13, name: 'Pucuk Paku (Fern Tips)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                { id: 7, name: 'Lettuce Romaine', unit: 'head', price: 5.20, category: 'Leafy Greens' },
+                { id: 8, name: 'Lettuce Red Oak', unit: 'head', price: 6.00, category: 'Leafy Greens' },
+                { id: 9, name: 'Lettuce Green Oak', unit: 'head', price: 5.80, category: 'Leafy Greens' },
+                { id: 10, name: 'Cai Xin (Choy Sum)', unit: 'kg', price: 6.00, category: 'Leafy Greens' },
+                { id: 11, name: 'Pak Choy (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
+                { id: 12, name: 'Pak Choy Baby', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
+                { id: 13, name: 'Pak Choy Shanghai', unit: 'kg', price: 6.50, category: 'Leafy Greens' },
+                { id: 14, name: 'Kailan (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
+                { id: 15, name: 'Kailan Baby', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
+                { id: 16, name: 'Bayam Merah (Red Amaranth)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
+                { id: 17, name: 'Bayam Hijau (Green Amaranth)', unit: 'kg', price: 5.00, category: 'Leafy Greens' },
+                { id: 18, name: 'Bayam Putih (White Amaranth)', unit: 'kg', price: 5.20, category: 'Leafy Greens' },
+                { id: 19, name: 'Pucuk Paku (Fern Tips)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                { id: 20, name: 'Watercress (Pegaga Air)', unit: 'kg', price: 8.00, category: 'Leafy Greens' },
+                { id: 21, name: 'Rocket Salad (Arugula)', unit: 'kg', price: 18.00, category: 'Leafy Greens' },
+                { id: 22, name: 'Baby Spinach', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                { id: 23, name: 'Mizuna Salad', unit: 'kg', price: 15.00, category: 'Leafy Greens' },
+                { id: 24, name: 'Tatsoi (Spoon Mustard)', unit: 'kg', price: 10.00, category: 'Leafy Greens' },
                 
                 // === MALAYSIAN SPECIALTY VEGETABLES ===
-                { id: 14, name: 'Petai (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
-                { id: 15, name: 'Jering', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
-                { id: 16, name: 'Rebung (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
-                { id: 17, name: 'Jantung Pisang (Banana Blossom)', unit: 'piece', price: 4.00, category: 'Malaysian Specialty' },
-                { id: 18, name: 'Daun Ubi Kayu (Cassava Leaves)', unit: 'kg', price: 5.00, category: 'Malaysian Specialty' },
-                { id: 19, name: 'Pucuk Manis (Sweet Potato Leaves)', unit: 'kg', price: 4.50, category: 'Malaysian Specialty' },
-                { id: 20, name: 'Kacang Botol (Winged Bean)', unit: 'kg', price: 9.00, category: 'Malaysian Specialty' },
-                { id: 21, name: 'Ulam Raja', unit: 'kg', price: 8.00, category: 'Malaysian Specialty' },
-                { id: 22, name: 'Pegaga (Centella)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
-                { id: 23, name: 'Kesum (Vietnamese Mint)', unit: 'bunch', price: 2.50, category: 'Malaysian Specialty' },
+                { id: 25, name: 'Petai (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
+                { id: 26, name: 'Petai Laut (Sea Bean)', unit: 'kg', price: 25.00, category: 'Malaysian Specialty' },
+                { id: 27, name: 'Jering', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
+                { id: 28, name: 'Rebung (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
+                { id: 29, name: 'Rebung Muda (Young Bamboo)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
+                { id: 30, name: 'Jantung Pisang (Banana Blossom)', unit: 'piece', price: 4.00, category: 'Malaysian Specialty' },
+                { id: 31, name: 'Daun Ubi Kayu (Cassava Leaves)', unit: 'kg', price: 5.00, category: 'Malaysian Specialty' },
+                { id: 32, name: 'Pucuk Manis (Sweet Potato Leaves)', unit: 'kg', price: 4.50, category: 'Malaysian Specialty' },
+                { id: 33, name: 'Kacang Botol (Winged Bean)', unit: 'kg', price: 9.00, category: 'Malaysian Specialty' },
+                { id: 34, name: 'Kacang Kelisa (Four Angled Bean)', unit: 'kg', price: 8.00, category: 'Malaysian Specialty' },
+                { id: 35, name: 'Terung Asam (Sour Eggplant)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
+                { id: 36, name: 'Terung Dayak (Dayak Eggplant)', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
+                { id: 37, name: 'Tempe Bunga (Sesbania)', unit: 'kg', price: 6.00, category: 'Malaysian Specialty' },
+                { id: 38, name: 'Pucuk Gajus (Cashew Shoots)', unit: 'kg', price: 20.00, category: 'Malaysian Specialty' },
+                { id: 39, name: 'Pucuk Mengkudu (Noni Shoots)', unit: 'kg', price: 8.00, category: 'Malaysian Specialty' },
+                { id: 40, name: 'Daun Singkong (Tapioca Leaves)', unit: 'kg', price: 4.00, category: 'Malaysian Specialty' },
+                
+                // === TRADITIONAL ULAM (RAW VEGETABLES) ===
+                { id: 41, name: 'Ulam Raja', unit: 'kg', price: 8.00, category: 'Traditional Ulam' },
+                { id: 42, name: 'Pegaga (Centella)', unit: 'kg', price: 12.00, category: 'Traditional Ulam' },
+                { id: 43, name: 'Kesum (Vietnamese Mint)', unit: 'bunch', price: 2.50, category: 'Traditional Ulam' },
+                { id: 44, name: 'Daun Kaduk (Wild Pepper Leaf)', unit: 'bunch', price: 3.00, category: 'Traditional Ulam' },
+                { id: 45, name: 'Selom (Water Dropwort)', unit: 'bunch', price: 4.00, category: 'Traditional Ulam' },
+                { id: 46, name: 'Tenggek Burung', unit: 'bunch', price: 5.00, category: 'Traditional Ulam' },
+                { id: 47, name: 'Daun Pecah Beling', unit: 'bunch', price: 3.50, category: 'Traditional Ulam' },
+                { id: 48, name: 'Kacang Tanah Muda (Young Peanut)', unit: 'kg', price: 8.00, category: 'Traditional Ulam' },
+                { id: 49, name: 'Bunga Kantan (Torch Ginger)', unit: 'piece', price: 3.00, category: 'Traditional Ulam' },
+                { id: 50, name: 'Daun Sambung Nyawa', unit: 'bunch', price: 4.50, category: 'Traditional Ulam' },
+                { id: 51, name: 'Daun Cangkuk Manis', unit: 'bunch', price: 3.00, category: 'Traditional Ulam' },
+                { id: 52, name: 'Pucuk Ubi Kemili', unit: 'kg', price: 6.00, category: 'Traditional Ulam' },
+                { id: 53, name: 'Timun Hutan (Wild Cucumber)', unit: 'kg', price: 8.00, category: 'Traditional Ulam' },
+                { id: 54, name: 'Daun Kerdas', unit: 'bunch', price: 2.50, category: 'Traditional Ulam' },
                 
                 // === GOURDS & SQUASH ===
-                { id: 24, name: 'Labu Kuning (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
-                { id: 25, name: 'Labu Air (Bottle Gourd)', unit: 'kg', price: 2.80, category: 'Gourds & Squash' },
-                { id: 26, name: 'Petola (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
-                { id: 27, name: 'Peria (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
-                { id: 28, name: 'Ketola (Angled Gourd)', unit: 'kg', price: 5.50, category: 'Gourds & Squash' },
-                { id: 29, name: 'Timun (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
-                { id: 30, name: 'Timun Jepun (Japanese Cucumber)', unit: 'kg', price: 6.50, category: 'Gourds & Squash' },
-                { id: 31, name: 'Zucchini', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 55, name: 'Labu Kuning (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
+                { id: 56, name: 'Labu Merah (Red Pumpkin)', unit: 'kg', price: 3.50, category: 'Gourds & Squash' },
+                { id: 57, name: 'Labu Air (Bottle Gourd)', unit: 'kg', price: 2.80, category: 'Gourds & Squash' },
+                { id: 58, name: 'Labu Ayer Bulat (Round Bottle Gourd)', unit: 'kg', price: 3.00, category: 'Gourds & Squash' },
+                { id: 59, name: 'Petola (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
+                { id: 60, name: 'Petola Panjang (Long Luffa)', unit: 'kg', price: 5.00, category: 'Gourds & Squash' },
+                { id: 61, name: 'Peria (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 62, name: 'Peria Katak (Small Bitter Gourd)', unit: 'kg', price: 12.00, category: 'Gourds & Squash' },
+                { id: 63, name: 'Ketola (Angled Gourd)', unit: 'kg', price: 5.50, category: 'Gourds & Squash' },
+                { id: 64, name: 'Timun (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
+                { id: 65, name: 'Timun Jepun (Japanese Cucumber)', unit: 'kg', price: 6.50, category: 'Gourds & Squash' },
+                { id: 66, name: 'Timun Belanda (Dutch Cucumber)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 67, name: 'Zucchini', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 68, name: 'Zucchini Kuning (Yellow Zucchini)', unit: 'kg', price: 9.00, category: 'Gourds & Squash' },
+                { id: 69, name: 'Butternut Squash', unit: 'kg', price: 7.00, category: 'Gourds & Squash' },
+                { id: 70, name: 'Acorn Squash', unit: 'kg', price: 8.50, category: 'Gourds & Squash' },
+                { id: 71, name: 'Labu Siam (Chayote)', unit: 'kg', price: 4.00, category: 'Gourds & Squash' },
                 
                 // === EGGPLANTS & TOMATOES ===
-                { id: 32, name: 'Terung Ungu (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
-                { id: 33, name: 'Terung Hijau (Green Eggplant)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
-                { id: 34, name: 'Terung Bulat (Round Eggplant)', unit: 'kg', price: 7.00, category: 'Eggplants & Tomatoes' },
-                { id: 35, name: 'Terung Pipit (Thai Eggplant)', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
-                { id: 36, name: 'Tomato Biasa (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
-                { id: 37, name: 'Tomato Cherry', unit: 'kg', price: 12.00, category: 'Eggplants & Tomatoes' },
-                { id: 38, name: 'Tomato Roma', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
+                { id: 72, name: 'Terung Ungu (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
+                { id: 73, name: 'Terung Hijau (Green Eggplant)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
+                { id: 74, name: 'Terung Bulat (Round Eggplant)', unit: 'kg', price: 7.00, category: 'Eggplants & Tomatoes' },
+                { id: 75, name: 'Terung Pipit (Thai Eggplant)', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
+                { id: 76, name: 'Terung Putih (White Eggplant)', unit: 'kg', price: 6.50, category: 'Eggplants & Tomatoes' },
+                { id: 77, name: 'Terung Panjang (Long Eggplant)', unit: 'kg', price: 5.80, category: 'Eggplants & Tomatoes' },
+                { id: 78, name: 'Terung Baby (Baby Eggplant)', unit: 'kg', price: 9.00, category: 'Eggplants & Tomatoes' },
+                { id: 79, name: 'Terung Cina (Chinese Eggplant)', unit: 'kg', price: 6.20, category: 'Eggplants & Tomatoes' },
+                { id: 80, name: 'Tomato Biasa (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
+                { id: 81, name: 'Tomato Cherry', unit: 'kg', price: 12.00, category: 'Eggplants & Tomatoes' },
+                { id: 82, name: 'Tomato Cherry Kuning', unit: 'kg', price: 15.00, category: 'Eggplants & Tomatoes' },
+                { id: 83, name: 'Tomato Roma', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
+                { id: 84, name: 'Tomato Beef', unit: 'kg', price: 10.00, category: 'Eggplants & Tomatoes' },
+                { id: 85, name: 'Tomato Hijau (Green Tomato)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
                 
                 // === BEANS & PODS ===
-                { id: 39, name: 'Bendi (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods' },
-                { id: 40, name: 'Kacang Panjang (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods' },
-                { id: 41, name: 'Kacang Buncis (French Beans)', unit: 'kg', price: 8.00, category: 'Beans & Pods' },
-                { id: 42, name: 'Kacang Hijau Segar (Fresh Mung Bean)', unit: 'kg', price: 5.50, category: 'Beans & Pods' },
-                { id: 43, name: 'Taugeh (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods' },
-                { id: 44, name: 'Snap Peas', unit: 'kg', price: 12.00, category: 'Beans & Pods' },
-                { id: 45, name: 'Snow Peas', unit: 'kg', price: 15.00, category: 'Beans & Pods' },
+                { id: 86, name: 'Bendi (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods' },
+                { id: 87, name: 'Bendi Merah (Red Okra)', unit: 'kg', price: 8.50, category: 'Beans & Pods' },
+                { id: 88, name: 'Kacang Panjang (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods' },
+                { id: 89, name: 'Kacang Panjang Merah (Red Long Beans)', unit: 'kg', price: 7.00, category: 'Beans & Pods' },
+                { id: 90, name: 'Kacang Buncis (French Beans)', unit: 'kg', price: 8.00, category: 'Beans & Pods' },
+                { id: 91, name: 'Kacang Buncis Kuning (Yellow Beans)', unit: 'kg', price: 9.00, category: 'Beans & Pods' },
+                { id: 92, name: 'Kacang Hijau Segar (Fresh Mung Bean)', unit: 'kg', price: 5.50, category: 'Beans & Pods' },
+                { id: 93, name: 'Taugeh (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods' },
+                { id: 94, name: 'Taugeh Kacang Hijau (Mung Bean Sprouts)', unit: 'kg', price: 4.00, category: 'Beans & Pods' },
+                { id: 95, name: 'Snap Peas', unit: 'kg', price: 12.00, category: 'Beans & Pods' },
+                { id: 96, name: 'Snow Peas', unit: 'kg', price: 15.00, category: 'Beans & Pods' },
+                { id: 97, name: 'Edamame', unit: 'kg', price: 18.00, category: 'Beans & Pods' },
+                { id: 98, name: 'Kacang Kapri (Garden Peas)', unit: 'kg', price: 10.00, category: 'Beans & Pods' },
+                { id: 99, name: 'Kacang Lima (Lima Beans)', unit: 'kg', price: 8.50, category: 'Beans & Pods' },
                 
                 // === ONIONS & AROMATICS ===
-                { id: 46, name: 'Bawang Merah (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
-                { id: 47, name: 'Bawang Putih (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics' },
-                { id: 48, name: 'Bawang Besar Merah (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics' },
-                { id: 49, name: 'Bawang Besar Putih (White Onions)', unit: 'kg', price: 4.50, category: 'Onions & Aromatics' },
-                { id: 50, name: 'Daun Bawang (Spring Onions)', unit: 'bunch', price: 2.00, category: 'Onions & Aromatics' },
-                { id: 51, name: 'Bawang Daun (Leeks)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
+                { id: 100, name: 'Bawang Merah (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
+                { id: 101, name: 'Bawang Merah Thai (Thai Shallots)', unit: 'kg', price: 12.00, category: 'Onions & Aromatics' },
+                { id: 102, name: 'Bawang Putih (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics' },
+                { id: 103, name: 'Bawang Putih Lokal (Local Garlic)', unit: 'kg', price: 25.00, category: 'Onions & Aromatics' },
+                { id: 104, name: 'Bawang Besar Merah (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics' },
+                { id: 105, name: 'Bawang Besar Putih (White Onions)', unit: 'kg', price: 4.50, category: 'Onions & Aromatics' },
+                { id: 106, name: 'Bawang Besar Kuning (Yellow Onions)', unit: 'kg', price: 4.80, category: 'Onions & Aromatics' },
+                { id: 107, name: 'Daun Bawang (Spring Onions)', unit: 'bunch', price: 2.00, category: 'Onions & Aromatics' },
+                { id: 108, name: 'Bawang Daun (Leeks)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
+                { id: 109, name: 'Bawang Bombay (Bombay Onions)', unit: 'kg', price: 6.00, category: 'Onions & Aromatics' },
+                { id: 110, name: 'Chives (Kucai)', unit: 'bunch', price: 3.00, category: 'Onions & Aromatics' },
+                { id: 111, name: 'Kucai Bunga (Flowering Chives)', unit: 'bunch', price: 4.00, category: 'Onions & Aromatics' },
                 
                 // === PEPPERS & CHILIES ===
-                { id: 52, name: 'Cili Merah (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
-                { id: 53, name: 'Cili Hijau (Green Chili)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
-                { id: 54, name: 'Cili Padi (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
-                { id: 55, name: 'Cili Bangi', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
-                { id: 56, name: 'Capsicum Merah (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
-                { id: 57, name: 'Capsicum Hijau (Green Bell Pepper)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
-                { id: 58, name: 'Capsicum Kuning (Yellow Bell Pepper)', unit: 'kg', price: 16.00, category: 'Peppers & Chilies' },
-                { id: 59, name: 'Capsicum Oren (Orange Bell Pepper)', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
+                { id: 112, name: 'Cili Merah (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
+                { id: 113, name: 'Cili Hijau (Green Chili)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
+                { id: 114, name: 'Cili Padi (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
+                { id: 115, name: 'Cili Padi Hijau (Green Bird Eye)', unit: 'kg', price: 22.00, category: 'Peppers & Chilies' },
+                { id: 116, name: 'Cili Bangi', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
+                { id: 117, name: 'Cili Besar (Large Chili)', unit: 'kg', price: 10.00, category: 'Peppers & Chilies' },
+                { id: 118, name: 'Cili Kerinting (Curly Chili)', unit: 'kg', price: 20.00, category: 'Peppers & Chilies' },
+                { id: 119, name: 'Cili Kulai', unit: 'kg', price: 16.00, category: 'Peppers & Chilies' },
+                { id: 120, name: 'Capsicum Merah (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
+                { id: 121, name: 'Capsicum Hijau (Green Bell Pepper)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
+                { id: 122, name: 'Capsicum Kuning (Yellow Bell Pepper)', unit: 'kg', price: 16.00, category: 'Peppers & Chilies' },
+                { id: 123, name: 'Capsicum Oren (Orange Bell Pepper)', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
+                { id: 124, name: 'Capsicum Ungu (Purple Bell Pepper)', unit: 'kg', price: 20.00, category: 'Peppers & Chilies' },
+                { id: 125, name: 'Jalapeño', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
+                { id: 126, name: 'Habanero', unit: 'kg', price: 40.00, category: 'Peppers & Chilies' },
                 
                 // === ROOT VEGETABLES ===
-                { id: 60, name: 'Lobak Merah (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables' },
-                { id: 61, name: 'Lobak Putih (White Radish)', unit: 'kg', price: 4.80, category: 'Root Vegetables' },
-                { id: 62, name: 'Kentang (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables' },
-                { id: 63, name: 'Ubi Kentang Merah (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables' },
-                { id: 64, name: 'Ubi Kentang Oren (Orange Sweet Potato)', unit: 'kg', price: 4.50, category: 'Root Vegetables' },
-                { id: 65, name: 'Ubi Kayu (Cassava)', unit: 'kg', price: 3.50, category: 'Root Vegetables' },
-                { id: 66, name: 'Keladi (Taro)', unit: 'kg', price: 6.50, category: 'Root Vegetables' },
-                { id: 67, name: 'Yam', unit: 'kg', price: 7.00, category: 'Root Vegetables' },
-                { id: 68, name: 'Bit (Beetroot)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
+                { id: 127, name: 'Lobak Merah (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables' },
+                { id: 128, name: 'Lobak Merah Baby (Baby Carrots)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
+                { id: 129, name: 'Lobak Putih (White Radish)', unit: 'kg', price: 4.80, category: 'Root Vegetables' },
+                { id: 130, name: 'Lobak Jepun (Japanese Radish)', unit: 'kg', price: 6.00, category: 'Root Vegetables' },
+                { id: 131, name: 'Kentang (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables' },
+                { id: 132, name: 'Kentang Merah (Red Potato)', unit: 'kg', price: 5.50, category: 'Root Vegetables' },
+                { id: 133, name: 'Kentang Baby (Baby Potato)', unit: 'kg', price: 7.00, category: 'Root Vegetables' },
+                { id: 134, name: 'Ubi Kentang Merah (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables' },
+                { id: 135, name: 'Ubi Kentang Oren (Orange Sweet Potato)', unit: 'kg', price: 4.50, category: 'Root Vegetables' },
+                { id: 136, name: 'Ubi Kentang Ungu (Purple Sweet Potato)', unit: 'kg', price: 5.00, category: 'Root Vegetables' },
+                { id: 137, name: 'Ubi Kayu (Cassava)', unit: 'kg', price: 3.50, category: 'Root Vegetables' },
+                { id: 138, name: 'Keladi (Taro)', unit: 'kg', price: 6.50, category: 'Root Vegetables' },
+                { id: 139, name: 'Keladi Cina (Chinese Taro)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
+                { id: 140, name: 'Yam', unit: 'kg', price: 7.00, category: 'Root Vegetables' },
+                { id: 141, name: 'Bit (Beetroot)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
+                { id: 142, name: 'Bit Kuning (Yellow Beetroot)', unit: 'kg', price: 10.00, category: 'Root Vegetables' },
+                { id: 143, name: 'Parsnip', unit: 'kg', price: 12.00, category: 'Root Vegetables' },
+                { id: 144, name: 'Turnip', unit: 'kg', price: 8.50, category: 'Root Vegetables' },
                 
                 // === CABBAGE FAMILY ===
-                { id: 69, name: 'Kobis Bulat (Round Cabbage)', unit: 'head', price: 4.50, category: 'Cabbage Family' },
-                { id: 70, name: 'Kobis Panjang (Long Cabbage)', unit: 'head', price: 5.00, category: 'Cabbage Family' },
-                { id: 71, name: 'Kobis Merah (Red Cabbage)', unit: 'head', price: 6.50, category: 'Cabbage Family' },
-                { id: 72, name: 'Bunga Kobis (Cauliflower)', unit: 'head', price: 6.80, category: 'Cabbage Family' },
-                { id: 73, name: 'Broccoli', unit: 'kg', price: 12.00, category: 'Cabbage Family' },
-                { id: 74, name: 'Broccoli Baby', unit: 'kg', price: 15.00, category: 'Cabbage Family' },
+                { id: 145, name: 'Kobis Bulat (Round Cabbage)', unit: 'head', price: 4.50, category: 'Cabbage Family' },
+                { id: 146, name: 'Kobis Panjang (Long Cabbage)', unit: 'head', price: 5.00, category: 'Cabbage Family' },
+                { id: 147, name: 'Kobis Merah (Red Cabbage)', unit: 'head', price: 6.50, category: 'Cabbage Family' },
+                { id: 148, name: 'Kobis Ungu (Purple Cabbage)', unit: 'head', price: 7.00, category: 'Cabbage Family' },
+                { id: 149, name: 'Bunga Kobis (Cauliflower)', unit: 'head', price: 6.80, category: 'Cabbage Family' },
+                { id: 150, name: 'Bunga Kobis Ungu (Purple Cauliflower)', unit: 'head', price: 12.00, category: 'Cabbage Family' },
+                { id: 151, name: 'Broccoli', unit: 'kg', price: 12.00, category: 'Cabbage Family' },
+                { id: 152, name: 'Broccoli Baby', unit: 'kg', price: 15.00, category: 'Cabbage Family' },
+                { id: 153, name: 'Broccolini', unit: 'kg', price: 18.00, category: 'Cabbage Family' },
+                { id: 154, name: 'Brussels Sprouts', unit: 'kg', price: 20.00, category: 'Cabbage Family' },
+                { id: 155, name: 'Kale', unit: 'kg', price: 15.00, category: 'Cabbage Family' },
+                { id: 156, name: 'Kale Merah (Red Kale)', unit: 'kg', price: 18.00, category: 'Cabbage Family' },
+                { id: 157, name: 'Kohlrabi', unit: 'kg', price: 10.00, category: 'Cabbage Family' },
                 
                 // === CORN & MUSHROOMS ===
-                { id: 75, name: 'Jagung Kuning (Yellow Corn)', unit: 'piece', price: 2.50, category: 'Corn & Mushrooms' },
-                { id: 76, name: 'Jagung Manis (Sweet Corn)', unit: 'piece', price: 3.00, category: 'Corn & Mushrooms' },
-                { id: 77, name: 'Baby Corn', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
-                { id: 78, name: 'Cendawan Butang (Button Mushroom)', unit: 'kg', price: 12.00, category: 'Corn & Mushrooms' },
-                { id: 79, name: 'Cendawan Tiram (Oyster Mushroom)', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
-                { id: 80, name: 'Cendawan Shiitake', unit: 'kg', price: 25.00, category: 'Corn & Mushrooms' },
+                { id: 158, name: 'Jagung Kuning (Yellow Corn)', unit: 'piece', price: 2.50, category: 'Corn & Mushrooms' },
+                { id: 159, name: 'Jagung Manis (Sweet Corn)', unit: 'piece', price: 3.00, category: 'Corn & Mushrooms' },
+                { id: 160, name: 'Jagung Putih (White Corn)', unit: 'piece', price: 2.80, category: 'Corn & Mushrooms' },
+                { id: 161, name: 'Baby Corn', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
+                { id: 162, name: 'Cendawan Butang (Button Mushroom)', unit: 'kg', price: 12.00, category: 'Corn & Mushrooms' },
+                { id: 163, name: 'Cendawan Tiram (Oyster Mushroom)', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
+                { id: 164, name: 'Cendawan Tiram Raja (King Oyster)', unit: 'kg', price: 15.00, category: 'Corn & Mushrooms' },
+                { id: 165, name: 'Cendawan Shiitake', unit: 'kg', price: 25.00, category: 'Corn & Mushrooms' },
+                { id: 166, name: 'Cendawan Enoki', unit: 'packet', price: 3.50, category: 'Corn & Mushrooms' },
+                { id: 167, name: 'Cendawan Shimeji', unit: 'packet', price: 4.50, category: 'Corn & Mushrooms' },
+                { id: 168, name: 'Cendawan Maitake', unit: 'kg', price: 35.00, category: 'Corn & Mushrooms' },
+                { id: 169, name: 'Portobello Mushroom', unit: 'kg', price: 20.00, category: 'Corn & Mushrooms' },
+                { id: 170, name: 'Cendawan Jerami (Straw Mushroom)', unit: 'kg', price: 10.00, category: 'Corn & Mushrooms' },
                 
                 // === HERBS & SPICES ===
-                { id: 81, name: 'Halia (Ginger)', unit: 'kg', price: 12.00, category: 'Herbs & Spices' },
-                { id: 82, name: 'Halia Muda (Young Ginger)', unit: 'kg', price: 15.00, category: 'Herbs & Spices' },
-                { id: 83, name: 'Kunyit (Turmeric)', unit: 'kg', price: 8.00, category: 'Herbs & Spices' },
-                { id: 84, name: 'Lengkuas (Galangal)', unit: 'kg', price: 10.00, category: 'Herbs & Spices' },
-                { id: 85, name: 'Serai (Lemongrass)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
-                { id: 86, name: 'Daun Limau Purut (Kaffir Lime Leaves)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
-                { id: 87, name: 'Daun Ketumbar (Coriander Leaves)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
-                { id: 88, name: 'Pudina (Mint Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
-                { id: 89, name: 'Selasih (Thai Basil)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
-                { id: 90, name: 'Daun Sup (Celery Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
-                { id: 91, name: 'Parsley', unit: 'bunch', price: 4.00, category: 'Herbs & Spices' },
-                { id: 92, name: 'Rosemary', unit: 'bunch', price: 6.00, category: 'Herbs & Spices' },
-                { id: 93, name: 'Thyme', unit: 'bunch', price: 5.00, category: 'Herbs & Spices' },
+                { id: 171, name: 'Halia (Ginger)', unit: 'kg', price: 12.00, category: 'Herbs & Spices' },
+                { id: 172, name: 'Halia Muda (Young Ginger)', unit: 'kg', price: 15.00, category: 'Herbs & Spices' },
+                { id: 173, name: 'Halia Bara (Red Ginger)', unit: 'kg', price: 18.00, category: 'Herbs & Spices' },
+                { id: 174, name: 'Kunyit (Turmeric)', unit: 'kg', price: 8.00, category: 'Herbs & Spices' },
+                { id: 175, name: 'Kunyit Hidup (Fresh Turmeric)', unit: 'kg', price: 12.00, category: 'Herbs & Spices' },
+                { id: 176, name: 'Lengkuas (Galangal)', unit: 'kg', price: 10.00, category: 'Herbs & Spices' },
+                { id: 177, name: 'Lengkuas Muda (Young Galangal)', unit: 'kg', price: 15.00, category: 'Herbs & Spices' },
+                { id: 178, name: 'Serai (Lemongrass)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
+                { id: 179, name: 'Serai Wangi (Citronella)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
+                { id: 180, name: 'Daun Limau Purut (Kaffir Lime Leaves)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
+                { id: 181, name: 'Daun Ketumbar (Coriander Leaves)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
+                { id: 182, name: 'Pudina (Mint Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
+                { id: 183, name: 'Pudina Asam (Spearmint)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
+                { id: 184, name: 'Selasih (Thai Basil)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
+                { id: 185, name: 'Selasih Putih (White Basil)', unit: 'bunch', price: 3.50, category: 'Herbs & Spices' },
+                { id: 186, name: 'Daun Sup (Celery Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
+                { id: 187, name: 'Parsley', unit: 'bunch', price: 4.00, category: 'Herbs & Spices' },
+                { id: 188, name: 'Parsley Kerinting (Curly Parsley)', unit: 'bunch', price: 4.50, category: 'Herbs & Spices' },
+                { id: 189, name: 'Rosemary', unit: 'bunch', price: 6.00, category: 'Herbs & Spices' },
+                { id: 190, name: 'Thyme', unit: 'bunch', price: 5.00, category: 'Herbs & Spices' },
+                { id: 191, name: 'Oregano', unit: 'bunch', price: 5.50, category: 'Herbs & Spices' },
+                { id: 192, name: 'Sage', unit: 'bunch', price: 6.50, category: 'Herbs & Spices' },
+                { id: 193, name: 'Dill', unit: 'bunch', price: 4.50, category: 'Herbs & Spices' },
+                { id: 194, name: 'Fennel', unit: 'kg', price: 8.00, category: 'Herbs & Spices' },
+                { id: 195, name: 'Tarragon', unit: 'bunch', price: 7.00, category: 'Herbs & Spices' },
                 
                 // === PREMIUM & IMPORTED ===
-                { id: 94, name: 'Asparagus', unit: 'kg', price: 25.00, category: 'Premium & Imported' },
-                { id: 95, name: 'Artichoke', unit: 'piece', price: 8.00, category: 'Premium & Imported' },
-                { id: 96, name: 'Avocado', unit: 'piece', price: 4.50, category: 'Premium & Imported' },
-                { id: 97, name: 'Cherry Tomato Kuning', unit: 'kg', price: 15.00, category: 'Premium & Imported' },
-                { id: 98, name: 'Baby Spinach', unit: 'kg', price: 12.00, category: 'Premium & Imported' },
-                { id: 99, name: 'Rocket/Arugula', unit: 'kg', price: 18.00, category: 'Premium & Imported' },
-                { id: 100, name: 'Radicchio', unit: 'head', price: 12.00, category: 'Premium & Imported' }
+                { id: 196, name: 'Asparagus', unit: 'kg', price: 25.00, category: 'Premium & Imported' },
+                { id: 197, name: 'Asparagus Putih (White Asparagus)', unit: 'kg', price: 35.00, category: 'Premium & Imported' },
+                { id: 198, name: 'Artichoke', unit: 'piece', price: 8.00, category: 'Premium & Imported' },
+                { id: 199, name: 'Avocado', unit: 'piece', price: 4.50, category: 'Premium & Imported' },
+                { id: 200, name: 'Avocado Hass', unit: 'piece', price: 6.00, category: 'Premium & Imported' },
+                { id: 201, name: 'Radicchio', unit: 'head', price: 12.00, category: 'Premium & Imported' },
+                { id: 202, name: 'Endive', unit: 'head', price: 10.00, category: 'Premium & Imported' },
+                { id: 203, name: 'Fennel Bulb', unit: 'kg', price: 15.00, category: 'Premium & Imported' },
+                { id: 204, name: 'Leek Baby', unit: 'kg', price: 12.00, category: 'Premium & Imported' },
+                { id: 205, name: 'Microgreens Mix', unit: 'packet', price: 8.00, category: 'Premium & Imported' },
+                { id: 206, name: 'Sunflower Sprouts', unit: 'packet', price: 6.00, category: 'Premium & Imported' },
+                { id: 207, name: 'Pea Shoots', unit: 'kg', price: 20.00, category: 'Premium & Imported' },
+                { id: 208, name: 'Wasabi Leaves', unit: 'kg', price: 50.00, category: 'Premium & Imported' },
+                { id: 209, name: 'Edible Flowers Mix', unit: 'packet', price: 15.00, category: 'Premium & Imported' },
+                { id: 210, name: 'Purple Carrots', unit: 'kg', price: 12.00, category: 'Premium & Imported' },
+                
+                // === SEASONAL SPECIALTIES ===
+                { id: 211, name: 'Pucuk Kelapa (Coconut Shoot)', unit: 'piece', price: 8.00, category: 'Seasonal Specialties' },
+                { id: 212, name: 'Rebung Betung (Giant Bamboo Shoot)', unit: 'kg', price: 15.00, category: 'Seasonal Specialties' },
+                { id: 213, name: 'Tempoyak Durian (Young Durian)', unit: 'piece', price: 12.00, category: 'Seasonal Specialties' },
+                { id: 214, name: 'Pucuk Rotan (Rattan Shoot)', unit: 'kg', price: 20.00, category: 'Seasonal Specialties' },
+                { id: 215, name: 'Daun Bawang Putih (Garlic Scapes)', unit: 'bunch', price: 5.00, category: 'Seasonal Specialties' },
+                { id: 216, name: 'Pucuk Kacang (Bean Shoots)', unit: 'kg', price: 8.00, category: 'Seasonal Specialties' },
+                { id: 217, name: 'Midin (Jungle Fern)', unit: 'kg', price: 25.00, category: 'Seasonal Specialties' },
+                { id: 218, name: 'Ensabi (Wild Fern)', unit: 'kg', price: 18.00, category: 'Seasonal Specialties' },
+                { id: 219, name: 'Paku Pakis (Bracken Fern)', unit: 'kg', price: 15.00, category: 'Seasonal Specialties' },
+                { id: 220, name: 'Sayur Manis (Sweet Leaf)', unit: 'kg', price: 10.00, category: 'Seasonal Specialties' }
             ];
 
             orders = [];
@@ -1387,7 +1600,7 @@
 
             // Product search
             document.getElementById('product-search').addEventListener('input', function(e) {
-                renderProducts(e.target.value);
+                renderProducts(e.target.value, selectedCategory);
             });
 
             // Order date
@@ -1425,6 +1638,65 @@
                     document.getElementById('order-items').classList.add('hidden');
                 }
             });
+        }
+
+        function setupCategoryFilters() {
+            var categories = getCategories();
+            
+            // Main product view category filters
+            var categoryFiltersContainer = document.getElementById('category-filters');
+            var categoryHTML = '';
+            for (var i = 0; i < categories.length; i++) {
+                var isActive = (i === 0) ? 'active' : '';
+                categoryHTML += '<button class="category-btn ' + isActive + '" onclick="filterByCategory(\'' + categories[i] + '\')">' + categories[i] + '</button>';
+            }
+            categoryFiltersContainer.innerHTML = categoryHTML;
+            
+            // Order form category filters
+            var orderCategoryFiltersContainer = document.getElementById('order-category-filters');
+            if (orderCategoryFiltersContainer) {
+                orderCategoryFiltersContainer.innerHTML = categoryHTML.replace(/filterByCategory/g, 'filterOrderByCategory');
+            }
+            
+            // Product form category options
+            var productCategorySelect = document.getElementById('product-category');
+            var categoryOptionsHTML = '<option value="">Select Category</option>';
+            for (var i = 1; i < categories.length; i++) { // Skip "All"
+                categoryOptionsHTML += '<option value="' + categories[i] + '">' + categories[i] + '</option>';
+            }
+            productCategorySelect.innerHTML = categoryOptionsHTML;
+        }
+
+        function filterByCategory(category) {
+            selectedCategory = category.toLowerCase();
+            
+            // Update active button
+            var categoryBtns = document.querySelectorAll('#category-filters .category-btn');
+            for (var i = 0; i < categoryBtns.length; i++) {
+                categoryBtns[i].classList.remove('active');
+                if (categoryBtns[i].textContent === category) {
+                    categoryBtns[i].classList.add('active');
+                }
+            }
+            
+            var searchTerm = document.getElementById('product-search').value;
+            renderProducts(searchTerm, selectedCategory);
+        }
+
+        function filterOrderByCategory(category) {
+            selectedOrderCategory = category.toLowerCase();
+            
+            // Update active button
+            var categoryBtns = document.querySelectorAll('#order-category-filters .category-btn');
+            for (var i = 0; i < categoryBtns.length; i++) {
+                categoryBtns[i].classList.remove('active');
+                if (categoryBtns[i].textContent === category) {
+                    categoryBtns[i].classList.add('active');
+                }
+            }
+            
+            var searchTerm = document.getElementById('order-search').value;
+            filterOrderItems(searchTerm);
         }
 
         function updateStatusBar() {
@@ -1503,6 +1775,11 @@
             // Scroll to top smoothly when changing views
             scrollToTop();
             
+            // Setup category filters when switching to products view
+            if (viewName === 'products') {
+                setupCategoryFilters();
+            }
+            
             renderViews();
         }
 
@@ -1522,6 +1799,7 @@
             } else if (currentView === 'customers') {
                 renderCustomers();
             } else if (currentView === 'products') {
+                setupCategoryFilters();
                 renderProducts();
             } else if (currentView === 'orders') {
                 renderOrders();
@@ -1641,13 +1919,17 @@
             container.innerHTML = customersHTML;
         }
 
-        function renderProducts(searchTerm) {
+        function renderProducts(searchTerm, category) {
             if (!searchTerm) searchTerm = '';
+            if (!category) category = 'all';
             
             var filteredProducts = [];
             for (var i = 0; i < products.length; i++) {
                 var product = products[i];
-                if (product.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+                var matchesSearch = product.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
+                var matchesCategory = category === 'all' || (product.category && product.category.toLowerCase() === category);
+                
+                if (matchesSearch && matchesCategory) {
                     filteredProducts.push(product);
                 }
             }
@@ -1659,7 +1941,7 @@
                 productsHTML = '<div class="empty-state">' +
                     '<div class="empty-icon" style="font-size: 48px;">🔍</div>' +
                     '<p style="font-weight: 600;">No vegetables found</p>' +
-                    '<p style="font-size: 14px; margin-top: 8px;">Try searching with different keywords</p>' +
+                    '<p style="font-size: 14px; margin-top: 8px;">Try searching with different keywords or select a different category</p>' +
                     '</div>';
             } else {
                 for (var i = 0; i < filteredProducts.length; i++) {
@@ -1669,6 +1951,7 @@
                         '<div class="product-info" style="flex: 1;">' +
                         '<h3>' + product.name + '</h3>' +
                         '<p>per ' + product.unit + '</p>' +
+                        (product.category ? '<span class="category-badge">' + product.category + '</span>' : '') +
                         '</div>' +
                         '<div class="product-price">' +
                         '<div class="price">RM ' + product.price.toFixed(2) + '</div>' +
@@ -1848,8 +2131,9 @@
         // Product Functions
         function openProductForm() {
             editingProduct = null;
-            document.getElementById('product-modal-title').textContent = 'Add Product';
+            document.getElementById('product-modal-title').textContent = 'Add Vegetable';
             document.getElementById('product-form').reset();
+            setupCategoryFilters(); // Ensure categories are loaded
             document.getElementById('product-modal').classList.add('show');
         }
 
@@ -1869,15 +2153,16 @@
             if (!product) return;
 
             editingProduct = product;
-            document.getElementById('product-modal-title').textContent = 'Edit Product';
+            document.getElementById('product-modal-title').textContent = 'Edit Vegetable';
             document.getElementById('product-name').value = product.name;
+            document.getElementById('product-category').value = product.category || '';
             document.getElementById('product-unit').value = product.unit || '';
             document.getElementById('product-price').value = product.price;
             document.getElementById('product-modal').classList.add('show');
         }
 
         function deleteProduct(id) {
-            if (confirm('Delete this product?')) {
+            if (confirm('Delete this vegetable?')) {
                 var newProducts = [];
                 for (var i = 0; i < products.length; i++) {
                     if (products[i].id !== id) {
@@ -1899,6 +2184,7 @@
 
             var productData = {
                 name: name,
+                category: document.getElementById('product-category').value.trim(),
                 unit: document.getElementById('product-unit').value.trim() || 'kg',
                 price: price
             };
@@ -1909,6 +2195,7 @@
                         products[i] = {
                             id: editingProduct.id,
                             name: productData.name,
+                            category: productData.category,
                             unit: productData.unit,
                             price: productData.price
                         };
@@ -1938,6 +2225,7 @@
             clearOrderQuantities();
             
             populateOrderCustomers();
+            setupCategoryFilters(); // Setup category filters for order form
             document.getElementById('order-modal').classList.add('show');
         }
 
@@ -1964,19 +2252,24 @@
 
         function initializeOrderItems() {
             var container = document.getElementById('order-items-list');
-            renderOrderItems('');
+            renderOrderItems('', 'all');
             document.getElementById('order-items').classList.remove('hidden');
             updateOrderTotal();
         }
 
-        function renderOrderItems(searchTerm) {
+        function renderOrderItems(searchTerm, category) {
+            if (!category) category = selectedOrderCategory;
+            
             var container = document.getElementById('order-items-list');
             var itemsHTML = '';
             
             var filteredProducts = [];
             for (var i = 0; i < products.length; i++) {
                 var product = products[i];
-                if (!searchTerm || product.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+                var matchesSearch = !searchTerm || product.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
+                var matchesCategory = category === 'all' || (product.category && product.category.toLowerCase() === category);
+                
+                if (matchesSearch && matchesCategory) {
                     filteredProducts.push(product);
                 }
             }
@@ -1988,6 +2281,7 @@
                     '<div style="flex: 1;">' +
                     '<div class="item-name">' + product.name + '</div>' +
                     '<div class="item-price">RM ' + product.price.toFixed(2) + ' per ' + product.unit + '</div>' +
+                    (product.category ? '<span class="category-badge" style="background: #e5e7eb; color: #6b7280;">' + product.category + '</span>' : '') +
                     '</div>' +
                     '<div class="item-total" id="item-total-' + product.id + '">RM 0.00</div>' +
                     '</div>' +
@@ -2017,7 +2311,7 @@
                 }
             }
             
-            renderOrderItems(searchTerm);
+            renderOrderItems(searchTerm, selectedOrderCategory);
             
             // Restore quantities after re-rendering
             for (var productId in currentOrderQuantities) {
@@ -2032,354 +2326,4 @@
                         }
                     }
                     if (product) {
-                        updateOrderItemTotal(product.id, product.price, currentOrderQuantities[productId]);
-                    }
-                }
-            }
-        }
-
-        function clearOrderQuantities() {
-            currentOrderQuantities = {};
-        }
-
-        function updateOrderItemTotal(productId, price, quantity) {
-            var total = (parseFloat(quantity) || 0) * price;
-            document.getElementById('item-total-' + productId).textContent = 'RM ' + total.toFixed(2);
-            updateOrderTotal();
-        }
-
-        function updateOrderTotal() {
-            var total = 0;
-            for (var i = 0; i < products.length; i++) {
-                var product = products[i];
-                var quantityInput = document.getElementById('quantity-' + product.id);
-                if (quantityInput) {
-                    var quantity = parseFloat(quantityInput.value) || 0;
-                    total += quantity * product.price;
-                }
-            }
-            document.getElementById('order-total').textContent = 'RM ' + total.toFixed(2);
-        }
-
-        function handleOrderSubmit(e) {
-            e.preventDefault();
-            
-            var customerId = parseInt(document.getElementById('order-customer').value);
-            if (!customerId) return;
-
-            var orderItems = [];
-            for (var i = 0; i < products.length; i++) {
-                var product = products[i];
-                var quantityInput = document.getElementById('quantity-' + product.id);
-                if (quantityInput) {
-                    var quantity = parseFloat(quantityInput.value) || 0;
-                    if (quantity > 0) {
-                        orderItems.push({
-                            vegeId: product.id,
-                            vegeName: product.name,
-                            unit: product.unit,
-                            price: product.price,
-                            quantity: quantity
-                        });
-                    }
-                }
-            }
-
-            if (orderItems.length === 0) {
-                alert('Please add at least one item to the order.');
-                return;
-            }
-
-            var total = 0;
-            for (var i = 0; i < orderItems.length; i++) {
-                total += orderItems[i].quantity * orderItems[i].price;
-            }
-            
-            var newOrder = {
-                id: Date.now(),
-                customerId: customerId,
-                date: selectedDate,
-                items: orderItems,
-                total: total,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-
-            orders.unshift(newOrder);
-            
-            // Clear form and quantities
-            clearOrderQuantities();
-            closeOrderForm();
-            updateStats();
-            renderViews();
-        }
-
-        function showOrderDetails(orderId) {
-            var order = null;
-            for (var i = 0; i < orders.length; i++) {
-                if (orders[i].id === orderId) {
-                    order = orders[i];
-                    break;
-                }
-            }
-            if (!order) return;
-
-            selectedOrderDetails = order;
-            var customer = null;
-            for (var i = 0; i < customers.length; i++) {
-                if (customers[i].id === order.customerId) {
-                    customer = customers[i];
-                    break;
-                }
-            }
-            
-            var itemsHTML = '';
-            for (var i = 0; i < order.items.length; i++) {
-                var item = order.items[i];
-                itemsHTML += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #e5e7eb;">';
-                itemsHTML += '<div style="flex: 1;">';
-                itemsHTML += '<div style="font-weight: 700; color: #1f2937; font-size: 16px;">' + item.vegeName + '</div>';
-                itemsHTML += '<div style="font-size: 14px; color: #6b7280;">RM ' + item.price.toFixed(2) + ' per ' + item.unit + '</div>';
-                itemsHTML += '</div>';
-                itemsHTML += '<div style="text-align: right;">';
-                itemsHTML += '<div style="font-weight: 700; color: #1f2937; font-size: 16px;">' + item.quantity + ' ' + item.unit + '</div>';
-                itemsHTML += '<div style="font-size: 14px; color: #10b981; font-weight: 600;">RM ' + (item.quantity * item.price).toFixed(2) + '</div>';
-                itemsHTML += '</div>';
-                itemsHTML += '</div>';
-            }
-            
-            var statusText = order.status === 'completed' ? '⏰ Mark Pending' : '✅ Mark Complete';
-            var statusColor = order.status === 'completed' ? 'linear-gradient(135deg, #eab308, #ca8a04)' : 'linear-gradient(135deg, #10b981, #059669)';
-            
-            var content = '<div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb;">' +
-                '<h4 style="font-weight: 700; font-size: 20px; margin-bottom: 8px; color: #1f2937;">' + (customer ? customer.name : 'Unknown Customer') + '</h4>' +
-                '<p style="color: #6b7280; font-weight: 600;">Order #' + order.id + '</p>' +
-                '<p style="color: #6b7280; font-size: 14px;">' + new Date(order.createdAt).toLocaleString() + '</p>' +
-                '</div>' +
-                '<div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb;">' +
-                '<h4 style="font-weight: 700; margin-bottom: 16px; color: #1f2937; font-size: 18px;">Items Ordered</h4>' +
-                itemsHTML +
-                '</div>' +
-                '<div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 20px; padding: 20px; border: 2px solid #a7f3d0;">' +
-                '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">' +
-                '<span style="font-weight: 700; font-size: 20px; color: #1f2937;">Total Amount:</span>' +
-                '<span style="font-size: 28px; font-weight: 800; color: #059669;">RM ' + order.total.toFixed(2) + '</span>' +
-                '</div>' +
-                '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">' +
-                '<button onclick="toggleOrderStatus(' + order.id + ')" class="form-btn" style="background: ' + statusColor + '; font-weight: 700;">' + statusText + '</button>' +
-                '<button onclick="deleteOrder(' + order.id + ')" class="form-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); font-weight: 700;">🗑️ Delete</button>' +
-                '</div>' +
-                '</div>';
-
-            document.getElementById('order-details-content').innerHTML = content;
-            document.getElementById('order-details-modal').classList.add('show');
-        }
-
-        function closeOrderDetails() {
-            document.getElementById('order-details-modal').classList.remove('show');
-            selectedOrderDetails = null;
-        }
-
-        function toggleOrderStatus(orderId) {
-            for (var i = 0; i < orders.length; i++) {
-                if (orders[i].id === orderId) {
-                    orders[i].status = orders[i].status === 'pending' ? 'completed' : 'pending';
-                    break;
-                }
-            }
-            updateStats();
-            renderViews();
-            closeOrderDetails();
-        }
-
-        function deleteOrder(orderId) {
-            if (confirm('Delete this order permanently?')) {
-                var newOrders = [];
-                for (var i = 0; i < orders.length; i++) {
-                    if (orders[i].id !== orderId) {
-                        newOrders.push(orders[i]);
-                    }
-                }
-                orders = newOrders;
-                updateStats();
-                renderViews();
-                closeOrderDetails();
-            }
-        }
-
-        // Scroll Handling Functions
-        function setupScrollHandling() {
-            var mainContent = document.getElementById('main-content');
-            var scrollIndicator = document.getElementById('scroll-indicator');
-            var isScrolling = false;
-            var scrollTimer = null;
-
-            mainContent.addEventListener('scroll', function() {
-                // Show scroll indicator
-                if (!isScrolling) {
-                    scrollIndicator.classList.add('show');
-                    isScrolling = true;
-                }
-
-                // Update scroll indicator position
-                var scrollTop = mainContent.scrollTop;
-                var scrollHeight = mainContent.scrollHeight - mainContent.clientHeight;
-                var scrollPercent = (scrollTop / scrollHeight) * 100;
-                
-                var indicatorPosition = (scrollPercent / 100) * 20; // 20px is the indicator track height
-                if (scrollIndicator.querySelector('::after')) {
-                    scrollIndicator.style.setProperty('--scroll-position', indicatorPosition + 'px');
-                }
-
-                // Hide scroll indicator after scrolling stops
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(function() {
-                    scrollIndicator.classList.remove('show');
-                    isScrolling = false;
-                }, 1000);
-            });
-
-            // Add momentum scrolling for better mobile feel
-            var startY = 0;
-            var currentY = 0;
-            var velocity = 0;
-            var amplitude = 0;
-            var frame = 0;
-
-            mainContent.addEventListener('touchstart', function(e) {
-                startY = e.touches[0].clientY;
-                velocity = amplitude = 0;
-                frame = 0;
-                clearInterval(scrollTimer);
-            }, {passive: true});
-
-            mainContent.addEventListener('touchmove', function(e) {
-                currentY = e.touches[0].clientY;
-                velocity = currentY - startY;
-                startY = currentY;
-            }, {passive: true});
-
-            mainContent.addEventListener('touchend', function() {
-                if (velocity > 10 || velocity < -10) {
-                    amplitude = 0.8 * velocity;
-                    frame = Date.now();
-                    autoScroll();
-                }
-            }, {passive: true});
-
-            function autoScroll() {
-                var elapsed = Date.now() - frame;
-                var delta = -amplitude * Math.exp(-elapsed / 325);
-                if (delta > 0.5 || delta < -0.5) {
-                    mainContent.scrollTop += delta;
-                    requestAnimationFrame(autoScroll);
-                }
-            }
-        }
-        // Mobile Optimizations
-        function preventZoom() {
-            // Prevent zoom on input focus for iOS
-            var inputs = document.querySelectorAll('input, select, textarea');
-            for (var i = 0; i < inputs.length; i++) {
-                inputs[i].addEventListener('focus', function() {
-                    this.style.fontSize = '16px';
-                });
-            }
-            
-            // Prevent double-tap zoom
-            var lastTouchEnd = 0;
-            document.addEventListener('touchend', function(event) {
-                var now = (new Date()).getTime();
-                if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
-                }
-                lastTouchEnd = now;
-            }, false);
-        }
-
-        function setupTouchFeedback() {
-            // Add touch feedback for all interactive elements
-            document.addEventListener('touchstart', function(e) {
-                var target = e.target;
-                if (target.matches('button, .nav-item, .order-card, .customer-card, .product-card, .action-btn, .icon-btn')) {
-                    target.style.transform = 'scale(0.96)';
-                    target.style.transition = 'transform 0.1s ease';
-                }
-            }, {passive: true});
-
-            document.addEventListener('touchend', function(e) {
-                var target = e.target;
-                if (target.matches('button, .nav-item, .order-card, .customer-card, .product-card, .action-btn, .icon-btn')) {
-                    setTimeout(function() {
-                        target.style.transform = '';
-                    }, 100);
-                }
-            }, {passive: true});
-
-            // Prevent scrolling when touching buttons
-            document.addEventListener('touchmove', function(e) {
-                if (e.target.matches('button, .nav-item, .action-btn, .icon-btn')) {
-                    e.preventDefault();
-                }
-            }, {passive: false});
-        }
-
-        // Pull to refresh indicator
-        function addPullToRefresh() {
-            var mainContent = document.getElementById('main-content');
-            var pullIndicator = document.createElement('div');
-            pullIndicator.className = 'pull-indicator';
-            pullIndicator.innerHTML = '↓ Pull to refresh';
-            pullIndicator.style.cssText = 'position: absolute; top: -50px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.3s ease;';
-            mainContent.appendChild(pullIndicator);
-
-            var startY = 0;
-            var isPulling = false;
-
-            mainContent.addEventListener('touchstart', function(e) {
-                if (mainContent.scrollTop === 0) {
-                    startY = e.touches[0].clientY;
-                    isPulling = true;
-                }
-            }, {passive: true});
-
-            mainContent.addEventListener('touchmove', function(e) {
-                if (isPulling && mainContent.scrollTop === 0) {
-                    var currentY = e.touches[0].clientY;
-                    var pullDistance = currentY - startY;
-                    
-                    if (pullDistance > 0 && pullDistance < 100) {
-                        pullIndicator.style.opacity = Math.min(pullDistance / 50, 1);
-                        pullIndicator.style.transform = 'translateX(-50%) translateY(' + (pullDistance / 2) + 'px)';
-                    }
-                }
-            }, {passive: true});
-
-            mainContent.addEventListener('touchend', function() {
-                if (isPulling) {
-                    pullIndicator.style.opacity = '0';
-                    pullIndicator.style.transform = 'translateX(-50%) translateY(0)';
-                    isPulling = false;
-                }
-            }, {passive: true});
-        }
-
-        // Update status bar time every minute
-        setInterval(updateStatusBar, 60000);
-
-        // Add haptic feedback for iOS (if available)
-        function hapticFeedback() {
-            if (window.navigator && window.navigator.vibrate) {
-                window.navigator.vibrate(10);
-            }
-        }
-
-        // Enhanced button interactions
-        document.addEventListener('click', function(e) {
-            if (e.target.matches('button, .action-btn')) {
-                hapticFeedback();
-            }
-        });
-    </script>
-</body>
-</html>
+                        update
