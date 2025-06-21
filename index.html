@@ -555,6 +555,7 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
+            justify-content: center;
         }
         
         .invoice-btn {
@@ -575,19 +576,67 @@
             transform: scale(0.96);
         }
         
+        .invoice-btn.back {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .invoice-btn.back:hover {
+            background: #4b5563;
+        }
+        
+        .invoice-btn.whatsapp {
+            background: #25d366;
+            color: white;
+        }
+        
+        .invoice-btn.whatsapp:hover {
+            background: #1db954;
+        }
+        
+        .invoice-btn.email {
+            background: #ea4335;
+            color: white;
+        }
+        
+        .invoice-btn.email:hover {
+            background: #d33b2c;
+        }
+        
+        .invoice-btn.share {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .invoice-btn.share:hover {
+            background: #7c3aed;
+        }
+        
         .invoice-btn.print {
             background: #10b981;
             color: white;
+        }
+
+        .invoice-btn.print:hover {
+            background: #059669;
         }
         
         .invoice-btn.excel {
             background: #059669;
             color: white;
         }
+
+        .invoice-btn.excel:hover {
+            background: #047857;
+        }
         
         .invoice-btn.pdf {
             background: #dc2626;
             color: white;
+        }
+
+        .invoice-btn.pdf:hover {
+            background: #b91c1c;
         }
         
         .invoice-btn.close {
@@ -827,14 +876,16 @@
             }
             
             .invoice-actions {
-                flex-direction: column;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
             }
             
             .invoice-btn {
                 width: 100%;
                 justify-content: center;
-                padding: 12px 16px;
+                padding: 12px 8px;
+                font-size: 13px;
             }
             
             .invoice-header {
@@ -863,12 +914,21 @@
             }
             
             .invoice-actions {
+                grid-template-columns: repeat(2, 1fr);
                 gap: 6px;
             }
             
             .invoice-btn {
-                padding: 10px 12px;
-                font-size: 13px;
+                padding: 10px 6px;
+                font-size: 12px;
+            }
+            
+            .invoice-btn span:last-child {
+                display: none;
+            }
+            
+            .invoice-btn span:first-child {
+                font-size: 16px;
             }
         }
         
@@ -1954,9 +2014,25 @@
             <div class="invoice-header">
                 <div class="invoice-title">📄 Professional Invoice</div>
                 <div class="invoice-actions">
+                    <button class="invoice-btn back" onclick="closeInvoice()" style="background: #6b7280;">
+                        <span>←</span>
+                        <span>Back</span>
+                    </button>
+                    <button class="invoice-btn whatsapp" onclick="shareInvoiceWhatsApp()" style="background: #25d366;">
+                        <span>💬</span>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button class="invoice-btn email" onclick="shareInvoiceEmail()" style="background: #ea4335;">
+                        <span>📧</span>
+                        <span>Email</span>
+                    </button>
                     <button class="invoice-btn print" onclick="printInvoice()">
                         <span>🖨️</span>
                         <span>Print</span>
+                    </button>
+                    <button class="invoice-btn share" onclick="showInvoiceShareMenu()" style="background: #8b5cf6;">
+                        <span>📤</span>
+                        <span>Share</span>
                     </button>
                     <button class="invoice-btn excel" onclick="exportToExcel()">
                         <span>📊</span>
@@ -1971,9 +2047,75 @@
                         <span>Close</span>
                     </button>
                 </div>
+                <div style="margin-top: 8px; text-align: center;">
+                    <small style="color: #6b7280; font-size: 11px;">
+                        💡 Shortcuts: P=Print, S=Share, W=WhatsApp, E=Email, C=Copy, Esc=Close
+                    </small>
+                </div>
             </div>
             <div class="invoice-content" id="invoice-content">
                 <!-- Invoice content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Share Menu Modal -->
+    <div id="invoice-share-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Invoice</h3>
+                <button class="close-btn" onclick="closeInvoiceShareMenu()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1f2937; font-weight: 700;">Quick Share Options</h4>
+                    <div class="share-buttons" style="grid-template-columns: repeat(2, 1fr);">
+                        <button class="share-btn whatsapp" onclick="shareInvoiceWhatsApp(); closeInvoiceShareMenu();">
+                            <span class="share-icon">💬</span>
+                            <span>WhatsApp</span>
+                        </button>
+                        <button class="share-btn email" onclick="shareInvoiceEmail(); closeInvoiceShareMenu();">
+                            <span class="share-icon">📧</span>
+                            <span>Email</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1f2937; font-weight: 700;">Export & Print</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <button class="invoice-btn print" onclick="printInvoice(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center;">
+                            <span>🖨️</span>
+                            <span>Print</span>
+                        </button>
+                        <button class="invoice-btn pdf" onclick="exportToPDF(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center;">
+                            <span>📄</span>
+                            <span>PDF</span>
+                        </button>
+                        <button class="invoice-btn excel" onclick="exportToExcel(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center;">
+                            <span>📊</span>
+                            <span>Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 12px; color: #1f2937; font-weight: 700;">Copy & Share Text</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <button class="btn btn-gray" onclick="copyInvoiceText()" style="width: 100%; font-size: 14px;">
+                            📋 Copy Invoice Text
+                        </button>
+                        <button class="btn btn-purple" onclick="copyInvoiceLink()" style="width: 100%; font-size: 14px;">
+                            🔗 Copy Invoice Link
+                        </button>
+                    </div>
+                </div>
+
+                <div style="background: #f9fafb; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px; margin: 0; text-align: center;">
+                        💡 <strong>Tip:</strong> Use WhatsApp or Email for instant delivery to customers
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -3627,6 +3769,186 @@
             document.getElementById('invoice-modal').classList.add('show');
         }
 
+        // Invoice Sharing Functions
+        function showInvoiceShareMenu() {
+            if (!currentInvoiceOrder) {
+                alert('No invoice data available for sharing');
+                return;
+            }
+            document.getElementById('invoice-share-modal').classList.add('show');
+        }
+
+        function closeInvoiceShareMenu() {
+            document.getElementById('invoice-share-modal').classList.remove('show');
+        }
+
+        function shareInvoiceWhatsApp() {
+            if (!currentInvoiceOrder) {
+                alert('No invoice data available for sharing');
+                return;
+            }
+            
+            var formattedInvoice = formatInvoiceForSharing(currentInvoiceOrder.id);
+            if (!formattedInvoice) return;
+
+            var encodedMessage = encodeURIComponent(formattedInvoice.message);
+            var whatsappUrl = 'https://wa.me/?text=' + encodedMessage;
+            
+            try {
+                if (window.innerWidth <= 768) {
+                    window.location.href = whatsappUrl;
+                } else {
+                    window.open(whatsappUrl, '_blank');
+                }
+            } catch (error) {
+                copyToClipboard(formattedInvoice.message);
+                alert('WhatsApp sharing not available. Invoice details copied to clipboard!');
+            }
+        }
+
+        function shareInvoiceEmail() {
+            if (!currentInvoiceOrder) {
+                alert('No invoice data available for sharing');
+                return;
+            }
+            
+            var formattedInvoice = formatInvoiceForSharing(currentInvoiceOrder.id);
+            if (!formattedInvoice) return;
+
+            var emailBody = formattedInvoice.plainMessage.replace(/\n/g, '%0D%0A');
+            var emailSubject = encodeURIComponent(formattedInvoice.subject);
+            var mailtoUrl = 'mailto:?subject=' + emailSubject + '&body=' + emailBody;
+            
+            try {
+                window.location.href = mailtoUrl;
+            } catch (error) {
+                copyToClipboard(formattedInvoice.plainMessage);
+                alert('Email client not available. Invoice details copied to clipboard!');
+            }
+        }
+
+        function formatInvoiceForSharing(orderId) {
+            var order = null;
+            for (var i = 0; i < orders.length; i++) {
+                if (orders[i].id === orderId) {
+                    order = orders[i];
+                    break;
+                }
+            }
+            if (!order) return null;
+
+            var customer = null;
+            for (var i = 0; i < customers.length; i++) {
+                if (customers[i].id === order.customerId) {
+                    customer = customers[i];
+                    break;
+                }
+            }
+
+            var customerName = customer ? customer.name : 'Unknown Customer';
+            var orderDate = new Date(order.createdAt).toLocaleDateString('en-MY');
+            var orderTime = new Date(order.createdAt).toLocaleTimeString('en-MY', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            var businessName = companySettings.name || 'VegeOrder';
+            var businessTagline = companySettings.tagline || 'Professional Vegetable Supply & Order Management';
+            var businessPhone = companySettings.phone || '+60 12-345-6789';
+            var businessEmail = companySettings.email || 'info@vegeorder.my';
+            var businessAddress = companySettings.address || '123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor';
+            
+            var invoicePrefix = companySettings.invoicePrefix || 'INV';
+            var invoiceDate = new Date();
+            var invoiceNumber = invoicePrefix + '-' + invoiceDate.getFullYear() + 
+                               String(invoiceDate.getMonth() + 1).padStart(2, '0') + 
+                               String(invoiceDate.getDate()).padStart(2, '0') + '-' + order.id;
+
+            var itemsList = '';
+            var subtotal = 0;
+            for (var i = 0; i < order.items.length; i++) {
+                var item = order.items[i];
+                var itemTotal = item.quantity * item.price;
+                subtotal += itemTotal;
+                itemsList += (i + 1) + '. ' + item.vegeName + '\n';
+                itemsList += '   ' + item.quantity + ' ' + item.unit + ' × RM' + item.price.toFixed(2) + ' = RM' + itemTotal.toFixed(2) + '\n';
+            }
+
+            var taxRate = companySettings.taxRate || 0;
+            var taxAmount = subtotal * (taxRate / 100);
+            var totalAmount = subtotal + taxAmount;
+
+            var message = '📄 *OFFICIAL INVOICE*\n\n';
+            message += '🏢 ' + businessName + '\n';
+            if (businessTagline) message += businessTagline + '\n';
+            message += '📞 ' + businessPhone + ' | 📧 ' + businessEmail + '\n';
+            message += '📍 ' + businessAddress + '\n\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+            message += '📋 *Invoice #' + invoiceNumber + '*\n';
+            message += '👤 Bill To: ' + customerName + '\n';
+            message += '📅 Invoice Date: ' + invoiceDate.toLocaleDateString('en-MY') + '\n';
+            message += '🕐 Order Date: ' + orderDate + ' at ' + orderTime + '\n';
+            message += '📊 Status: ' + order.status.toUpperCase() + '\n\n';
+            message += '📦 *ITEMS ORDERED:*\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+            message += itemsList + '\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+            message += '💰 *PAYMENT SUMMARY:*\n';
+            message += 'Subtotal: RM' + subtotal.toFixed(2) + '\n';
+            if (taxAmount > 0) {
+                message += 'Tax (' + taxRate + '%): RM' + taxAmount.toFixed(2) + '\n';
+            }
+            message += '*TOTAL AMOUNT: RM' + totalAmount.toFixed(2) + '*\n\n';
+            message += '📋 Payment Terms: Net ' + (companySettings.paymentTerms || 7) + ' days\n';
+            if (companySettings.invoiceNotes) {
+                message += '📝 ' + companySettings.invoiceNotes + '\n';
+            }
+            message += '\n🙏 Thank you for your business!\n';
+            message += '📱 Generated by ' + businessName + ' Management System';
+
+            return {
+                subject: businessName + ' - Invoice #' + invoiceNumber + ' - ' + customerName,
+                message: message,
+                plainMessage: message.replace(/\*/g, '').replace(/🏢|📞|📧|📍|📋|👤|📅|🕐|📊|📦|💰|📋|📝|🙏|📱|━/g, '')
+            };
+        }
+
+        function copyInvoiceText() {
+            if (!currentInvoiceOrder) {
+                alert('No invoice data available to copy');
+                return;
+            }
+            
+            var formattedInvoice = formatInvoiceForSharing(currentInvoiceOrder.id);
+            if (!formattedInvoice) return;
+            
+            copyToClipboard(formattedInvoice.message);
+            showSuccessMessage('📋 Invoice text copied to clipboard!');
+        }
+
+        function copyInvoiceLink() {
+            if (!currentInvoiceOrder) {
+                alert('No invoice data available');
+                return;
+            }
+            
+            var businessName = companySettings.name || 'VegeOrder';
+            var invoiceDate = new Date();
+            var invoicePrefix = companySettings.invoicePrefix || 'INV';
+            var invoiceNumber = invoicePrefix + '-' + invoiceDate.getFullYear() + 
+                               String(invoiceDate.getMonth() + 1).padStart(2, '0') + 
+                               String(invoiceDate.getDate()).padStart(2, '0') + '-' + currentInvoiceOrder.id;
+            
+            var invoiceUrl = window.location.origin + window.location.pathname + '?invoice=' + invoiceNumber;
+            var linkText = '🔗 ' + businessName + ' Invoice\n';
+            linkText += 'Invoice #: ' + invoiceNumber + '\n';
+            linkText += 'Amount: RM' + currentInvoiceOrder.total.toFixed(2) + '\n';
+            linkText += 'Link: ' + invoiceUrl;
+            
+            copyToClipboard(linkText);
+            showSuccessMessage('🔗 Invoice link copied to clipboard!');
+        }
+
         function closeInvoice() {
             document.getElementById('invoice-modal').classList.remove('show');
             currentInvoiceOrder = null;
@@ -4137,17 +4459,63 @@
         // Close modals when clicking outside
         document.addEventListener('click', function(e) {
             var invoiceModal = document.getElementById('invoice-modal');
+            var shareModal = document.getElementById('invoice-share-modal');
+            
             if (e.target === invoiceModal) {
                 closeInvoice();
             }
+            
+            if (e.target === shareModal) {
+                closeInvoiceShareMenu();
+            }
         });
 
-        // Close modals with Escape key
+        // Close modals with Escape key and add keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 var invoiceModal = document.getElementById('invoice-modal');
+                var shareModal = document.getElementById('invoice-share-modal');
+                
                 if (invoiceModal.classList.contains('show')) {
                     closeInvoice();
+                }
+                
+                if (shareModal.classList.contains('show')) {
+                    closeInvoiceShareMenu();
+                }
+            }
+            
+            // Keyboard shortcuts for invoice (only when invoice is open)
+            var invoiceModal = document.getElementById('invoice-modal');
+            if (invoiceModal.classList.contains('show')) {
+                // Ctrl/Cmd + P for Print
+                if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                    e.preventDefault();
+                    printInvoice();
+                }
+                
+                // Ctrl/Cmd + S for Share menu
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    showInvoiceShareMenu();
+                }
+                
+                // W for WhatsApp
+                if (e.key === 'w' || e.key === 'W') {
+                    e.preventDefault();
+                    shareInvoiceWhatsApp();
+                }
+                
+                // E for Email
+                if (e.key === 'e' || e.key === 'E') {
+                    e.preventDefault();
+                    shareInvoiceEmail();
+                }
+                
+                // C for Copy
+                if (e.key === 'c' || e.key === 'C') {
+                    e.preventDefault();
+                    copyInvoiceText();
                 }
             }
         });
