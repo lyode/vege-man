@@ -1,48 +1,370 @@
 // ========================================
-// MISSING FUNCTIONS FOR VEGEORDER PRO
-// Add these functions to your existing script
+// VEGEORDER PRO - COMPLETE CUSTOMER SLOT INTEGRATION
+// Add this script to your main VegeOrder Pro index.html
 // ========================================
 
-// Global variables for slot selection
+// Global variables for slot management
 let selectedAddonQuantity = 0;
 let selectedAddonPrice = 0;
+let currentSlotSelection = null;
 
-// Close upgrade dialog
-function closeUpgradeDialog() {
-    const modal = document.getElementById('upgrade-modal');
-    if (modal) {
-        modal.remove();
+// Enhanced Customer Slot Methods - Add to VegeOrderApp class
+function enhanceVegeOrderWithSlots() {
+    if (typeof app === 'undefined') {
+        console.log('Waiting for app to initialize...');
+        setTimeout(enhanceVegeOrderWithSlots, 100);
+        return;
     }
+    
+    // Enhanced calculateSlotPrice with volume discounts
+    app.calculateSlotPrice = function(quantity, plan) {
+        const basePrices = {
+            addon: 2.00,
+            premium: 99.00,
+            enterprise: 1.00
+        };
+        
+        if (plan === 'premium') {
+            return basePrices.premium;
+        }
+        
+        // Volume discount tiers
+        let pricePerSlot = basePrices[plan] || basePrices.addon;
+        
+        if (quantity >= 1000) {
+            pricePerSlot = 1.25; // Best rate for 1000+ slots
+        } else if (quantity >= 500) {
+            pricePerSlot = 1.50; // Better rate for 500+ slots  
+        } else if (quantity >= 200) {
+            pricePerSlot = 1.75; // Good rate for 200+ slots
+        } else if (quantity >= 100) {
+            pricePerSlot = 1.90; // Small discount for 100+ slots
+        }
+        
+        return quantity * pricePerSlot;
+    };
+    
+    // Enhanced addCustomerSlots with better feedback
+    const originalAddSlots = app.addCustomerSlots;
+    app.addCustomerSlots = function(quantity, plan = 'addon') {
+        const price = this.calculateSlotPrice(quantity, plan);
+        
+        const upgrade = {
+            id: Date.now(),
+            date: new Date().toISOString(),
+            plan: plan,
+            slotsAdded: quantity,
+            price: price,
+            paymentMethod: 'simulated'
+        };
+        
+        this.customerSlots.total += quantity;
+        if (plan === 'addon') {
+            this.customerSlots.addonSlots += quantity;
+        } else if (plan === 'premium') {
+            this.customerSlots.plan = 'premium';
+        }
+        
+        this.customerSlots.remaining = this.customerSlots.total - this.customerSlots.used;
+        this.customerSlots.lastUpgrade = new Date().toISOString();
+        this.customerSlots.upgradeHistory.push(upgrade);
+        
+        this.updateCustomerSlotUsage();
+        this.saveDataToStorage();
+        this.updateStats();
+        
+        // Enhanced notification
+        this.showSlotAllocationSuccess(quantity, price, plan);
+        
+        // Update UI
+        setTimeout(() => {
+            this.updateStats();
+            this.renderViews();
+        }, 500);
+        
+        return true;
+    };
+    
+    // New method: Show slot allocation success
+    app.showSlotAllocationSuccess = function(quantity, price, plan) {
+        // Create enhanced notification
+        const notification = document.createElement('div');
+        notification.className = 'notification success show';
+        notification.style.cssText = `
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 44px) + 80px);
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+            z-index: 250;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.3s ease;
+            backdrop-filter: blur(20px);
+        `;
+        
+        const planIcon = plan === 'premium' ? '💎' : '📦';
+        const planText = plan === 'premium' ? 'Premium Upgrade' : 'Slots Added';
+        
+        notification.innerHTML = `
+            <span style="font-size: 28px;">${planIcon}</span>
+            <div style="flex: 1;">
+                <div style="font-weight: 800; margin-bottom: 4px; font-size: 16px;">
+                    +${quantity.toLocaleString()} ${planText}!
+                </div>
+                <div style="font-size: 14px; opacity: 0.9;">
+                    Total: ${this.customerSlots.total.toLocaleString()} slots • Cost: RM ${price.toFixed(2)}
+                </div>
+            </div>
+            <button onclick="this.parentElement.remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 16px; cursor: pointer; font-size: 16px;">✕</button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Haptic feedback
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                notification.remove();
+            }
+        }, 5000);
+    };
+    
+    // Enhanced customer slot validation
+    app.canAddCustomerEnhanced = function() {
+        if (this.customerSlots.remaining > 0) {
+            return { canAdd: true, reason: null };
+        }
+        
+        const suggestions = [];
+        if (this.customerSlots.plan === 'free') {
+            suggestions.push('Upgrade to Premium (100 slots) for RM 99');
+        }
+        suggestions.push(`Add 200 slots for RM ${this.calculateSlotPrice(200, 'addon').toFixed(2)}`);
+        suggestions.push('Add custom quantity at RM 2.00 per slot');
+        
+        return {
+            canAdd: false,
+            reason: 'Customer slot limit reached',
+            suggestions: suggestions
+        };
+    };
+    
+    console.log('✅ VegeOrder Pro enhanced with advanced slot management');
 }
 
-// Select addon slots (predefined quantities)
-function selectAddonSlots(quantity) {
+// Enhanced Upgrade Dialog with Mobile Design
+function showEnhancedUpgradeDialog() {
+    const upgradeModal = document.createElement('div');
+    upgradeModal.className = 'modal show';
+    upgradeModal.id = 'upgrade-modal';
+    upgradeModal.innerHTML = `
+        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3 style="display: flex; align-items: center; gap: 8px;">🚀 Upgrade Customer Capacity</h3>
+                <button class="close-btn" onclick="closeUpgradeDialog()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Current Status -->
+                <div style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 2px solid #d1d5db;">
+                    <h4 style="color: #1f2937; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        📊 Current Status
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 800; color: #ef4444;">${app.customerSlots.used}</div>
+                            <div style="font-size: 12px; color: #6b7280;">USED</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 800; color: #f59e0b;">${app.customerSlots.remaining}</div>
+                            <div style="font-size: 12px; color: #6b7280;">REMAINING</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 800; color: #3b82f6;">${app.customerSlots.total}</div>
+                            <div style="font-size: 12px; color: #6b7280;">TOTAL</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <span style="background: ${app.customerSlots.plan === 'premium' ? '#7c3aed' : '#6b7280'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                            ${app.customerSlots.plan} Plan
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Quick Action: 200 Slots -->
+                <div style="background: linear-gradient(135deg, #ecfeff, #cffafe); border: 2px solid #22d3ee; border-radius: 16px; padding: 20px; margin-bottom: 20px; position: relative;">
+                    <div style="position: absolute; top: -8px; right: 12px; background: #f59e0b; color: white; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 8px;">
+                        ⭐ RECOMMENDED
+                    </div>
+                    <h4 style="color: #0c4a6e; margin-bottom: 12px; font-size: 18px;">🎯 Quick Allocation</h4>
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <div style="font-size: 36px; font-weight: 800; color: #0891b2; margin-bottom: 8px;">200 Slots</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #0c4a6e; margin-bottom: 4px;">RM ${app.calculateSlotPrice(200, 'addon').toFixed(2)}</div>
+                        <div style="color: #0369a1; font-size: 14px;">RM ${(app.calculateSlotPrice(200, 'addon') / 200).toFixed(2)} per slot</div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; font-size: 16px; font-weight: 700;" onclick="purchaseQuick200Slots()">
+                        🚀 Allocate 200 Slots Now
+                    </button>
+                </div>
+                
+                <!-- Premium Plan -->
+                ${app.customerSlots.plan !== 'premium' ? `
+                <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 2px solid #8b5cf6; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="color: #581c87; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        💎 Premium Plan Upgrade
+                    </h4>
+                    <div style="color: #581c87; font-size: 28px; font-weight: 800; margin-bottom: 8px;">RM 99.00</div>
+                    <div style="color: #7c3aed; margin-bottom: 16px; font-weight: 600;">100 Customer Slots + Premium Features</div>
+                    <ul style="color: #7c3aed; font-size: 14px; margin-bottom: 16px; padding-left: 20px; line-height: 1.6;">
+                        <li>Advanced analytics dashboard</li>
+                        <li>Priority customer support</li>
+                        <li>Data export features</li>
+                        <li>Bulk operations</li>
+                        <li>Custom branding options</li>
+                    </ul>
+                    <button class="btn btn-purple" style="width: 100%; font-weight: 700;" onclick="purchasePremiumPlan()">
+                        💎 Upgrade to Premium
+                    </button>
+                </div>
+                ` : ''}
+                
+                <!-- Add-on Packages -->
+                <div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #d1d5db;">
+                    <h4 style="color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        📦 Add-on Packages
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
+                        <div class="addon-package" onclick="selectAddonPackage(50)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">50</div>
+                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 100</div>
+                        </div>
+                        <div class="addon-package" onclick="selectAddonPackage(100)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">100</div>
+                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 200</div>
+                        </div>
+                        <div class="addon-package" onclick="selectAddonPackage(500)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">500</div>
+                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 750</div>
+                            <div style="font-size: 10px; color: #f59e0b; font-weight: 700; margin-top: 4px;">SAVE 25%</div>
+                        </div>
+                        <div class="addon-package" onclick="selectAddonPackage(1000)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">1000</div>
+                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 1250</div>
+                            <div style="font-size: 10px; color: #f59e0b; font-weight: 700; margin-top: 4px;">SAVE 37%</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Quantity -->
+                    <div style="border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                        <h5 style="color: #374151; margin-bottom: 12px; font-weight: 600;">Custom Quantity</h5>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" placeholder="Enter quantity" id="custom-slots-input" 
+                                   style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px;"
+                                   min="1" max="10000">
+                            <button class="btn btn-gray" onclick="selectCustomSlots()" style="padding: 12px 16px; font-size: 14px; min-height: auto;">
+                                Calculate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selection Summary -->
+                <div id="addon-selection-summary" style="display: none; background: linear-gradient(135deg, #ecfeff, #cffafe); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 2px solid #22d3ee;">
+                    <h4 style="color: #0c4a6e; margin-bottom: 12px;">📋 Purchase Summary</h4>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #0369a1; font-weight: 600;">Selected Quantity:</span>
+                        <span id="summary-quantity" style="color: #0c4a6e; font-weight: 800;">0 slots</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                        <span style="color: #0369a1; font-weight: 600;">Total Price:</span>
+                        <span id="summary-price" style="color: #0c4a6e; font-weight: 800; font-size: 18px;">RM 0.00</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                        <button class="btn btn-success" onclick="purchaseSelectedAddon()" style="font-weight: 700;">
+                            💳 Purchase Now
+                        </button>
+                        <button class="btn btn-gray" onclick="clearAddonSelection()" style="font-weight: 700;">
+                            ❌ Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Security Notice -->
+                <div style="text-align: center; padding: 16px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+                    <div style="font-size: 20px; margin-bottom: 8px;">🔒</div>
+                    <div style="color: #6b7280; font-size: 14px; margin: 0; font-weight: 500;">
+                        <strong>Secure Payment:</strong> All transactions are processed securely. 
+                        Instant activation upon payment confirmation.
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(upgradeModal);
+    
+    // Add click handlers for addon packages
+    document.querySelectorAll('.addon-package').forEach(el => {
+        el.addEventListener('mouseenter', function() {
+            this.style.borderColor = '#22d3ee';
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 8px 24px rgba(34, 211, 238, 0.2)';
+        });
+        
+        el.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('selected')) {
+                this.style.borderColor = '#e5e7eb';
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            }
+        });
+    });
+}
+
+// Addon package selection
+function selectAddonPackage(quantity) {
+    // Clear previous selections
+    document.querySelectorAll('.addon-package').forEach(el => {
+        el.classList.remove('selected');
+        el.style.borderColor = '#e5e7eb';
+        el.style.backgroundColor = 'white';
+    });
+    
+    // Select current package
+    event.target.closest('.addon-package').classList.add('selected');
+    event.target.closest('.addon-package').style.borderColor = '#22d3ee';
+    event.target.closest('.addon-package').style.backgroundColor = '#f0f9ff';
+    
     selectedAddonQuantity = quantity;
     selectedAddonPrice = app.calculateSlotPrice(quantity, 'addon');
     
-    // Clear previous selections
-    document.querySelectorAll('.addon-selection button').forEach(btn => {
-        btn.style.background = '';
-    });
+    updateAddonSelectionSummary();
     
-    // Highlight selected button
-    event.target.style.background = 'linear-gradient(135deg, #22d3ee, #0891b2)';
-    
-    // Show selection summary
-    const selectionDiv = document.getElementById('addon-selection');
-    if (selectionDiv) {
-        selectionDiv.style.display = 'block';
-        document.getElementById('selected-quantity').textContent = `${quantity} slots`;
-        document.getElementById('selected-price').textContent = `RM ${selectedAddonPrice.toFixed(2)}`;
+    // Haptic feedback
+    if (navigator.vibrate) {
+        navigator.vibrate(10);
     }
-    
-    app.showNotification(`💡 Selected ${quantity} slots for RM ${selectedAddonPrice.toFixed(2)}`, 'info');
 }
 
-// Select custom slots
+// Custom slots selection
 function selectCustomSlots() {
-    const customInput = document.getElementById('custom-slots');
-    const quantity = parseInt(customInput.value);
+    const input = document.getElementById('custom-slots-input');
+    const quantity = parseInt(input.value);
     
     if (!quantity || quantity < 1) {
         app.showNotification('❌ Please enter a valid quantity (minimum 1)', 'error');
@@ -54,317 +376,329 @@ function selectCustomSlots() {
         return;
     }
     
+    // Clear package selections
+    document.querySelectorAll('.addon-package').forEach(el => {
+        el.classList.remove('selected');
+        el.style.borderColor = '#e5e7eb';
+        el.style.backgroundColor = 'white';
+    });
+    
     selectedAddonQuantity = quantity;
     selectedAddonPrice = app.calculateSlotPrice(quantity, 'addon');
     
-    // Show selection summary
-    const selectionDiv = document.getElementById('addon-selection');
-    if (selectionDiv) {
-        selectionDiv.style.display = 'block';
-        document.getElementById('selected-quantity').textContent = `${quantity} slots`;
-        document.getElementById('selected-price').textContent = `RM ${selectedAddonPrice.toFixed(2)}`;
-    }
+    updateAddonSelectionSummary();
     
-    app.showNotification(`💡 Selected ${quantity} custom slots for RM ${selectedAddonPrice.toFixed(2)}`, 'info');
+    app.showNotification(`💡 Selected ${quantity.toLocaleString()} custom slots`, 'info');
 }
 
-// Purchase addon slots
-function purchaseAddonSlots() {
+// Update addon selection summary
+function updateAddonSelectionSummary() {
+    const summaryDiv = document.getElementById('addon-selection-summary');
+    
+    if (selectedAddonQuantity > 0) {
+        summaryDiv.style.display = 'block';
+        document.getElementById('summary-quantity').textContent = `${selectedAddonQuantity.toLocaleString()} slots`;
+        document.getElementById('summary-price').textContent = `RM ${selectedAddonPrice.toFixed(2)}`;
+    } else {
+        summaryDiv.style.display = 'none';
+    }
+}
+
+// Clear addon selection
+function clearAddonSelection() {
+    selectedAddonQuantity = 0;
+    selectedAddonPrice = 0;
+    
+    document.querySelectorAll('.addon-package').forEach(el => {
+        el.classList.remove('selected');
+        el.style.borderColor = '#e5e7eb';
+        el.style.backgroundColor = 'white';
+    });
+    
+    document.getElementById('custom-slots-input').value = '';
+    updateAddonSelectionSummary();
+    
+    app.showNotification('🗑️ Selection cleared', 'info');
+}
+
+// Purchase functions
+function purchaseQuick200Slots() {
+    const price = app.calculateSlotPrice(200, 'addon');
+    const confirmMessage = `🎯 ALLOCATE 200 CUSTOMER SLOTS
+
+💰 Purchase Details:
+• Quantity: 200 slots
+• Price: RM ${price.toFixed(2)}
+• Rate: RM ${(price / 200).toFixed(2)} per slot
+
+✅ After Purchase:
+• New Total: ${app.customerSlots.total + 200} customers
+• Available: ${app.customerSlots.remaining + 200} new slots
+
+Proceed with allocation?`;
+    
+    if (confirm(confirmMessage)) {
+        closeUpgradeDialog();
+        simulatePurchaseProcess(200, 'addon');
+    }
+}
+
+function purchasePremiumPlan() {
+    const confirmMessage = `💎 UPGRADE TO PREMIUM PLAN
+
+💰 Investment: RM 99.00
+📦 Includes: 100 customer slots + Premium features
+
+✨ Premium Features:
+• Advanced analytics dashboard
+• Priority customer support  
+• Data export capabilities
+• Bulk operations
+• Custom branding options
+
+Your current add-on slots will be preserved.
+
+Proceed with Premium upgrade?`;
+    
+    if (confirm(confirmMessage)) {
+        closeUpgradeDialog();
+        simulatePurchaseProcess(100, 'premium');
+    }
+}
+
+function purchaseSelectedAddon() {
     if (selectedAddonQuantity <= 0) {
         app.showNotification('❌ No slots selected for purchase', 'error');
         return;
     }
     
-    const confirmMessage = `Purchase ${selectedAddonQuantity} add-on slots for RM ${selectedAddonPrice.toFixed(2)}?`;
+    const confirmMessage = `Purchase ${selectedAddonQuantity.toLocaleString()} add-on slots for RM ${selectedAddonPrice.toFixed(2)}?`;
     
     if (confirm(confirmMessage)) {
-        // Simulate payment processing
-        app.showNotification('💳 Processing payment...', 'info');
-        
-        setTimeout(() => {
-            const success = app.addCustomerSlots(selectedAddonQuantity, 'addon');
-            
-            if (success) {
-                // Close upgrade dialog
-                closeUpgradeDialog();
-                
-                // Reset selection
-                selectedAddonQuantity = 0;
-                selectedAddonPrice = 0;
-                
-                app.showNotification(`🎉 Successfully purchased ${selectedAddonQuantity} customer slots!`, 'success');
-            } else {
-                app.showNotification('❌ Purchase failed. Please try again.', 'error');
-            }
-        }, 2000);
+        closeUpgradeDialog();
+        simulatePurchaseProcess(selectedAddonQuantity, 'addon');
+        clearAddonSelection();
     }
 }
 
-// Purchase premium plan
-function purchasePremiumPlan() {
-    const confirmMessage = 'Upgrade to Premium Plan for RM 99.00?\n\n✅ 100 customer slots\n✅ Advanced analytics\n✅ Priority support\n✅ Export features\n✅ Bulk operations';
+// Simulate purchase process with realistic timing
+function simulatePurchaseProcess(quantity, plan) {
+    const planText = plan === 'premium' ? 'Premium upgrade' : `${quantity.toLocaleString()} slots`;
     
-    if (confirm(confirmMessage)) {
-        app.showNotification('💳 Processing premium upgrade...', 'info');
+    app.showNotification('💳 Processing payment...', 'info');
+    
+    setTimeout(() => {
+        app.showNotification('🔐 Verifying transaction...', 'info');
         
         setTimeout(() => {
-            const success = app.upgradeToPremium();
-            
-            if (success) {
-                closeUpgradeDialog();
-                app.showNotification('🎉 Welcome to Premium! Enjoy your enhanced features.', 'success');
-            } else {
-                app.showNotification('❌ Upgrade failed. Please try again.', 'error');
-            }
-        }, 2000);
-    }
-}
-
-// Allocate exactly 200 customer slots (direct function)
-function allocate200CustomerSlots() {
-    const confirmMessage = 'Allocate 200 add-on customer slots for RM 400.00?\n\nThis will immediately add 200 slots to your account.';
-    
-    if (confirm(confirmMessage)) {
-        app.showNotification('🎯 Allocating 200 customer slots...', 'info');
-        
-        setTimeout(() => {
-            app.showNotification('💳 Processing payment for 200 slots...', 'info');
+            app.showNotification('✅ Payment confirmed!', 'success');
             
             setTimeout(() => {
-                const success = app.addCustomerSlots(200, 'addon');
+                app.showNotification(`📦 Allocating ${planText}...`, 'info');
                 
-                if (success) {
-                    app.showNotification('🚀 200 customer slots allocated successfully!', 'success');
-                    app.showNotification(`📈 Total capacity: ${app.customerSlots.total} customers`, 'success');
+                setTimeout(() => {
+                    const success = app.addCustomerSlots(quantity, plan);
                     
-                    // Update the header stats
-                    setTimeout(() => {
-                        app.updateStats();
-                        app.renderViews();
-                    }, 500);
-                    
-                    // Show celebration
-                    showSlotAllocationCelebration(200);
-                } else {
-                    app.showNotification('❌ Slot allocation failed. Please try again.', 'error');
-                }
-            }, 1500);
-        }, 1000);
-    }
+                    if (success) {
+                        showCelebrationModal(quantity, plan);
+                    }
+                }, 1000);
+            }, 1000);
+        }, 1500);
+    }, 1000);
 }
 
-// Show celebration animation for slot allocation
-function showSlotAllocationCelebration(slotsAdded) {
-    // Create celebration modal
-    const celebrationModal = document.createElement('div');
-    celebrationModal.className = 'modal show';
-    celebrationModal.style.background = 'rgba(0,0,0,0.8)';
-    celebrationModal.innerHTML = `
-        <div class="modal-content" style="text-align: center; max-width: 400px; margin: auto;">
-            <div style="font-size: 80px; margin: 20px 0;">🎉</div>
-            <h2 style="color: #22c55e; margin-bottom: 16px;">Success!</h2>
-            <div style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">
-                +${slotsAdded} Customer Slots
+// Enhanced celebration modal
+function showCelebrationModal(quantity, plan) {
+    const isPlans = plan === 'premium';
+    const icon = isPremium ? '💎' : '🎉';
+    const title = isPremium ? 'Premium Activated!' : 'Slots Allocated!';
+    const message = isPremium ? 'Welcome to Premium!' : `+${quantity.toLocaleString()} Customer Slots`;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.style.background = 'rgba(0,0,0,0.8)';
+    modal.innerHTML = `
+        <div class="modal-content" style="text-align: center; max-width: 400px; margin: auto; background: linear-gradient(135deg, #f9fafb, #f3f4f6); color: #1f2937;">
+            <div style="font-size: 80px; margin: 20px 0; animation: bounce 1s ease-in-out infinite;">${icon}</div>
+            <h2 style="color: #22c55e; margin-bottom: 16px; font-weight: 800;">${title}</h2>
+            <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">
+                ${message}
             </div>
-            <div style="color: #6b7280; margin-bottom: 20px;">
+            <div style="color: #6b7280; margin-bottom: 24px;">
                 Your business can now grow without limits!
             </div>
+            
             <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 16px; padding: 20px; margin: 20px 0; border: 2px solid #0891b2;">
-                <div style="color: #0c4a6e; font-weight: 600;">New Total Capacity:</div>
-                <div style="font-size: 32px; font-weight: 800; color: #0891b2;">${app.customerSlots.total} Customers</div>
+                <div style="color: #0c4a6e; font-weight: 600; margin-bottom: 8px;">New Total Capacity:</div>
+                <div style="font-size: 36px; font-weight: 800; color: #0891b2; margin-bottom: 4px;">
+                    ${app.customerSlots.total.toLocaleString()}
+                </div>
+                <div style="color: #0c4a6e; font-size: 14px;">Customer Slots Available</div>
             </div>
-            <button onclick="closeCelebrationModal()" class="btn btn-primary" style="width: 100%;">
-                🚀 Continue Growing!
+            
+            ${isPremium ? `
+            <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-radius: 16px; padding: 16px; margin: 16px 0; border: 2px solid #8b5cf6;">
+                <div style="color: #581c87; font-weight: 600; margin-bottom: 8px;">🎁 Premium Features Unlocked:</div>
+                <div style="color: #7c3aed; font-size: 13px; line-height: 1.5;">
+                    Advanced Analytics • Priority Support • Export Tools • Bulk Operations • Custom Branding
+                </div>
+            </div>
+            ` : ''}
+            
+            <button onclick="closeCelebrationModal()" class="btn btn-primary" style="width: 100%; font-weight: 700; color: white;">
+                🚀 Continue Growing Your Business!
             </button>
         </div>
     `;
     
-    document.body.appendChild(celebrationModal);
+    document.body.appendChild(modal);
     
-    // Auto-close after 5 seconds
+    // Haptic celebration
+    if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 200]);
+    }
+    
+    // Auto-close after 10 seconds
     setTimeout(() => {
-        if (document.body.contains(celebrationModal)) {
-            celebrationModal.remove();
+        if (document.body.contains(modal)) {
+            modal.remove();
         }
-    }, 5000);
+    }, 10000);
 }
 
-// Close celebration modal
+// Close functions
+function closeUpgradeDialog() {
+    const modal = document.getElementById('upgrade-modal');
+    if (modal) {
+        modal.remove();
+    }
+    clearAddonSelection();
+}
+
 function closeCelebrationModal() {
     const modal = document.querySelector('.modal');
-    if (modal) {
+    if (modal && modal.style.background === 'rgba(0, 0, 0, 0.8)') {
         modal.remove();
     }
 }
 
-// Enhanced version of the existing addCustomerSlots method
-// Add this to the VegeOrderApp class or update the existing method
-function enhanceCustomerSlotMethods() {
-    // Enhance the existing app instance
-    if (typeof app !== 'undefined') {
-        
-        // Override the calculateSlotPrice method for better pricing
-        app.calculateSlotPrice = function(quantity, plan) {
-            const prices = {
-                addon: 2.00, // RM 2.00 per slot for addon
-                premium: 99.00, // RM 99.00 flat for premium plan
-                enterprise: 1.00 // RM 1.00 per slot for enterprise
-            };
-            
-            if (plan === 'premium') {
-                return prices.premium;
-            }
-            
-            // Volume discounts for large purchases
-            if (plan === 'addon' && quantity >= 500) {
-                return quantity * 1.50; // RM 1.50 per slot for 500+
-            } else if (plan === 'addon' && quantity >= 200) {
-                return quantity * 1.75; // RM 1.75 per slot for 200+
-            } else if (plan === 'addon' && quantity >= 100) {
-                return quantity * 1.90; // RM 1.90 per slot for 100+
-            }
-            
-            return quantity * (prices[plan] || prices.addon);
-        };
-        
-        // Enhanced notification for slot allocation
-        app.showSlotAllocationNotification = function(quantity, price) {
-            const notification = document.createElement('div');
-            notification.className = 'notification success show';
-            notification.style.cssText = `
-                position: fixed;
-                top: calc(env(safe-area-inset-top, 44px) + 80px);
-                left: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #10b981, #059669);
-                color: white;
-                padding: 20px;
-                border-radius: 16px;
-                font-weight: 600;
-                box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
-                z-index: 250;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                animation: slideDown 0.3s ease;
-            `;
-            
-            notification.innerHTML = `
-                <span style="font-size: 24px;">🎉</span>
-                <div>
-                    <div style="font-weight: 700; margin-bottom: 4px;">
-                        ${quantity} Slots Added Successfully!
-                    </div>
-                    <div style="font-size: 14px; opacity: 0.9;">
-                        Total: ${this.customerSlots.total} slots • Cost: RM ${price.toFixed(2)}
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 4000);
-        };
+// Enhanced customer addition with slot checking
+function addCustomerWithSlotCheck() {
+    const canAdd = app.canAddCustomerEnhanced();
+    
+    if (canAdd.canAdd) {
+        app.openCustomerForm();
+    } else {
+        app.showNotification(canAdd.reason, 'warning');
+        setTimeout(() => {
+            showEnhancedUpgradeDialog();
+        }, 1000);
     }
 }
 
-// Initialize enhanced methods when the app is ready
-if (typeof app !== 'undefined') {
-    enhanceCustomerSlotMethods();
-} else {
-    // Wait for app to be initialized
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(enhanceCustomerSlotMethods, 100);
-    });
-}
+// Override the original openCustomerForm to include slot checking
+const originalOpenCustomerForm = window.openCustomerForm;
+window.openCustomerForm = function() {
+    if (app && !app.canAddCustomer()) {
+        addCustomerWithSlotCheck();
+    } else {
+        originalOpenCustomerForm();
+    }
+};
 
-// Quick action: Allocate 200 slots immediately
-function quickAllocate200Slots() {
+// Quick allocation functions for console/direct access
+function allocate200CustomerSlots() {
     if (typeof app === 'undefined') {
-        console.error('App not initialized yet');
+        console.error('VegeOrder app not initialized');
         return;
     }
     
-    console.log('🎯 Starting 200-slot allocation process...');
-    
-    // Show confirmation with detailed breakdown
-    const confirmMessage = `🚀 ALLOCATE 200 CUSTOMER SLOTS
-    
-📊 Current Status:
-• Current: ${app.customerSlots.used}/${app.customerSlots.total} slots
-• Plan: ${app.customerSlots.plan.toUpperCase()}
+    purchaseQuick200Slots();
+}
 
-💰 Purchase Details:
-• Quantity: 200 slots
-• Price: RM ${app.calculateSlotPrice(200, 'addon').toFixed(2)}
-• Rate: RM ${(app.calculateSlotPrice(200, 'addon') / 200).toFixed(2)} per slot
-
-✅ After Purchase:
-• Total Capacity: ${app.customerSlots.total + 200} customers
-• Available: ${app.customerSlots.remaining + 200} new slots
-
-Proceed with allocation?`;
-
-    if (confirm(confirmMessage)) {
-        // Execute allocation
-        allocate200CustomerSlots();
-    } else {
-        app.showNotification('❌ 200-slot allocation cancelled', 'warning');
+function quickUpgradeToPremium() {
+    if (typeof app === 'undefined') {
+        console.error('VegeOrder app not initialized');
+        return;
     }
+    
+    if (app.customerSlots.plan === 'premium') {
+        app.showNotification('⚠️ Already on Premium plan', 'warning');
+        return;
+    }
+    
+    purchasePremiumPlan();
 }
 
-// Export allocation summary
-function exportSlotAllocationSummary() {
-    if (typeof app === 'undefined') return;
+// Add CSS animations for celebration
+const celebrationCSS = `
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
     
-    const summary = {
-        timestamp: new Date().toISOString(),
-        currentStatus: {
-            totalSlots: app.customerSlots.total,
-            usedSlots: app.customerSlots.used,
-            remainingSlots: app.customerSlots.remaining,
-            plan: app.customerSlots.plan,
-            addonSlots: app.customerSlots.addonSlots
-        },
-        upgradeHistory: app.customerSlots.upgradeHistory,
-        recommendations: {
-            canAddCustomers: app.customerSlots.remaining,
-            suggestedUpgrade: app.customerSlots.remaining < 10 ? 'Consider adding more slots' : 'Current capacity sufficient'
-        }
-    };
+    @keyframes slideDown {
+        from { transform: translateY(-100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
     
-    // Create downloadable JSON
-    const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `vegeorder-slots-summary-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    .addon-package:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(34, 211, 238, 0.2) !important;
+    }
     
-    app.showNotification('📊 Slot summary exported successfully!', 'success');
-}
+    .addon-package.selected {
+        border-color: #22d3ee !important;
+        background-color: #f0f9ff !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(34, 211, 238, 0.3) !important;
+    }
+`;
 
-// Console command for quick 200-slot allocation
-console.log(`
-🥬 VEGEORDER PRO - CUSTOMER SLOT COMMANDS
+// Inject CSS
+const styleSheet = document.createElement('style');
+styleSheet.textContent = celebrationCSS;
+document.head.appendChild(styleSheet);
 
-Quick Commands:
-• quickAllocate200Slots() - Allocate 200 slots immediately
-• allocate200CustomerSlots() - Full allocation process with confirmation
-• exportSlotAllocationSummary() - Export current slot status
+// Console commands and initialization
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait for app initialization
+    setTimeout(() => {
+        enhanceVegeOrderWithSlots();
+        
+        console.log(`
+🥬 VEGEORDER PRO - ENHANCED CUSTOMER SLOT SYSTEM
 
-Current Status: ${typeof app !== 'undefined' ? app.customerSlots?.used || 0 : 0}/${typeof app !== 'undefined' ? app.customerSlots?.total || 10 : 10} slots used
-`);
+🚀 Quick Commands:
+• allocate200CustomerSlots() - Allocate 200 slots directly
+• quickUpgradeToPremium() - Upgrade to Premium plan
+• showEnhancedUpgradeDialog() - Show upgrade options
+• app.customerSlots - View current slot status
 
-// Auto-execute 200 slot allocation after page load (commented out for safety)
+📊 Current Status: 
+• Slots: ${typeof app !== 'undefined' ? app.customerSlots?.used || 0 : 0}/${typeof app !== 'undefined' ? app.customerSlots?.total || 10 : 10} used
+• Plan: ${typeof app !== 'undefined' ? app.customerSlots?.plan?.toUpperCase() || 'FREE' : 'FREE'}
+• Remaining: ${typeof app !== 'undefined' ? app.customerSlots?.remaining || 0 : 0} slots available
+
+Ready for unlimited growth! 🚀
+        `);
+    }, 500);
+});
+
+// Auto-demo (uncomment to enable automatic 200-slot allocation after 5 seconds)
 /*
 setTimeout(() => {
-    if (typeof app !== 'undefined' && app.customerSlots.total < 100) {
-        console.log('🚀 Auto-allocating 200 customer slots...');
-        quickAllocate200Slots();
+    if (typeof app !== 'undefined' && app.customerSlots.remaining <= 2) {
+        if (confirm('🚀 Demo: Would you like to allocate 200 customer slots automatically?')) {
+            allocate200CustomerSlots();
+        }
     }
 }, 5000);
 */
+
+// Export for global access
+window.allocate200CustomerSlots = allocate200CustomerSlots;
+window.quickUpgradeToPremium = quickUpgradeToPremium;
+window.showEnhancedUpgradeDialog = showEnhancedUpgradeDialog;
