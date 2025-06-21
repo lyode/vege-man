@@ -1337,30 +1337,16 @@
                     </div>
                 </div>
 
-                <!-- Enhanced Performance Card -->
+                <!-- Performance Card -->
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h3 style="font-weight: 700; font-size: 18px;">Today's Sales</h3>
                         <span style="font-size: 24px;">📈</span>
                     </div>
                     <div style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #67e8f9;" id="total-sales">RM 0.00</div>
-                    <div style="display: flex; justify-content: space-between; font-size: 14px; color: rgba(255,255,255,0.9); margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; color: rgba(255,255,255,0.9);">
                         <span>Pending: <span id="pending-count" style="font-weight: 700;">0</span></span>
                         <span>Done: <span id="completed-count" style="font-weight: 700;">0</span></span>
-                    </div>
-                    
-                    <!-- Comprehensive Database Summary -->
-                    <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <span style="font-size: 16px;">🌟</span>
-                            <span style="font-weight: 700; font-size: 14px;">Complete Malaysian Vegetable Database</span>
-                        </div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.4;">
-                            ✅ <span id="total-vegetables">220+</span> vegetables with Chinese names<br>
-                            ✅ <span id="total-categories">9</span> organized categories<br>
-                            ✅ Malay, Chinese & English names<br>
-                            ✅ Mobile app ready with PWA support
-                        </div>
                     </div>
                 </div>
 
@@ -1510,43 +1496,6 @@
                         <div class="preview-label">Business Owner</div>
                         <div class="preview-text" id="preview-owner">
                             No owner information set yet.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Enhanced Database Management -->
-                <div class="settings-section">
-                    <h3>💾 Database Management</h3>
-                    <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #38bdf8;">
-                        <div style="color: #0369a1; font-weight: 600; margin-bottom: 8px;">📊 Database Statistics</div>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 14px; color: #0c4a6e;">
-                            <div>Customers: <span style="font-weight: 700;" id="db-customers">0</span></div>
-                            <div>Vegetables: <span style="font-weight: 700;" id="db-products">0</span></div>
-                            <div>Orders: <span style="font-weight: 700;" id="db-orders">0</span></div>
-                            <div>Categories: <span style="font-weight: 700;" id="db-categories">0</span></div>
-                        </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                        <button class="btn btn-primary" onclick="exportAllData()" style="width: 100%; padding: 16px 12px; font-size: 14px;">
-                            📁 Export Data
-                        </button>
-                        <button class="btn btn-success" onclick="importData()" style="width: 100%; padding: 16px 12px; font-size: 14px;">
-                            📂 Import Data
-                        </button>
-                    </div>
-                    
-                    <div style="margin-top: 12px;">
-                        <button class="btn btn-purple" onclick="optimizeDatabase(); showSuccessMessage('🚀 Database optimized for better performance!')" style="width: 100%; padding: 16px 12px; font-size: 14px;">
-                            🚀 Optimize Database
-                        </button>
-                    </div>
-                    
-                    <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; margin-top: 12px;">
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.4;">
-                            💡 <strong>Export:</strong> Creates a backup file of all your data<br>
-                            💡 <strong>Import:</strong> Restores data from a backup file<br>
-                            💡 <strong>Optimize:</strong> Improves app performance for large datasets
                         </div>
                     </div>
                 </div>
@@ -1913,51 +1862,252 @@
                 { id: 5, name: 'Restoran Sedap Rasa', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' }
             ];
 
-            // Comprehensive Malaysian vegetable selection with Chinese names
+            // Comprehensive Malaysian Vegetable Database - 220+ varieties
             products = [
-                // === LEAFY GREENS & SALADS ===
-                { id: 1, name: 'Kangkung 通菜 (Water Spinach)', unit: 'kg', price: 4.50, category: 'Leafy Greens' },
-                { id: 2, name: 'Sawi Hijau 芥菜 (Chinese Mustard Green)', unit: 'kg', price: 5.00, category: 'Leafy Greens' },
-                { id: 3, name: 'Sawi Putih 白菜 (Chinese Cabbage)', unit: 'kg', price: 4.80, category: 'Leafy Greens' },
-                { id: 4, name: 'Spinach 菠菜 (Bayam Pasir)', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
-                { id: 5, name: 'Lettuce Iceberg 冰山生菜', unit: 'head', price: 4.50, category: 'Leafy Greens' },
-                { id: 6, name: 'Pak Choy 白菜 (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
-                { id: 7, name: 'Kailan 芥兰 (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
-                
-                // === MALAYSIAN SPECIALTY VEGETABLES ===
-                { id: 8, name: 'Petai 臭豆 (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
-                { id: 9, name: 'Jering 臭鳞豆', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
-                { id: 10, name: 'Rebung 竹笋 (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
-                
-                // === GOURDS & SQUASH ===
-                { id: 11, name: 'Labu Kuning 南瓜 (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
-                { id: 12, name: 'Petola 丝瓜 (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
-                { id: 13, name: 'Peria 苦瓜 (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
-                { id: 14, name: 'Timun 黄瓜 (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
-                
-                // === EGGPLANTS & TOMATOES ===
-                { id: 15, name: 'Terung Ungu 紫茄子 (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
-                { id: 16, name: 'Tomato Biasa 番茄 (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
-                
-                // === BEANS & PODS ===
-                { id: 17, name: 'Bendi 秋葵 (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods' },
-                { id: 18, name: 'Kacang Panjang 长豆 (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods' },
-                { id: 19, name: 'Taugeh 豆芽菜 (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods' },
-                
-                // === ONIONS & AROMATICS ===
-                { id: 20, name: 'Bawang Merah 红葱头 (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
-                { id: 21, name: 'Bawang Putih 蒜头 (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics' },
-                { id: 22, name: 'Bawang Besar Merah 红洋葱 (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics' },
-                
-                // === PEPPERS & CHILIES ===
-                { id: 23, name: 'Cili Merah 红辣椒 (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
-                { id: 24, name: 'Cili Padi 小辣椒 (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
-                { id: 25, name: 'Capsicum Merah 红甜椒 (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
-                
-                // === ROOT VEGETABLES ===
-                { id: 26, name: 'Lobak Merah 胡萝卜 (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables' },
-                { id: 27, name: 'Kentang 马铃薯 (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables' },
-                { id: 28, name: 'Ubi Kentang Merah 红薯 (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables' }
+                // === LEAFY GREENS & SALADS (40 varieties) ===
+                { id: 1, name: 'Kangkung 通菜/空心菜 (Water Spinach)', unit: 'kg', price: 4.50, category: 'Leafy Greens' },
+                { id: 2, name: 'Sawi Hijau 芥菜/青菜 (Chinese Mustard Green)', unit: 'kg', price: 5.00, category: 'Leafy Greens' },
+                { id: 3, name: 'Sawi Putih 白菜/大白菜 (Chinese Cabbage)', unit: 'kg', price: 4.80, category: 'Leafy Greens' },
+                { id: 4, name: 'Bayam 苋菜/红苋菜 (Red Spinach)', unit: 'kg', price: 4.20, category: 'Leafy Greens' },
+                { id: 5, name: 'Bayam Pasir 菠菜 (Spinach)', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
+                { id: 6, name: 'Lettuce Iceberg 冰山生菜 (Iceberg Lettuce)', unit: 'head', price: 4.50, category: 'Leafy Greens' },
+                { id: 7, name: 'Pak Choy 白菜仔/小白菜 (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
+                { id: 8, name: 'Kailan 芥兰/芥蓝 (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
+                { id: 9, name: 'Choy Sum 菜心/白菜心 (Choy Sum)', unit: 'kg', price: 6.20, category: 'Leafy Greens' },
+                { id: 10, name: 'Xiao Bai Cai 小白菜 (Baby Bok Choy)', unit: 'kg', price: 6.80, category: 'Leafy Greens' },
+                { id: 11, name: 'Lettuce Romaine 长叶生菜 (Romaine Lettuce)', unit: 'head', price: 5.20, category: 'Leafy Greens' },
+                { id: 12, name: 'Lettuce Butter 奶油生菜 (Butter Lettuce)', unit: 'head', price: 4.80, category: 'Leafy Greens' },
+                { id: 13, name: 'Selada Air 水芹菜 (Watercress)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                { id: 14, name: 'Pokok Ubi 番薯叶 (Sweet Potato Leaves)', unit: 'kg', price: 3.50, category: 'Leafy Greens' },
+                { id: 15, name: 'Daun Ubi Kayu 木薯叶 (Cassava Leaves)', unit: 'kg', price: 4.00, category: 'Leafy Greens' },
+                { id: 16, name: 'Sayur Manis 菜心菜 (Sauropus)', unit: 'kg', price: 8.00, category: 'Leafy Greens' },
+                { id: 17, name: 'Pucuk Paku 蕨菜 (Fiddlehead Fern)', unit: 'kg', price: 15.00, category: 'Leafy Greens' },
+                { id: 18, name: 'Daun Pegaga 积雪草 (Pennywort)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                { id: 19, name: 'Daun Kesum 蓼科叶 (Laksa Leaf)', unit: 'kg', price: 25.00, category: 'Leafy Greens' },
+                { id: 20, name: 'Tung Choy 通菜 (Chinese Water Spinach)', unit: 'kg', price: 5.20, category: 'Leafy Greens' },
+                { id: 21, name: 'Gai Lan 芥蓝花 (Chinese Broccoli Flower)', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
+                { id: 22, name: 'Yu Choy 油菜 (Oil Vegetable)', unit: 'kg', price: 6.50, category: 'Leafy Greens' },
+                { id: 23, name: 'Wong Bok 黄芽白 (Napa Cabbage)', unit: 'kg', price: 4.20, category: 'Leafy Greens' },
+                { id: 24, name: 'Sang Choy 生菜 (Lettuce Chinese)', unit: 'kg', price: 7.80, category: 'Leafy Greens' },
+                { id: 25, name: 'Tatsoi 塌棵菜 (Spoon Mustard)', unit: 'kg', price: 9.50, category: 'Leafy Greens' },
+                { id: 26, name: 'Mizuna 水菜 (Japanese Mustard)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                { id: 27, name: 'Arugula 芝麻菜 (Rocket Salad)', unit: 'kg', price: 15.00, category: 'Leafy Greens' },
+                { id: 28, name: 'Baby Spinach 嫩菠菜 (Baby Spinach)', unit: 'kg', price: 18.00, category: 'Leafy Greens' },
+                { id: 29, name: 'Kale 甘蓝菜 (Curly Kale)', unit: 'kg', price: 16.00, category: 'Leafy Greens' },
+                { id: 30, name: 'Swiss Chard 瑞士甜菜 (Rainbow Chard)', unit: 'kg', price: 14.00, category: 'Leafy Greens' },
+                { id: 31, name: 'Endive 苦苣 (Belgian Endive)', unit: 'kg', price: 22.00, category: 'Leafy Greens' },
+                { id: 32, name: 'Radicchio 红菊苣 (Red Chicory)', unit: 'head', price: 8.50, category: 'Leafy Greens' },
+                { id: 33, name: 'Frisee 法国菊苣 (Curly Endive)', unit: 'head', price: 12.00, category: 'Leafy Greens' },
+                { id: 34, name: 'Mache 羊齿菜 (Corn Salad)', unit: 'kg', price: 28.00, category: 'Leafy Greens' },
+                { id: 35, name: 'Mustard Greens 芥菜叶 (Mustard Leaves)', unit: 'kg', price: 5.80, category: 'Leafy Greens' },
+                { id: 36, name: 'Collard Greens 羽衣甘蓝 (Collards)', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
+                { id: 37, name: 'Dandelion Greens 蒲公英 (Dandelion)', unit: 'kg', price: 18.00, category: 'Leafy Greens' },
+                { id: 38, name: 'Purslane 马齿苋 (Portulaca)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                { id: 39, name: 'Malabar Spinach 木耳菜 (Climbing Spinach)', unit: 'kg', price: 8.00, category: 'Leafy Greens' },
+                { id: 40, name: 'New Zealand Spinach 新西兰菠菜 (Tetragonia)', unit: 'kg', price: 14.00, category: 'Leafy Greens' },
+
+                // === MALAYSIAN SPECIALTY VEGETABLES (25 varieties) ===
+                { id: 41, name: 'Petai 臭豆/苦豆 (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
+                { id: 42, name: 'Jering 臭臭豆 (Djering)', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
+                { id: 43, name: 'Rebung 竹笋 (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
+                { id: 44, name: 'Paku Pakis 蕨类 (Wild Fern)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
+                { id: 45, name: 'Ulam Raja 国王菜 (Cosmos)', unit: 'kg', price: 20.00, category: 'Malaysian Specialty' },
+                { id: 46, name: 'Kesum 蓼 (Vietnamese Mint)', unit: 'kg', price: 25.00, category: 'Malaysian Specialty' },
+                { id: 47, name: 'Pegaga 积雪草 (Asiatic Pennywort)', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
+                { id: 48, name: 'Kacang Botol 翼豆 (Winged Bean)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
+                { id: 49, name: 'Terung Pipit 小茄子 (Thai Eggplant)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
+                { id: 50, name: 'Cekur Manis 甜姜 (Lesser Galangal)', unit: 'kg', price: 35.00, category: 'Malaysian Specialty' },
+                { id: 51, name: 'Daun Kaduk 蒌叶 (Wild Pepper Leaf)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
+                { id: 52, name: 'Pucuk Midin 野蕨菜 (Jungle Fern)', unit: 'kg', price: 28.00, category: 'Malaysian Specialty' },
+                { id: 53, name: 'Centella 雷公根 (Gotu Kola)', unit: 'kg', price: 22.00, category: 'Malaysian Specialty' },
+                { id: 54, name: 'Kacang Kelisa 四角豆 (Dragon Bean)', unit: 'kg', price: 14.00, category: 'Malaysian Specialty' },
+                { id: 55, name: 'Daun Limau Purut 卡菲柠檬叶 (Kaffir Lime Leaves)', unit: 'kg', price: 45.00, category: 'Malaysian Specialty' },
+                { id: 56, name: 'Bunga Kantan 火炬姜花 (Torch Ginger Bud)', unit: 'piece', price: 3.50, category: 'Malaysian Specialty' },
+                { id: 57, name: 'Daun Selasih 九层塔 (Thai Basil)', unit: 'kg', price: 28.00, category: 'Malaysian Specialty' },
+                { id: 58, name: 'Pucuk Ubi 番薯尖 (Sweet Potato Tips)', unit: 'kg', price: 4.50, category: 'Malaysian Specialty' },
+                { id: 59, name: 'Pokok Cili 辣椒叶 (Chili Leaves)', unit: 'kg', price: 8.00, category: 'Malaysian Specialty' },
+                { id: 60, name: 'Tenggek Burung 鸟眼辣椒叶 (Bird Chili Leaves)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
+                { id: 61, name: 'Daun Bawang 葱叶 (Spring Onion Leaves)', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
+                { id: 62, name: 'Kunyit Hidup 新鲜姜黄 (Fresh Turmeric)', unit: 'kg', price: 20.00, category: 'Malaysian Specialty' },
+                { id: 63, name: 'Lengkuas 高良姜 (Galangal)', unit: 'kg', price: 25.00, category: 'Malaysian Specialty' },
+                { id: 64, name: 'Halia Muda 嫩姜 (Young Ginger)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
+                { id: 65, name: 'Serai 柠檬草 (Lemongrass)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
+
+                // === GOURDS & SQUASH (30 varieties) ===
+                { id: 66, name: 'Labu Kuning 南瓜 (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
+                { id: 67, name: 'Petola 丝瓜 (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
+                { id: 68, name: 'Peria 苦瓜 (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 69, name: 'Timun 黄瓜 (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
+                { id: 70, name: 'Labu Air 冬瓜 (Winter Melon)', unit: 'kg', price: 2.50, category: 'Gourds & Squash' },
+                { id: 71, name: 'Labu Botol 葫芦瓜 (Bottle Gourd)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
+                { id: 72, name: 'Timun Jepun 日本黄瓜 (Japanese Cucumber)', unit: 'kg', price: 6.50, category: 'Gourds & Squash' },
+                { id: 73, name: 'Labu Merah 红南瓜 (Red Pumpkin)', unit: 'kg', price: 3.50, category: 'Gourds & Squash' },
+                { id: 74, name: 'Zucchini 意大利瓜 (Courgette)', unit: 'kg', price: 8.50, category: 'Gourds & Squash' },
+                { id: 75, name: 'Labu Kabocha 日本南瓜 (Kabocha Squash)', unit: 'kg', price: 12.00, category: 'Gourds & Squash' },
+                { id: 76, name: 'Timun Belanda 荷兰黄瓜 (Continental Cucumber)', unit: 'piece', price: 4.20, category: 'Gourds & Squash' },
+                { id: 77, name: 'Petola Ular 蛇丝瓜 (Snake Gourd)', unit: 'kg', price: 5.50, category: 'Gourds & Squash' },
+                { id: 78, name: 'Kundur 冬瓜 (Ash Gourd)', unit: 'kg', price: 2.80, category: 'Gourds & Squash' },
+                { id: 79, name: 'Labu Putih 白瓜 (White Gourd)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
+                { id: 80, name: 'Peria Katak 癞蛤蟆瓜 (Spiny Gourd)', unit: 'kg', price: 12.00, category: 'Gourds & Squash' },
+                { id: 81, name: 'Labu Manis 甜瓜 (Sweet Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
+                { id: 82, name: 'Timun Suri 脆瓜 (Pickled Melon)', unit: 'kg', price: 5.80, category: 'Gourds & Squash' },
+                { id: 83, name: 'Butternut Squash 奶油瓜 (Butternut)', unit: 'kg', price: 14.00, category: 'Gourds & Squash' },
+                { id: 84, name: 'Acorn Squash 橡果瓜 (Table Queen)', unit: 'piece', price: 8.50, category: 'Gourds & Squash' },
+                { id: 85, name: 'Delicata Squash 条纹瓜 (Cream Squash)', unit: 'kg', price: 16.00, category: 'Gourds & Squash' },
+                { id: 86, name: 'Spaghetti Squash 意粉瓜 (Vegetable Spaghetti)', unit: 'kg', price: 18.00, category: 'Gourds & Squash' },
+                { id: 87, name: 'Pattypan Squash 飞碟瓜 (Scalloped Squash)', unit: 'kg', price: 12.00, category: 'Gourds & Squash' },
+                { id: 88, name: 'Chayote 合掌瓜 (Choko)', unit: 'kg', price: 6.50, category: 'Gourds & Squash' },
+                { id: 89, name: 'Yellow Squash 黄瓜 (Summer Squash)', unit: 'kg', price: 10.00, category: 'Gourds & Squash' },
+                { id: 90, name: 'Crookneck Squash 弯颈瓜 (Yellow Crookneck)', unit: 'kg', price: 11.00, category: 'Gourds & Squash' },
+                { id: 91, name: 'Eight Ball Squash 球形瓜 (Round Zucchini)', unit: 'piece', price: 5.50, category: 'Gourds & Squash' },
+                { id: 92, name: 'Tinda 印度瓜 (Indian Baby Pumpkin)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 93, name: 'Hubbard Squash 哈伯德瓜 (Blue Hubbard)', unit: 'kg', price: 15.00, category: 'Gourds & Squash' },
+                { id: 94, name: 'Sugar Pie Pumpkin 糖饼南瓜 (Pie Pumpkin)', unit: 'kg', price: 8.50, category: 'Gourds & Squash' },
+                { id: 95, name: 'Honeynut Squash 蜜坚果瓜 (Mini Butternut)', unit: 'piece', price: 4.50, category: 'Gourds & Squash' },
+
+                // === EGGPLANTS & TOMATOES (20 varieties) ===
+                { id: 96, name: 'Terung Ungu 紫茄子 (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
+                { id: 97, name: 'Tomato Biasa 番茄 (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
+                { id: 98, name: 'Terung Bulat 圆茄子 (Round Eggplant)', unit: 'kg', price: 6.20, category: 'Eggplants & Tomatoes' },
+                { id: 99, name: 'Cherry Tomato 樱桃番茄 (Cherry Tomatoes)', unit: 'kg', price: 12.00, category: 'Eggplants & Tomatoes' },
+                { id: 100, name: 'Terung Hijau 绿茄子 (Green Eggplant)', unit: 'kg', price: 6.80, category: 'Eggplants & Tomatoes' },
+                { id: 101, name: 'Tomato Roma 罗马番茄 (Plum Tomato)', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
+                { id: 102, name: 'Terung Panjang 长茄子 (Long Eggplant)', unit: 'kg', price: 5.80, category: 'Eggplants & Tomatoes' },
+                { id: 103, name: 'Terung Cina 中国茄子 (Chinese Eggplant)', unit: 'kg', price: 7.20, category: 'Eggplants & Tomatoes' },
+                { id: 104, name: 'Terung Putih 白茄子 (White Eggplant)', unit: 'kg', price: 8.00, category: 'Eggplants & Tomatoes' },
+                { id: 105, name: 'Beef Tomato 牛肉番茄 (Beefsteak Tomato)', unit: 'kg', price: 10.00, category: 'Eggplants & Tomatoes' },
+                { id: 106, name: 'Terung Thai 泰国茄子 (Thai Eggplant)', unit: 'kg', price: 9.50, category: 'Eggplants & Tomatoes' },
+                { id: 107, name: 'Grape Tomato 葡萄番茄 (Grape Tomatoes)', unit: 'kg', price: 14.00, category: 'Eggplants & Tomatoes' },
+                { id: 108, name: 'Japanese Eggplant 日本茄子 (Nasu)', unit: 'kg', price: 12.00, category: 'Eggplants & Tomatoes' },
+                { id: 109, name: 'Heirloom Tomato 传家宝番茄 (Heritage Tomato)', unit: 'kg', price: 18.00, category: 'Eggplants & Tomatoes' },
+                { id: 110, name: 'Baby Eggplant 小茄子 (Mini Eggplant)', unit: 'kg', price: 11.00, category: 'Eggplants & Tomatoes' },
+                { id: 111, name: 'San Marzano Tomato 圣马扎诺番茄 (Italian Tomato)', unit: 'kg', price: 22.00, category: 'Eggplants & Tomatoes' },
+                { id: 112, name: 'Indian Eggplant 印度茄子 (Brinjal)', unit: 'kg', price: 7.50, category: 'Eggplants & Tomatoes' },
+                { id: 113, name: 'Yellow Tomato 黄番茄 (Golden Tomato)', unit: 'kg', price: 15.00, category: 'Eggplants & Tomatoes' },
+                { id: 114, name: 'Ping Tung Eggplant 屏东茄子 (Long Purple)', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
+                { id: 115, name: 'Green Zebra Tomato 绿斑马番茄 (Striped Tomato)', unit: 'kg', price: 20.00, category: 'Eggplants & Tomatoes' },
+
+                // === BEANS & PODS (25 varieties) ===
+                { id: 116, name: 'Bendi 秋葵/羊角豆 (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods' },
+                { id: 117, name: 'Kacang Panjang 长豆/豇豆 (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods' },
+                { id: 118, name: 'Taugeh 豆芽菜 (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods' },
+                { id: 119, name: 'Kacang Buncis 四季豆 (French Beans)', unit: 'kg', price: 8.50, category: 'Beans & Pods' },
+                { id: 120, name: 'Snow Peas 荷兰豆 (Mangetout)', unit: 'kg', price: 18.00, category: 'Beans & Pods' },
+                { id: 121, name: 'Sugar Snap Peas 甜豆荚 (Snap Peas)', unit: 'kg', price: 22.00, category: 'Beans & Pods' },
+                { id: 122, name: 'Edamame 毛豆 (Young Soybean)', unit: 'kg', price: 15.00, category: 'Beans & Pods' },
+                { id: 123, name: 'Kacang Merah 红豆荚 (Red Bean Pods)', unit: 'kg', price: 12.00, category: 'Beans & Pods' },
+                { id: 124, name: 'Drumstick 辣木果 (Moringa Pods)', unit: 'kg', price: 8.00, category: 'Beans & Pods' },
+                { id: 125, name: 'Romano Beans 意大利扁豆 (Flat Beans)', unit: 'kg', price: 14.00, category: 'Beans & Pods' },
+                { id: 126, name: 'Purple Beans 紫豆角 (Purple French Beans)', unit: 'kg', price: 16.00, category: 'Beans & Pods' },
+                { id: 127, name: 'Yellow Beans 黄豆角 (Yellow Wax Beans)', unit: 'kg', price: 15.00, category: 'Beans & Pods' },
+                { id: 128, name: 'Runner Beans 蔓生豆 (Scarlet Runner)', unit: 'kg', price: 18.00, category: 'Beans & Pods' },
+                { id: 129, name: 'Lima Beans 利马豆 (Butter Beans)', unit: 'kg', price: 20.00, category: 'Beans & Pods' },
+                { id: 130, name: 'Fava Beans 蚕豆 (Broad Beans)', unit: 'kg', price: 25.00, category: 'Beans & Pods' },
+                { id: 131, name: 'Black-eyed Peas 黑眼豆 (Cowpeas)', unit: 'kg', price: 14.00, category: 'Beans & Pods' },
+                { id: 132, name: 'Hyacinth Beans 扁豆 (Lablab)', unit: 'kg', price: 12.00, category: 'Beans & Pods' },
+                { id: 133, name: 'Tamarind Pods 罗望子荚 (Tamarind)', unit: 'kg', price: 8.50, category: 'Beans & Pods' },
+                { id: 134, name: 'Cluster Beans 四棱豆 (Guar)', unit: 'kg', price: 10.00, category: 'Beans & Pods' },
+                { id: 135, name: 'Adzuki Bean Pods 红小豆荚 (Red Bean)', unit: 'kg', price: 16.00, category: 'Beans & Pods' },
+                { id: 136, name: 'Mung Bean Pods 绿豆荚 (Green Gram)', unit: 'kg', price: 14.00, category: 'Beans & Pods' },
+                { id: 137, name: 'Pigeon Pea Pods 木豆荚 (Toor Dal)', unit: 'kg', price: 12.00, category: 'Beans & Pods' },
+                { id: 138, name: 'Chickpea Pods 鹰嘴豆荚 (Garbanzo)', unit: 'kg', price: 18.00, category: 'Beans & Pods' },
+                { id: 139, name: 'Lentil Pods 小扁豆荚 (Masoor)', unit: 'kg', price: 20.00, category: 'Beans & Pods' },
+                { id: 140, name: 'Yardlong Beans 尺豆 (Asparagus Bean)', unit: 'kg', price: 7.80, category: 'Beans & Pods' },
+
+                // === ONIONS & AROMATICS (15 varieties) ===
+                { id: 141, name: 'Bawang Merah 红葱头 (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
+                { id: 142, name: 'Bawang Putih 蒜头/大蒜 (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics' },
+                { id: 143, name: 'Bawang Besar Merah 红洋葱 (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics' },
+                { id: 144, name: 'Bawang Putih Besar 白洋葱 (White Onions)', unit: 'kg', price: 4.80, category: 'Onions & Aromatics' },
+                { id: 145, name: 'Bawang Kuning 黄洋葱 (Yellow Onions)', unit: 'kg', price: 4.50, category: 'Onions & Aromatics' },
+                { id: 146, name: 'Spring Onion 青葱/小葱 (Scallions)', unit: 'kg', price: 12.00, category: 'Onions & Aromatics' },
+                { id: 147, name: 'Leek 韭葱/大葱 (Leeks)', unit: 'kg', price: 15.00, category: 'Onions & Aromatics' },
+                { id: 148, name: 'Chives 韭菜 (Chinese Chives)', unit: 'kg', price: 8.50, category: 'Onions & Aromatics' },
+                { id: 149, name: 'Garlic Chives 韭黄 (Yellow Chives)', unit: 'kg', price: 12.00, category: 'Onions & Aromatics' },
+                { id: 150, name: 'Shallot Leaves 葱白叶 (Shallot Greens)', unit: 'kg', price: 14.00, category: 'Onions & Aromatics' },
+                { id: 151, name: 'Pearl Onions 珍珠洋葱 (Button Onions)', unit: 'kg', price: 12.00, category: 'Onions & Aromatics' },
+                { id: 152, name: 'Sweet Onions 甜洋葱 (Vidalia)', unit: 'kg', price: 8.50, category: 'Onions & Aromatics' },
+                { id: 153, name: 'Cipollini Onions 意大利洋葱 (Flat Onions)', unit: 'kg', price: 16.00, category: 'Onions & Aromatics' },
+                { id: 154, name: 'Elephant Garlic 象蒜 (Giant Garlic)', unit: 'piece', price: 15.00, category: 'Onions & Aromatics' },
+                { id: 155, name: 'Wild Garlic 野蒜 (Ramps)', unit: 'kg', price: 35.00, category: 'Onions & Aromatics' },
+
+                // === PEPPERS & CHILIES (20 varieties) ===
+                { id: 156, name: 'Cili Merah 红辣椒 (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
+                { id: 157, name: 'Cili Padi 小辣椒 (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
+                { id: 158, name: 'Capsicum Merah 红甜椒 (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
+                { id: 159, name: 'Capsicum Hijau 青椒 (Green Bell Pepper)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
+                { id: 160, name: 'Capsicum Kuning 黄椒 (Yellow Bell Pepper)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
+                { id: 161, name: 'Cili Hijau 青辣椒 (Green Chili)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
+                { id: 162, name: 'Cili Besar 大辣椒 (Large Chili)', unit: 'kg', price: 10.00, category: 'Peppers & Chilies' },
+                { id: 163, name: 'Jalapeño 墨西哥辣椒 (Jalapeño Pepper)', unit: 'kg', price: 20.00, category: 'Peppers & Chilies' },
+                { id: 164, name: 'Habanero 哈瓦那辣椒 (Habanero)', unit: 'kg', price: 45.00, category: 'Peppers & Chilies' },
+                { id: 165, name: 'Serrano 塞拉诺辣椒 (Serrano Pepper)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
+                { id: 166, name: 'Poblano 波布拉诺椒 (Poblano Pepper)', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
+                { id: 167, name: 'Anaheim 阿纳海姆椒 (New Mexico Chili)', unit: 'kg', price: 16.00, category: 'Peppers & Chilies' },
+                { id: 168, name: 'Cayenne 卡宴椒 (Cayenne Pepper)', unit: 'kg', price: 30.00, category: 'Peppers & Chilies' },
+                { id: 169, name: 'Thai Chili 泰椒 (Thai Dragon)', unit: 'kg', price: 35.00, category: 'Peppers & Chilies' },
+                { id: 170, name: 'Banana Pepper 香蕉椒 (Yellow Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
+                { id: 171, name: 'Hungarian Wax 匈牙利蜡椒 (Hot Wax)', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
+                { id: 172, name: 'Fresno 弗雷斯诺椒 (Fresno Pepper)', unit: 'kg', price: 22.00, category: 'Peppers & Chilies' },
+                { id: 173, name: 'Scotch Bonnet 苏格兰帽椒 (Caribbean Hot)', unit: 'kg', price: 50.00, category: 'Peppers & Chilies' },
+                { id: 174, name: 'Ghost Pepper 魔鬼椒 (Bhut Jolokia)', unit: 'kg', price: 80.00, category: 'Peppers & Chilies' },
+                { id: 175, name: 'Carolina Reaper 卡罗来纳死神椒 (World\'s Hottest)', unit: 'kg', price: 150.00, category: 'Peppers & Chilies' },
+
+                // === ROOT VEGETABLES (20 varieties) ===
+                { id: 176, name: 'Lobak Merah 胡萝卜/红萝卜 (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables' },
+                { id: 177, name: 'Kentang 马铃薯/土豆 (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables' },
+                { id: 178, name: 'Ubi Kentang Merah 红薯/番薯 (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables' },
+                { id: 179, name: 'Lobak Putih 白萝卜 (White Radish/Daikon)', unit: 'kg', price: 3.80, category: 'Root Vegetables' },
+                { id: 180, name: 'Beetroot 红菜头 (Red Beet)', unit: 'kg', price: 8.50, category: 'Root Vegetables' },
+                { id: 181, name: 'Turnip 芜菁/大头菜 (White Turnip)', unit: 'kg', price: 6.50, category: 'Root Vegetables' },
+                { id: 182, name: 'Ubi Kayu 木薯 (Cassava)', unit: 'kg', price: 3.20, category: 'Root Vegetables' },
+                { id: 183, name: 'Keladi 芋头 (Taro)', unit: 'kg', price: 6.80, category: 'Root Vegetables' },
+                { id: 184, name: 'Yam 山药 (Chinese Yam)', unit: 'kg', price: 12.00, category: 'Root Vegetables' },
+                { id: 185, name: 'Jerusalem Artichoke 菊芋 (Sunchoke)', unit: 'kg', price: 18.00, category: 'Root Vegetables' },
+                { id: 186, name: 'Parsnip 欧洲防风草 (White Carrot)', unit: 'kg', price: 15.00, category: 'Root Vegetables' },
+                { id: 187, name: 'Rutabaga 瑞典萝卜 (Swede)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
+                { id: 188, name: 'Horseradish 辣根 (Japanese Radish)', unit: 'kg', price: 25.00, category: 'Root Vegetables' },
+                { id: 189, name: 'Jicama 凉薯 (Mexican Turnip)', unit: 'kg', price: 10.00, category: 'Root Vegetables' },
+                { id: 190, name: 'Water Chestnut 荸荠 (Chinese Water Chestnut)', unit: 'kg', price: 14.00, category: 'Root Vegetables' },
+                { id: 191, name: 'Lotus Root 莲藕 (Renkon)', unit: 'kg', price: 16.00, category: 'Root Vegetables' },
+                { id: 192, name: 'Celeriac 根芹菜 (Celery Root)', unit: 'kg', price: 20.00, category: 'Root Vegetables' },
+                { id: 193, name: 'Black Radish 黑萝卜 (Spanish Radish)', unit: 'kg', price: 12.00, category: 'Root Vegetables' },
+                { id: 194, name: 'Purple Carrot 紫胡萝卜 (Purple Carrot)', unit: 'kg', price: 8.50, category: 'Root Vegetables' },
+                { id: 195, name: 'Baby Potato 小土豆 (Fingerling)', unit: 'kg', price: 6.50, category: 'Root Vegetables' },
+
+                // === HERBS & AROMATICS (15 varieties) ===
+                { id: 196, name: 'Basil 九层塔/罗勒 (Sweet Basil)', unit: 'kg', price: 25.00, category: 'Herbs & Aromatics' },
+                { id: 197, name: 'Coriander 芫荽/香菜 (Cilantro)', unit: 'kg', price: 12.00, category: 'Herbs & Aromatics' },
+                { id: 198, name: 'Parsley 欧芹/荷兰芹 (Flat Parsley)', unit: 'kg', price: 18.00, category: 'Herbs & Aromatics' },
+                { id: 199, name: 'Mint 薄荷 (Spearmint)', unit: 'kg', price: 20.00, category: 'Herbs & Aromatics' },
+                { id: 200, name: 'Dill 莳萝 (Dill Weed)', unit: 'kg', price: 35.00, category: 'Herbs & Aromatics' },
+                { id: 201, name: 'Rosemary 迷迭香 (Fresh Rosemary)', unit: 'kg', price: 45.00, category: 'Herbs & Aromatics' },
+                { id: 202, name: 'Thyme 百里香 (Fresh Thyme)', unit: 'kg', price: 50.00, category: 'Herbs & Aromatics' },
+                { id: 203, name: 'Oregano 牛至 (Fresh Oregano)', unit: 'kg', price: 40.00, category: 'Herbs & Aromatics' },
+                { id: 204, name: 'Sage 鼠尾草 (Garden Sage)', unit: 'kg', price: 55.00, category: 'Herbs & Aromatics' },
+                { id: 205, name: 'Celery 芹菜 (Chinese Celery)', unit: 'kg', price: 8.50, category: 'Herbs & Aromatics' },
+                { id: 206, name: 'Fennel 茴香 (Florence Fennel)', unit: 'kg', price: 15.00, category: 'Herbs & Aromatics' },
+                { id: 207, name: 'Tarragon 龙蒿 (French Tarragon)', unit: 'kg', price: 65.00, category: 'Herbs & Aromatics' },
+                { id: 208, name: 'Chervil 细叶芹 (French Parsley)', unit: 'kg', price: 45.00, category: 'Herbs & Aromatics' },
+                { id: 209, name: 'Marjoram 马郁兰 (Sweet Marjoram)', unit: 'kg', price: 48.00, category: 'Herbs & Aromatics' },
+                { id: 210, name: 'Lemon Balm 柠檬香蜂草 (Melissa)', unit: 'kg', price: 30.00, category: 'Herbs & Aromatics' },
+
+                // === MUSHROOMS & FUNGI (15 varieties) ===
+                { id: 211, name: 'Cendawan Tiram 平菇 (Oyster Mushroom)', unit: 'kg', price: 12.00, category: 'Mushrooms & Fungi' },
+                { id: 212, name: 'Cendawan Butang 纽扣菇 (Button Mushroom)', unit: 'kg', price: 15.00, category: 'Mushrooms & Fungi' },
+                { id: 213, name: 'Shiitake 香菇 (Shiitake Mushroom)', unit: 'kg', price: 25.00, category: 'Mushrooms & Fungi' },
+                { id: 214, name: 'Enoki 金针菇 (Golden Needle)', unit: 'kg', price: 18.00, category: 'Mushrooms & Fungi' },
+                { id: 215, name: 'King Oyster 杏鲍菇 (King Trumpet)', unit: 'kg', price: 20.00, category: 'Mushrooms & Fungi' },
+                { id: 216, name: 'Shimeji 本菇 (Beech Mushroom)', unit: 'kg', price: 22.00, category: 'Mushrooms & Fungi' },
+                { id: 217, name: 'Portobello 大啡菇 (Large Brown)', unit: 'piece', price: 8.50, category: 'Mushrooms & Fungi' },
+                { id: 218, name: 'Cremini 小啡菇 (Baby Bella)', unit: 'kg', price: 18.00, category: 'Mushrooms & Fungi' },
+                { id: 219, name: 'Maitake 舞茸 (Hen of Woods)', unit: 'kg', price: 35.00, category: 'Mushrooms & Fungi' },
+                { id: 220, name: 'Wood Ear 木耳 (Black Fungus)', unit: 'kg', price: 28.00, category: 'Mushrooms & Fungi' },
+                { id: 221, name: 'Lion\'s Mane 猴头菇 (Bearded Tooth)', unit: 'kg', price: 45.00, category: 'Mushrooms & Fungi' },
+                { id: 222, name: 'Chanterelle 鸡油菌 (Golden Chanterelle)', unit: 'kg', price: 65.00, category: 'Mushrooms & Fungi' },
+                { id: 223, name: 'Morel 羊肚菌 (True Morel)', unit: 'kg', price: 150.00, category: 'Mushrooms & Fungi' },
+                { id: 224, name: 'Porcini 牛肝菌 (King Bolete)', unit: 'kg', price: 120.00, category: 'Mushrooms & Fungi' },
+                { id: 225, name: 'Truffle 松露 (Black Truffle)', unit: 'kg', price: 2500.00, category: 'Mushrooms & Fungi' }
             ];
 
             orders = [];
@@ -2410,7 +2560,6 @@
             container.innerHTML = customersHTML;
         }
 
-        // Enhanced rendering with virtualization for large datasets
         function renderProducts(searchTerm, category) {
             if (!searchTerm) searchTerm = '';
             if (!category) category = 'all';
@@ -2436,43 +2585,20 @@
                     '<p style="font-size: 14px; margin-top: 8px;">Try searching with different keywords or select a different category</p>' +
                     '</div>';
             } else {
-                // Show total count
-                productsHTML += '<div style="background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; text-align: center;">' +
-                    '<span style="font-weight: 600; color: rgba(255,255,255,0.9);">📊 Showing ' + filteredProducts.length + ' of ' + products.length + ' vegetables</span>' +
-                    '</div>';
-                
-                // Enhanced product cards with better Chinese name display
                 for (var i = 0; i < filteredProducts.length; i++) {
                     var product = filteredProducts[i];
-                    
-                    // Parse Chinese name for better display
-                    var displayName = product.name;
-                    var chineseName = '';
-                    var englishName = '';
-                    
-                    // Extract Chinese characters (format: "Malay 中文 (English)")
-                    var match = product.name.match(/^([^]+?)\s([^\s]+)\s\((.+)\)$/);
-                    if (match) {
-                        var malayName = match[1];
-                        chineseName = match[2];
-                        englishName = match[3];
-                        displayName = malayName;
-                    }
-                    
-                    productsHTML += '<div class="product-card" style="border-left: 4px solid ' + getCategoryColor(product.category) + ';">' +
+                    productsHTML += '<div class="product-card">' +
                         '<div style="display: flex; justify-content: space-between; align-items: center;">' +
                         '<div class="product-info" style="flex: 1;">' +
-                        '<h3 style="margin-bottom: 4px;">' + displayName + '</h3>' +
-                        (chineseName ? '<div style="font-size: 18px; color: #67e8f9; font-weight: 600; margin-bottom: 4px;">' + chineseName + '</div>' : '') +
-                        (englishName ? '<div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px;">(' + englishName + ')</div>' : '') +
-                        '<p style="font-size: 13px; color: rgba(255,255,255,0.8);">per ' + product.unit + '</p>' +
-                        (product.category ? '<span class="category-badge" style="background: ' + getCategoryColor(product.category) + '20; color: ' + getCategoryColor(product.category) + '; border: 1px solid ' + getCategoryColor(product.category) + '40;">' + product.category + '</span>' : '') +
+                        '<h3>' + product.name + '</h3>' +
+                        '<p>per ' + product.unit + '</p>' +
+                        (product.category ? '<span class="category-badge">' + product.category + '</span>' : '') +
                         '</div>' +
                         '<div class="product-price">' +
-                        '<div class="price" style="color: #67e8f9;">RM ' + product.price.toFixed(2) + '</div>' +
+                        '<div class="price">RM ' + product.price.toFixed(2) + '</div>' +
                         '<div class="product-actions">' +
-                        '<button class="icon-btn edit-btn" onclick="editProduct(' + product.id + ')" title="Edit ' + displayName + '">✏️</button>' +
-                        '<button class="icon-btn delete-btn" onclick="deleteProduct(' + product.id + ')" title="Delete ' + displayName + '">🗑️</button>' +
+                        '<button class="icon-btn" onclick="editProduct(' + product.id + ')">✏️</button>' +
+                        '<button class="icon-btn" onclick="deleteProduct(' + product.id + ')">🗑️</button>' +
                         '</div>' +
                         '</div>' +
                         '</div>' +
@@ -2481,168 +2607,6 @@
             }
             
             container.innerHTML = productsHTML;
-        }
-
-        // Get category colors for visual distinction
-        function getCategoryColor(category) {
-            var colors = {
-                'Leafy Greens': '#10b981',
-                'Malaysian Specialty': '#f59e0b', 
-                'Gourds & Squash': '#orange',
-                'Eggplants & Tomatoes': '#ef4444',
-                'Beans & Pods': '#8b5cf6',
-                'Onions & Aromatics': '#f97316',
-                'Peppers & Chilies': '#dc2626',
-                'Root Vegetables': '#a16207',
-                'Mushrooms': '#6b7280'
-            };
-            return colors[category] || '#0891b2';
-        }
-
-        // Enhanced search with Chinese character support
-        function setupAdvancedSearch() {
-            var productSearch = document.getElementById('product-search');
-            var orderSearch = document.getElementById('order-search');
-            
-            if (productSearch) {
-                productSearch.addEventListener('input', function(e) {
-                    var searchTerm = e.target.value;
-                    debounceProductSearch(searchTerm);
-                });
-            }
-            
-            if (orderSearch) {
-                orderSearch.addEventListener('input', function(e) {
-                    var searchTerm = e.target.value;
-                    debounceOrderSearch(searchTerm);
-                });
-            }
-        }
-
-        // Debounced search for better performance
-        var productSearchTimeout;
-        function debounceProductSearch(searchTerm) {
-            clearTimeout(productSearchTimeout);
-            productSearchTimeout = setTimeout(function() {
-                renderProducts(searchTerm, selectedCategory);
-            }, 300);
-        }
-
-        var orderSearchTimeout;
-        function debounceOrderSearch(searchTerm) {
-            clearTimeout(orderSearchTimeout);
-            orderSearchTimeout = setTimeout(function() {
-                filterOrderItems(searchTerm);
-            }, 300);
-        }
-
-        // Enhanced category setup with counts
-        function setupCategoryFilters() {
-            var categories = getCategories();
-            
-            // Calculate counts per category
-            var categoryCounts = {};
-            for (var i = 0; i < products.length; i++) {
-                var category = products[i].category || 'Uncategorized';
-                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-            }
-            categoryCounts['All'] = products.length;
-            
-            // Main product view category filters
-            var categoryFiltersContainer = document.getElementById('category-filters');
-            var categoryHTML = '';
-            for (var i = 0; i < categories.length; i++) {
-                var isActive = (i === 0) ? 'active' : '';
-                var count = categoryCounts[categories[i]] || 0;
-                var displayText = categories[i] + ' (' + count + ')';
-                categoryHTML += '<button class="category-btn ' + isActive + '" onclick="filterByCategory(\'' + categories[i] + '\')" style="border: 1px solid ' + getCategoryColor(categories[i]) + '40;">' + displayText + '</button>';
-            }
-            categoryFiltersContainer.innerHTML = categoryHTML;
-            
-            // Order form category filters
-            var orderCategoryFiltersContainer = document.getElementById('order-category-filters');
-            if (orderCategoryFiltersContainer) {
-                orderCategoryFiltersContainer.innerHTML = categoryHTML.replace(/filterByCategory/g, 'filterOrderByCategory');
-            }
-            
-            // Product form category options
-            var productCategorySelect = document.getElementById('product-category');
-            var categoryOptionsHTML = '<option value="">Select Category</option>';
-            for (var i = 1; i < categories.length; i++) { // Skip "All"
-                categoryOptionsHTML += '<option value="' + categories[i] + '">' + categories[i] + '</option>';
-            }
-            productCategorySelect.innerHTML = categoryOptionsHTML;
-        }
-
-        // Performance monitoring for large datasets
-        function setupPerformanceMonitoring() {
-            var loadTimes = [];
-            
-            function measureRenderTime(operation) {
-                var start = performance.now();
-                return function() {
-                    var end = performance.now();
-                    var time = end - start;
-                    loadTimes.push(time);
-                    
-                    if (time > 100) { // If rendering takes more than 100ms
-                        console.warn('Slow render detected for ' + operation + ': ' + time.toFixed(2) + 'ms');
-                        // Enable virtual scrolling for large lists
-                        enableVirtualScrolling();
-                    }
-                    
-                    // Show performance stats in development
-                    if (loadTimes.length > 0 && loadTimes.length % 10 === 0) {
-                        var avg = loadTimes.reduce(function(a, b) { return a + b; }) / loadTimes.length;
-                        console.log('Average render time: ' + avg.toFixed(2) + 'ms');
-                    }
-                };
-            }
-            
-            // Monitor product rendering
-            var originalRenderProducts = renderProducts;
-            renderProducts = function() {
-                var endMeasure = measureRenderTime('products');
-                var result = originalRenderProducts.apply(this, arguments);
-                endMeasure();
-                return result;
-            };
-        }
-
-        // Virtual scrolling for very large lists
-        function enableVirtualScrolling() {
-            var productsList = document.getElementById('products-list');
-            if (!productsList || productsList.children.length < 50) return;
-            
-            var itemHeight = 120; // Approximate height of each product card
-            var visibleItems = Math.ceil(window.innerHeight / itemHeight) + 5; // Buffer
-            
-            productsList.style.position = 'relative';
-            productsList.style.height = (products.length * itemHeight) + 'px';
-            
-            function updateVisibleItems() {
-                var scrollTop = productsList.scrollTop || 0;
-                var startIndex = Math.floor(scrollTop / itemHeight);
-                var endIndex = Math.min(startIndex + visibleItems, products.length);
-                
-                // Hide all items
-                for (var i = 0; i < productsList.children.length; i++) {
-                    productsList.children[i].style.display = 'none';
-                }
-                
-                // Show only visible items
-                for (var i = startIndex; i < endIndex; i++) {
-                    if (productsList.children[i]) {
-                        productsList.children[i].style.display = 'block';
-                        productsList.children[i].style.position = 'absolute';
-                        productsList.children[i].style.top = (i * itemHeight) + 'px';
-                        productsList.children[i].style.width = '100%';
-                    }
-                }
-            }
-            
-            productsList.addEventListener('scroll', updateVisibleItems);
-            updateVisibleItems();
         }
 
         function renderOrders() {
@@ -3017,284 +2981,28 @@
                 }
             }
             
-            // Show results count for order form
-            if (searchTerm || category !== 'all') {
-                itemsHTML += '<div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #38bdf8;">' +
-                    '<span style="font-weight: 600; color: #0369a1; font-size: 13px;">📊 Found ' + filteredProducts.length + ' vegetables</span>' +
-                    '</div>';
-            }
-            
             for (var i = 0; i < filteredProducts.length; i++) {
                 var product = filteredProducts[i];
-                
-                // Parse Chinese name for better display in order form
-                var displayName = product.name;
-                var chineseName = '';
-                var englishName = '';
-                
-                var match = product.name.match(/^([^]+?)\s([^\s]+)\s\((.+)\)$/);
-                if (match) {
-                    var malayName = match[1];
-                    chineseName = match[2];
-                    englishName = match[3];
-                    displayName = malayName;
-                }
-                
-                itemsHTML += '<div class="order-item" id="order-item-' + product.id + '" style="border-left: 3px solid ' + getCategoryColor(product.category) + ';">' +
+                itemsHTML += '<div class="order-item" id="order-item-' + product.id + '">' +
                     '<div class="item-header">' +
                     '<div style="flex: 1;">' +
-                    '<div class="item-name" style="display: flex; align-items: center; gap: 8px;">' +
-                    '<span>' + displayName + '</span>' +
-                    (chineseName ? '<span style="color: #0891b2; font-size: 16px; font-weight: 600;">' + chineseName + '</span>' : '') +
+                    '<div class="item-name">' + product.name + '</div>' +
+                    '<div class="item-price">RM ' + product.price.toFixed(2) + ' per ' + product.unit + '</div>' +
+                    (product.category ? '<span class="category-badge" style="background: #e5e7eb; color: #6b7280;">' + product.category + '</span>' : '') +
                     '</div>' +
-                    (englishName ? '<div style="font-size: 11px; color: #6b7280; margin-top: 2px;">(' + englishName + ')</div>' : '') +
-                    '<div class="item-price" style="margin-top: 4px;">RM ' + product.price.toFixed(2) + ' per ' + product.unit + '</div>' +
-                    (product.category ? '<span class="category-badge" style="background: ' + getCategoryColor(product.category) + '15; color: ' + getCategoryColor(product.category) + '; border: 1px solid ' + getCategoryColor(product.category) + '30; margin-top: 6px;">' + product.category + '</span>' : '') +
-                    '</div>' +
-                    '<div class="item-total" id="item-total-' + product.id + '" style="font-size: 18px; font-weight: 700; color: #0891b2;">RM 0.00</div>' +
+                    '<div class="item-total" id="item-total-' + product.id + '">RM 0.00</div>' +
                     '</div>' +
                     '<div class="quantity-input">' +
                     '<input type="number" step="0.1" min="0" placeholder="0" ' +
                     'onchange="updateOrderItemTotal(' + product.id + ', ' + product.price + ', this.value)" ' +
                     'oninput="updateOrderItemTotal(' + product.id + ', ' + product.price + ', this.value)" ' +
-                    'id="quantity-' + product.id + '" style="border: 2px solid ' + getCategoryColor(product.category) + '30;">' +
-                    '<span class="unit-label" style="color: ' + getCategoryColor(product.category) + ';">' + product.unit + '</span>' +
+                    'id="quantity-' + product.id + '">' +
+                    '<span class="unit-label">' + product.unit + '</span>' +
                     '</div>' +
                     '</div>';
             }
             
             container.innerHTML = itemsHTML;
-        }
-
-        // Enhanced statistics display for large dataset
-        function updateStats() {
-            var todayOrders = [];
-            for (var i = 0; i < orders.length; i++) {
-                if (orders[i].date === selectedDate) {
-                    todayOrders.push(orders[i]);
-                }
-            }
-            
-            var totalSales = 0;
-            var pendingCount = 0;
-            var completedCount = 0;
-            
-            for (var i = 0; i < todayOrders.length; i++) {
-                totalSales += todayOrders[i].total;
-                if (todayOrders[i].status === 'pending') {
-                    pendingCount++;
-                } else if (todayOrders[i].status === 'completed') {
-                    completedCount++;
-                }
-            }
-
-            // Enhanced statistics display
-            document.getElementById('customers-count').textContent = customers.length.toLocaleString();
-            document.getElementById('products-count').textContent = products.length.toLocaleString();
-            document.getElementById('orders-count').textContent = todayOrders.length.toLocaleString();
-            document.getElementById('total-sales').textContent = 'RM ' + totalSales.toLocaleString('en-MY', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('daily-sales').textContent = 'RM ' + totalSales.toLocaleString('en-MY', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('pending-count').textContent = pendingCount.toLocaleString();
-            document.getElementById('completed-count').textContent = completedCount.toLocaleString();
-            
-            // Update comprehensive database stats in dashboard
-            var totalVegetables = document.getElementById('total-vegetables');
-            var totalCategories = document.getElementById('total-categories');
-            if (totalVegetables) totalVegetables.textContent = products.length.toLocaleString() + '+';
-            if (totalCategories) totalCategories.textContent = getCategories().length - 1; // Exclude "All" category
-            
-            // Update page title with current stats
-            document.title = 'VegeOrder - ' + products.length + ' Vegetables | RM ' + totalSales.toFixed(2) + ' Today';
-        }
-
-        // Enhanced event listeners setup
-        function setupEventListeners() {
-            // Customer search
-            document.getElementById('customer-search').addEventListener('input', function(e) {
-                renderCustomers(e.target.value);
-            });
-
-            // Enhanced product search with debouncing
-            setupAdvancedSearch();
-
-            // Order date
-            document.getElementById('order-date').value = selectedDate;
-            document.getElementById('order-date').addEventListener('change', function(e) {
-                selectedDate = e.target.value;
-                renderOrders();
-                updateStats();
-            });
-
-            // Order filters
-            var filterBtns = document.querySelectorAll('.filter-btn');
-            for (var i = 0; i < filterBtns.length; i++) {
-                filterBtns[i].addEventListener('click', function() {
-                    var allBtns = document.querySelectorAll('.filter-btn');
-                    for (var j = 0; j < allBtns.length; j++) {
-                        allBtns[j].classList.remove('active');
-                    }
-                    this.classList.add('active');
-                    orderFilter = this.dataset.filter;
-                    renderOrders();
-                });
-            }
-
-            // Forms
-            document.getElementById('customer-form').addEventListener('submit', handleCustomerSubmit);
-            document.getElementById('product-form').addEventListener('submit', handleProductSubmit);
-            document.getElementById('order-form').addEventListener('submit', handleOrderSubmit);
-
-            // Settings forms
-            document.getElementById('company-form').addEventListener('submit', handleCompanySubmit);
-            document.getElementById('owner-form').addEventListener('submit', handleOwnerSubmit);
-
-            // Order customer selection
-            document.getElementById('order-customer').addEventListener('change', function() {
-                if (this.value) {
-                    initializeOrderItems();
-                } else {
-                    document.getElementById('order-items').classList.add('hidden');
-                }
-            });
-
-            // Enhanced keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                // Quick search (Ctrl+F or Cmd+F)
-                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-                    e.preventDefault();
-                    var searchInput = null;
-                    if (currentView === 'products') {
-                        searchInput = document.getElementById('product-search');
-                    } else if (currentView === 'customers') {
-                        searchInput = document.getElementById('customer-search');
-                    }
-                    if (searchInput) {
-                        searchInput.focus();
-                        searchInput.select();
-                    }
-                }
-                
-                // Quick navigation
-                if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '5') {
-                    e.preventDefault();
-                    var views = ['dashboard', 'customers', 'products', 'orders', 'settings'];
-                    var viewIndex = parseInt(e.key) - 1;
-                    if (views[viewIndex]) {
-                        showView(views[viewIndex]);
-                    }
-                }
-            });
-        }
-
-        // Database optimization functions
-        function optimizeDatabase() {
-            // Index products by category for faster filtering
-            var productsByCategory = {};
-            for (var i = 0; i < products.length; i++) {
-                var category = products[i].category || 'Uncategorized';
-                if (!productsByCategory[category]) {
-                    productsByCategory[category] = [];
-                }
-                productsByCategory[category].push(products[i]);
-            }
-            
-            // Store indexed data for faster access
-            window.productIndex = productsByCategory;
-            
-            // Create search index for faster text search
-            window.searchIndex = products.map(function(product, index) {
-                return {
-                    id: product.id,
-                    index: index,
-                    searchText: product.name.toLowerCase()
-                };
-            });
-            
-            console.log('Database optimized with ' + products.length + ' products indexed');
-        }
-
-        // Fast search using pre-built index
-        function fastProductSearch(searchTerm, category) {
-            if (!window.searchIndex) optimizeDatabase();
-            
-            var results = [];
-            var lowerSearchTerm = searchTerm.toLowerCase();
-            
-            for (var i = 0; i < window.searchIndex.length; i++) {
-                var item = window.searchIndex[i];
-                if (item.searchText.indexOf(lowerSearchTerm) !== -1) {
-                    var product = products[item.index];
-                    if (category === 'all' || (product.category && product.category.toLowerCase() === category)) {
-                        results.push(product);
-                    }
-                }
-            }
-            
-            return results;
-        }
-
-        // Export functions for data backup
-        function exportAllData() {
-            var exportData = {
-                version: '2.0',
-                exportDate: new Date().toISOString(),
-                companySettings: companySettings,
-                customers: customers,
-                products: products,
-                orders: orders,
-                stats: {
-                    totalCustomers: customers.length,
-                    totalProducts: products.length,
-                    totalOrders: orders.length,
-                    categories: getCategories()
-                }
-            };
-            
-            var dataStr = JSON.stringify(exportData, null, 2);
-            var dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = 'VegeOrder_Backup_' + new Date().toISOString().split('T')[0] + '.json';
-            link.click();
-            
-            showSuccessMessage('📁 Data exported successfully!');
-        }
-
-        // Import functions for data restore
-        function importData() {
-            var input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = function(e) {
-                var file = e.target.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        try {
-                            var importData = JSON.parse(e.target.result);
-                            
-                            if (confirm('This will replace all current data. Continue?')) {
-                                companySettings = importData.companySettings || companySettings;
-                                customers = importData.customers || [];
-                                products = importData.products || [];
-                                orders = importData.orders || [];
-                                
-                                saveDataToStorage();
-                                updateStats();
-                                renderViews();
-                                updateSettingsPreview();
-                                
-                                showSuccessMessage('📁 Data imported successfully!');
-                            }
-                        } catch (error) {
-                            alert('Error importing data: ' + error.message);
-                        }
-                    };
-                    reader.readAsText(file);
-                }
-            };
-            input.click();
         }
 
         var currentOrderQuantities = {};
