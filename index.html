@@ -134,6 +134,12 @@
         }
         
         .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-right .stats {
             text-align: right;
         }
         
@@ -141,6 +147,26 @@
             font-size: 12px;
             color: rgba(255,255,255,0.9);
             font-weight: 600;
+        }
+        
+        .settings-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 18px;
+        }
+        
+        .settings-btn:active {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.25);
         }
         
         /* Enhanced Mobile Scrolling */
@@ -282,6 +308,10 @@
         
         .action-btn.blue {
             background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        }
+        
+        .action-btn.orange {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
         }
         
         .action-btn .icon {
@@ -1166,6 +1196,72 @@
             transform: scale(0.96);
         }
         
+        /* Settings Specific Styles */
+        .settings-section {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .settings-section h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .settings-preview {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .preview-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .preview-text {
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+            line-height: 1.4;
+        }
+        
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+            z-index: 250;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        .success-message.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
         /* Utility Classes */
         .hidden {
             display: none !important;
@@ -1478,15 +1574,26 @@
                 </div>
             </div>
             <div class="header-right">
-                <p id="current-date">Today</p>
-                <p id="daily-sales">RM 0.00</p>
+                <div class="stats">
+                    <p id="current-date">Today</p>
+                    <p id="daily-sales">RM 0.00</p>
+                </div>
+                <button class="settings-btn" onclick="openSettings()" title="Company Settings">
+                    ⚙️
+                </button>
             </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="success-message" class="success-message">
+            ✅ Settings saved successfully!
         </div>
 
         <!-- Main Content -->
         <div class="main-content" id="main-content">
             <!-- Scroll Indicator -->
             <div class="scroll-indicator" id="scroll-indicator"></div>
+            
             <!-- Dashboard View -->
             <div id="dashboard-view" class="view">
                 <!-- Stats -->
@@ -1529,6 +1636,12 @@
                         <button class="action-btn blue" onclick="showView('orders')">
                             <span class="icon">🛒</span>
                             <span style="font-weight: 700;">View Orders</span>
+                        </button>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="action-btn orange" onclick="openSettings()" style="width: 100%;">
+                            <span class="icon">⚙️</span>
+                            <span style="font-weight: 700;">Company Settings</span>
                         </button>
                     </div>
                 </div>
@@ -1601,6 +1714,100 @@
 
                 <div id="orders-list"></div>
             </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" class="view hidden">
+                <div class="section-header">
+                    <h2 class="section-title">Company Settings</h2>
+                    <button class="icon-btn" onclick="showView('dashboard')" title="Back to Dashboard">
+                        <span>←</span>
+                    </button>
+                </div>
+
+                <div class="settings-section">
+                    <h3>🏢 Company Information</h3>
+                    <form id="company-form">
+                        <input type="text" class="input" placeholder="Company Name *" id="company-name" required>
+                        <input type="text" class="input" placeholder="Business Tagline" id="company-tagline">
+                        <input type="tel" class="input" placeholder="Phone Number *" id="company-phone" required>
+                        <input type="email" class="input" placeholder="Email Address *" id="company-email" required>
+                        <input type="text" class="input" placeholder="Website (optional)" id="company-website">
+                        <textarea class="input" placeholder="Business Address *" id="company-address" rows="3" style="resize: none; min-height: 80px;" required></textarea>
+                        
+                        <div style="margin-top: 24px;">
+                            <button type="submit" class="btn btn-success" style="width: 100%;">
+                                💾 Save Company Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="settings-section">
+                    <h3>📄 Invoice Settings</h3>
+                    <form id="invoice-form">
+                        <input type="text" class="input" placeholder="Invoice Prefix (e.g., INV)" id="invoice-prefix">
+                        <input type="number" class="input" placeholder="Payment Terms (days)" id="payment-terms" min="0" max="365">
+                        <input type="number" class="input" placeholder="Tax Rate (% - e.g., 6 for SST)" id="tax-rate" min="0" max="100" step="0.01">
+                        <textarea class="input" placeholder="Invoice Footer Notes" id="invoice-notes" rows="2" style="resize: none; min-height: 60px;"></textarea>
+                        
+                        <div style="margin-top: 24px;">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                📋 Save Invoice Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="settings-section">
+                    <h3>👤 Business Owner</h3>
+                    <form id="owner-form">
+                        <input type="text" class="input" placeholder="Owner/Manager Name" id="owner-name">
+                        <input type="text" class="input" placeholder="Position/Title" id="owner-title">
+                        <input type="tel" class="input" placeholder="Direct Phone" id="owner-phone">
+                        <input type="email" class="input" placeholder="Direct Email" id="owner-email">
+                        
+                        <div style="margin-top: 24px;">
+                            <button type="submit" class="btn btn-purple" style="width: 100%;">
+                                👤 Save Owner Details
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Settings Preview -->
+                <div class="settings-section">
+                    <h3>👀 Current Settings Preview</h3>
+                    <div class="settings-preview">
+                        <div class="preview-label">Company Information</div>
+                        <div class="preview-text" id="preview-company">
+                            No company information set yet.
+                        </div>
+                    </div>
+                    <div class="settings-preview">
+                        <div class="preview-label">Invoice Settings</div>
+                        <div class="preview-text" id="preview-invoice">
+                            Using default invoice settings.
+                        </div>
+                    </div>
+                    <div class="settings-preview">
+                        <div class="preview-label">Business Owner</div>
+                        <div class="preview-text" id="preview-owner">
+                            No owner information set yet.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reset Settings -->
+                <div class="settings-section">
+                    <h3>🔄 Reset Settings</h3>
+                    <p style="margin-bottom: 16px; color: rgba(255,255,255,0.8); font-size: 14px;">
+                        This will reset all company settings to default values. This action cannot be undone.
+                    </p>
+                    <button class="btn btn-danger" style="width: 100%;" onclick="resetAllSettings()">
+                        🗑️ Reset All Settings
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Bottom Navigation -->
@@ -1621,6 +1828,10 @@
                 <div class="nav-item" onclick="showView('orders')">
                     <span class="icon">🛒</span>
                     <span>Orders</span>
+                </div>
+                <div class="nav-item" onclick="showView('settings')">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
                 </div>
             </div>
             <div class="home-indicator"></div>
@@ -1784,6 +1995,32 @@
         var selectedOrderCategory = 'all';
         var currentInvoiceOrder = null;
 
+        // Company Settings State
+        var companySettings = {
+            name: '',
+            tagline: '',
+            phone: '',
+            email: '',
+            website: '',
+            address: '',
+            invoicePrefix: 'INV',
+            paymentTerms: 7,
+            taxRate: 0,
+            invoiceNotes: '',
+            ownerName: '',
+            ownerTitle: '',
+            ownerPhone: '',
+            ownerEmail: ''
+        };
+
+        // Storage Keys
+        var STORAGE_KEYS = {
+            COMPANY_SETTINGS: 'vegeorder_company_settings',
+            CUSTOMERS: 'vegeorder_customers',
+            PRODUCTS: 'vegeorder_products',
+            ORDERS: 'vegeorder_orders'
+        };
+
         // Get unique categories
         function getCategories() {
             var categories = ['All'];
@@ -1803,7 +2040,7 @@
         });
 
         function initializeApp() {
-            loadInitialData();
+            loadDataFromStorage();
             setupEventListeners();
             setupScrollHandling();
             addPullToRefresh();
@@ -1811,12 +2048,60 @@
             updateCurrentDate();
             updateStats();
             renderViews();
+            updateSettingsPreview();
             
             // Prevent zoom on form inputs
             preventZoom();
             
             // Setup touch feedback
             setupTouchFeedback();
+        }
+
+        // Storage Functions
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.COMPANY_SETTINGS, JSON.stringify(companySettings));
+                localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(customers));
+                localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+                localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+            } catch (e) {
+                console.warn('Unable to save to localStorage:', e);
+            }
+        }
+
+        function loadDataFromStorage() {
+            try {
+                // Load company settings
+                var savedSettings = localStorage.getItem(STORAGE_KEYS.COMPANY_SETTINGS);
+                if (savedSettings) {
+                    companySettings = Object.assign(companySettings, JSON.parse(savedSettings));
+                }
+
+                // Load customers
+                var savedCustomers = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
+                if (savedCustomers) {
+                    customers = JSON.parse(savedCustomers);
+                }
+
+                // Load products
+                var savedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+                if (savedProducts) {
+                    products = JSON.parse(savedProducts);
+                }
+
+                // Load orders
+                var savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
+                if (savedOrders) {
+                    orders = JSON.parse(savedOrders);
+                }
+            } catch (e) {
+                console.warn('Unable to load from localStorage:', e);
+            }
+
+            // Load initial sample data if no data exists
+            if (customers.length === 0) {
+                loadInitialData();
+            }
         }
 
         function loadInitialData() {
@@ -1826,17 +2111,10 @@
                 { id: 2, name: 'Siti Catering & Events', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' },
                 { id: 3, name: 'Lee Kitchen Chinese Restaurant', phone: '019-9876543', address: 'Chinatown, KL', email: 'lee@kitchen.com' },
                 { id: 4, name: 'Warung Mak Cik Kiah', phone: '017-1234567', address: 'Kampung Baru, KL', email: 'kiah@warung.my' },
-                { id: 5, name: 'Restoran Sedap Rasa', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' },
-                { id: 6, name: 'Pak Ali Nasi Lemak', phone: '011-5555666', address: 'Subang Jaya', email: 'pakmali@nasilemak.com' },
-                { id: 7, name: 'Mamak Salam 24 Jam', phone: '014-8889999', address: 'Wangsa Maju, KL', email: 'salam@mamak.my' },
-                { id: 8, name: 'Restoran Yuen Kee Seafood', phone: '012-1111222', address: 'Kepong, KL', email: 'yuenkee@seafood.com' },
-                { id: 9, name: 'Dapur Kampung Catering', phone: '013-3334444', address: 'Kajang, Selangor', email: 'kampung@catering.my' },
-                { id: 10, name: 'Restoran Minang Sari Rasa', phone: '019-5556666', address: 'Ampang, Selangor', email: 'minang@restaurant.my' },
-                { id: 11, name: 'Kedai Makan Uncle Lim', phone: '017-7778888', address: 'Cheras, KL', email: 'unclelim@kedai.com' },
-                { id: 12, name: 'Kak Yah Nasi Dagang', phone: '016-9990000', address: 'Setapak, KL', email: 'kakyah@nasidagang.my' }
+                { id: 5, name: 'Restoran Sedap Rasa', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' }
             ];
 
-            // Comprehensive Malaysian vegetable selection with Chinese names
+            // Comprehensive Malaysian vegetable selection with Chinese names (abbreviated for space)
             products = [
                 // === LEAFY GREENS & SALADS ===
                 { id: 1, name: 'Kangkung 通菜 (Water Spinach)', unit: 'kg', price: 4.50, category: 'Leafy Greens' },
@@ -1844,250 +2122,154 @@
                 { id: 3, name: 'Sawi Putih 白菜 (Chinese Cabbage)', unit: 'kg', price: 4.80, category: 'Leafy Greens' },
                 { id: 4, name: 'Spinach 菠菜 (Bayam Pasir)', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
                 { id: 5, name: 'Lettuce Iceberg 冰山生菜', unit: 'head', price: 4.50, category: 'Leafy Greens' },
-                { id: 6, name: 'Lettuce Butter Head 奶油生菜', unit: 'head', price: 3.80, category: 'Leafy Greens' },
-                { id: 7, name: 'Lettuce Romaine 罗马生菜', unit: 'head', price: 5.20, category: 'Leafy Greens' },
-                { id: 8, name: 'Lettuce Red Oak 红橡叶生菜', unit: 'head', price: 6.00, category: 'Leafy Greens' },
-                { id: 9, name: 'Lettuce Green Oak 绿橡叶生菜', unit: 'head', price: 5.80, category: 'Leafy Greens' },
-                { id: 10, name: 'Cai Xin 菜心 (Choy Sum)', unit: 'kg', price: 6.00, category: 'Leafy Greens' },
-                { id: 11, name: 'Pak Choy 白菜 (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
-                { id: 12, name: 'Pak Choy Baby 小白菜', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
-                { id: 13, name: 'Pak Choy Shanghai 上海白菜', unit: 'kg', price: 6.50, category: 'Leafy Greens' },
-                { id: 14, name: 'Kailan 芥兰 (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
-                { id: 15, name: 'Kailan Baby 小芥兰', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
-                { id: 16, name: 'Bayam Merah 红苋菜 (Red Amaranth)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
-                { id: 17, name: 'Bayam Hijau 绿苋菜 (Green Amaranth)', unit: 'kg', price: 5.00, category: 'Leafy Greens' },
-                { id: 18, name: 'Bayam Putih 白苋菜 (White Amaranth)', unit: 'kg', price: 5.20, category: 'Leafy Greens' },
-                { id: 19, name: 'Pucuk Paku 蕨菜 (Fern Tips)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
-                { id: 20, name: 'Watercress 西洋菜 (Pegaga Air)', unit: 'kg', price: 8.00, category: 'Leafy Greens' },
-                { id: 21, name: 'Rocket Salad 芝麻菜 (Arugula)', unit: 'kg', price: 18.00, category: 'Leafy Greens' },
-                { id: 22, name: 'Baby Spinach 嫩菠菜', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
-                { id: 23, name: 'Mizuna Salad 水菜', unit: 'kg', price: 15.00, category: 'Leafy Greens' },
-                { id: 24, name: 'Tatsoi 塌棵菜 (Spoon Mustard)', unit: 'kg', price: 10.00, category: 'Leafy Greens' },
+                { id: 6, name: 'Pak Choy 白菜 (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
+                { id: 7, name: 'Kailan 芥兰 (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
                 
                 // === MALAYSIAN SPECIALTY VEGETABLES ===
-                { id: 25, name: 'Petai 臭豆 (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
-                { id: 26, name: 'Petai Laut 海豆 (Sea Bean)', unit: 'kg', price: 25.00, category: 'Malaysian Specialty' },
-                { id: 27, name: 'Jering 臭鳞豆', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
-                { id: 28, name: 'Rebung 竹笋 (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
-                { id: 29, name: 'Rebung Muda 嫩竹笋 (Young Bamboo)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
-                { id: 30, name: 'Jantung Pisang 香蕉花 (Banana Blossom)', unit: 'piece', price: 4.00, category: 'Malaysian Specialty' },
-                { id: 31, name: 'Daun Ubi Kayu 木薯叶 (Cassava Leaves)', unit: 'kg', price: 5.00, category: 'Malaysian Specialty' },
-                { id: 32, name: 'Pucuk Manis 地瓜叶 (Sweet Potato Leaves)', unit: 'kg', price: 4.50, category: 'Malaysian Specialty' },
-                { id: 33, name: 'Kacang Botol 四角豆 (Winged Bean)', unit: 'kg', price: 9.00, category: 'Malaysian Specialty' },
-                { id: 34, name: 'Kacang Kelisa 翼豆 (Four Angled Bean)', unit: 'kg', price: 8.00, category: 'Malaysian Specialty' },
-                { id: 35, name: 'Terung Asam 酸茄 (Sour Eggplant)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
-                { id: 36, name: 'Terung Dayak 达雅茄 (Dayak Eggplant)', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
-                { id: 37, name: 'Tempe Bunga 田菁 (Sesbania)', unit: 'kg', price: 6.00, category: 'Malaysian Specialty' },
-                { id: 38, name: 'Pucuk Gajus 腰果芽 (Cashew Shoots)', unit: 'kg', price: 20.00, category: 'Malaysian Specialty' },
-                { id: 39, name: 'Pucuk Mengkudu 诺丽芽 (Noni Shoots)', unit: 'kg', price: 8.00, category: 'Malaysian Specialty' },
-                { id: 40, name: 'Daun Singkong 木薯叶 (Tapioca Leaves)', unit: 'kg', price: 4.00, category: 'Malaysian Specialty' },
-                
-                // === TRADITIONAL ULAM (RAW VEGETABLES) ===
-                { id: 41, name: 'Ulam Raja 国王菜', unit: 'kg', price: 8.00, category: 'Traditional Ulam' },
-                { id: 42, name: 'Pegaga 雷公根 (Centella)', unit: 'kg', price: 12.00, category: 'Traditional Ulam' },
-                { id: 43, name: 'Kesum 越南薄荷 (Vietnamese Mint)', unit: 'bunch', price: 2.50, category: 'Traditional Ulam' },
-                { id: 44, name: 'Daun Kaduk 拔葜叶 (Wild Pepper Leaf)', unit: 'bunch', price: 3.00, category: 'Traditional Ulam' },
-                { id: 45, name: 'Selom 水芹菜 (Water Dropwort)', unit: 'bunch', price: 4.00, category: 'Traditional Ulam' },
-                { id: 46, name: 'Tenggek Burung 鸟韭菜', unit: 'bunch', price: 5.00, category: 'Traditional Ulam' },
-                { id: 47, name: 'Daun Pecah Beling 心叶冰花', unit: 'bunch', price: 3.50, category: 'Traditional Ulam' },
-                { id: 48, name: 'Kacang Tanah Muda 嫩花生 (Young Peanut)', unit: 'kg', price: 8.00, category: 'Traditional Ulam' },
-                { id: 49, name: 'Bunga Kantan 火炬姜花 (Torch Ginger)', unit: 'piece', price: 3.00, category: 'Traditional Ulam' },
-                { id: 50, name: 'Daun Sambung Nyawa 接骨草', unit: 'bunch', price: 4.50, category: 'Traditional Ulam' },
-                { id: 51, name: 'Daun Cangkuk Manis 钩藤叶', unit: 'bunch', price: 3.00, category: 'Traditional Ulam' },
-                { id: 52, name: 'Pucuk Ubi Kemili 紫薯芽', unit: 'kg', price: 6.00, category: 'Traditional Ulam' },
-                { id: 53, name: 'Timun Hutan 野黄瓜 (Wild Cucumber)', unit: 'kg', price: 8.00, category: 'Traditional Ulam' },
-                { id: 54, name: 'Daun Kerdas 野草叶', unit: 'bunch', price: 2.50, category: 'Traditional Ulam' },
+                { id: 8, name: 'Petai 臭豆 (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
+                { id: 9, name: 'Jering 臭鳞豆', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
+                { id: 10, name: 'Rebung 竹笋 (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
                 
                 // === GOURDS & SQUASH ===
-                { id: 55, name: 'Labu Kuning 南瓜 (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
-                { id: 56, name: 'Labu Merah 红南瓜 (Red Pumpkin)', unit: 'kg', price: 3.50, category: 'Gourds & Squash' },
-                { id: 57, name: 'Labu Air 瓠瓜 (Bottle Gourd)', unit: 'kg', price: 2.80, category: 'Gourds & Squash' },
-                { id: 58, name: 'Labu Ayer Bulat 圆瓠瓜 (Round Bottle Gourd)', unit: 'kg', price: 3.00, category: 'Gourds & Squash' },
-                { id: 59, name: 'Petola 丝瓜 (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
-                { id: 60, name: 'Petola Panjang 长丝瓜 (Long Luffa)', unit: 'kg', price: 5.00, category: 'Gourds & Squash' },
-                { id: 61, name: 'Peria 苦瓜 (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
-                { id: 62, name: 'Peria Katak 小苦瓜 (Small Bitter Gourd)', unit: 'kg', price: 12.00, category: 'Gourds & Squash' },
-                { id: 63, name: 'Ketola 棱角丝瓜 (Angled Gourd)', unit: 'kg', price: 5.50, category: 'Gourds & Squash' },
-                { id: 64, name: 'Timun 黄瓜 (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
-                { id: 65, name: 'Timun Jepun 日本黄瓜 (Japanese Cucumber)', unit: 'kg', price: 6.50, category: 'Gourds & Squash' },
-                { id: 66, name: 'Timun Belanda 荷兰黄瓜 (Dutch Cucumber)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
-                { id: 67, name: 'Zucchini 意大利青瓜', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
-                { id: 68, name: 'Zucchini Kuning 黄色意大利青瓜 (Yellow Zucchini)', unit: 'kg', price: 9.00, category: 'Gourds & Squash' },
-                { id: 69, name: 'Butternut Squash 奶油南瓜', unit: 'kg', price: 7.00, category: 'Gourds & Squash' },
-                { id: 70, name: 'Acorn Squash 橡果南瓜', unit: 'kg', price: 8.50, category: 'Gourds & Squash' },
-                { id: 71, name: 'Labu Siam 佛手瓜 (Chayote)', unit: 'kg', price: 4.00, category: 'Gourds & Squash' },
+                { id: 11, name: 'Labu Kuning 南瓜 (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
+                { id: 12, name: 'Petola 丝瓜 (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
+                { id: 13, name: 'Peria 苦瓜 (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 14, name: 'Timun 黄瓜 (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
                 
                 // === EGGPLANTS & TOMATOES ===
-                { id: 72, name: 'Terung Ungu 紫茄子 (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
-                { id: 73, name: 'Terung Hijau 绿茄子 (Green Eggplant)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
-                { id: 74, name: 'Terung Bulat 圆茄子 (Round Eggplant)', unit: 'kg', price: 7.00, category: 'Eggplants & Tomatoes' },
-                { id: 75, name: 'Terung Pipit 泰式茄子 (Thai Eggplant)', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
-                { id: 76, name: 'Terung Putih 白茄子 (White Eggplant)', unit: 'kg', price: 6.50, category: 'Eggplants & Tomatoes' },
-                { id: 77, name: 'Terung Panjang 长茄子 (Long Eggplant)', unit: 'kg', price: 5.80, category: 'Eggplants & Tomatoes' },
-                { id: 78, name: 'Terung Baby 小茄子 (Baby Eggplant)', unit: 'kg', price: 9.00, category: 'Eggplants & Tomatoes' },
-                { id: 79, name: 'Terung Cina 中式茄子 (Chinese Eggplant)', unit: 'kg', price: 6.20, category: 'Eggplants & Tomatoes' },
-                { id: 80, name: 'Tomato Biasa 番茄 (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
-                { id: 81, name: 'Tomato Cherry 樱桃番茄', unit: 'kg', price: 12.00, category: 'Eggplants & Tomatoes' },
-                { id: 82, name: 'Tomato Cherry Kuning 黄色樱桃番茄', unit: 'kg', price: 15.00, category: 'Eggplants & Tomatoes' },
-                { id: 83, name: 'Tomato Roma 罗马番茄', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
-                { id: 84, name: 'Tomato Beef 牛排番茄', unit: 'kg', price: 10.00, category: 'Eggplants & Tomatoes' },
-                { id: 85, name: 'Tomato Hijau 青番茄 (Green Tomato)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
+                { id: 15, name: 'Terung Ungu 紫茄子 (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
+                { id: 16, name: 'Tomato Biasa 番茄 (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
                 
                 // === BEANS & PODS ===
-                { id: 86, name: 'Bendi 秋葵 (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods' },
-                { id: 87, name: 'Bendi Merah 红秋葵 (Red Okra)', unit: 'kg', price: 8.50, category: 'Beans & Pods' },
-                { id: 88, name: 'Kacang Panjang 长豆 (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods' },
-                { id: 89, name: 'Kacang Panjang Merah 红长豆 (Red Long Beans)', unit: 'kg', price: 7.00, category: 'Beans & Pods' },
-                { id: 90, name: 'Kacang Buncis 四季豆 (French Beans)', unit: 'kg', price: 8.00, category: 'Beans & Pods' },
-                { id: 91, name: 'Kacang Buncis Kuning 黄四季豆 (Yellow Beans)', unit: 'kg', price: 9.00, category: 'Beans & Pods' },
-                { id: 92, name: 'Kacang Hijau Segar 新鲜绿豆 (Fresh Mung Bean)', unit: 'kg', price: 5.50, category: 'Beans & Pods' },
-                { id: 93, name: 'Taugeh 豆芽菜 (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods' },
-                { id: 94, name: 'Taugeh Kacang Hijau 绿豆芽 (Mung Bean Sprouts)', unit: 'kg', price: 4.00, category: 'Beans & Pods' },
-                { id: 95, name: 'Snap Peas 甜豆', unit: 'kg', price: 12.00, category: 'Beans & Pods' },
-                { id: 96, name: 'Snow Peas 雪豆', unit: 'kg', price: 15.00, category: 'Beans & Pods' },
-                { id: 97, name: 'Edamame 毛豆', unit: 'kg', price: 18.00, category: 'Beans & Pods' },
-                { id: 98, name: 'Kacang Kapri 豌豆 (Garden Peas)', unit: 'kg', price: 10.00, category: 'Beans & Pods' },
-                { id: 99, name: 'Kacang Lima 利马豆 (Lima Beans)', unit: 'kg', price: 8.50, category: 'Beans & Pods' },
+                { id: 17, name: 'Bendi 秋葵 (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods' },
+                { id: 18, name: 'Kacang Panjang 长豆 (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods' },
+                { id: 19, name: 'Taugeh 豆芽菜 (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods' },
                 
                 // === ONIONS & AROMATICS ===
-                { id: 100, name: 'Bawang Merah 红葱头 (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
-                { id: 101, name: 'Bawang Merah Thai 泰式红葱 (Thai Shallots)', unit: 'kg', price: 12.00, category: 'Onions & Aromatics' },
-                { id: 102, name: 'Bawang Putih 蒜头 (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics' },
-                { id: 103, name: 'Bawang Putih Lokal 本地蒜 (Local Garlic)', unit: 'kg', price: 25.00, category: 'Onions & Aromatics' },
-                { id: 104, name: 'Bawang Besar Merah 红洋葱 (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics' },
-                { id: 105, name: 'Bawang Besar Putih 白洋葱 (White Onions)', unit: 'kg', price: 4.50, category: 'Onions & Aromatics' },
-                { id: 106, name: 'Bawang Besar Kuning 黄洋葱 (Yellow Onions)', unit: 'kg', price: 4.80, category: 'Onions & Aromatics' },
-                { id: 107, name: 'Daun Bawang 青葱 (Spring Onions)', unit: 'bunch', price: 2.00, category: 'Onions & Aromatics' },
-                { id: 108, name: 'Bawang Daun 韭葱 (Leeks)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
-                { id: 109, name: 'Bawang Bombay 孟买洋葱 (Bombay Onions)', unit: 'kg', price: 6.00, category: 'Onions & Aromatics' },
-                { id: 110, name: 'Chives 韭菜 (Kucai)', unit: 'bunch', price: 3.00, category: 'Onions & Aromatics' },
-                { id: 111, name: 'Kucai Bunga 韭菜花 (Flowering Chives)', unit: 'bunch', price: 4.00, category: 'Onions & Aromatics' },
+                { id: 20, name: 'Bawang Merah 红葱头 (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
+                { id: 21, name: 'Bawang Putih 蒜头 (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics' },
+                { id: 22, name: 'Bawang Besar Merah 红洋葱 (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics' },
                 
                 // === PEPPERS & CHILIES ===
-                { id: 112, name: 'Cili Merah 红辣椒 (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
-                { id: 113, name: 'Cili Hijau 青辣椒 (Green Chili)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
-                { id: 114, name: 'Cili Padi 小辣椒 (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
-                { id: 115, name: 'Cili Padi Hijau 青小辣椒 (Green Bird Eye)', unit: 'kg', price: 22.00, category: 'Peppers & Chilies' },
-                { id: 116, name: 'Cili Bangi 班吉辣椒', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
-                { id: 117, name: 'Cili Besar 大辣椒 (Large Chili)', unit: 'kg', price: 10.00, category: 'Peppers & Chilies' },
-                { id: 118, name: 'Cili Kerinting 卷曲辣椒 (Curly Chili)', unit: 'kg', price: 20.00, category: 'Peppers & Chilies' },
-                { id: 119, name: 'Cili Kulai 古来辣椒', unit: 'kg', price: 16.00, category: 'Peppers & Chilies' },
-                { id: 120, name: 'Capsicum Merah 红甜椒 (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
-                { id: 121, name: 'Capsicum Hijau 青甜椒 (Green Bell Pepper)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
-                { id: 122, name: 'Capsicum Kuning 黄甜椒 (Yellow Bell Pepper)', unit: 'kg', price: 16.00, category: 'Peppers & Chilies' },
-                { id: 123, name: 'Capsicum Oren 橙甜椒 (Orange Bell Pepper)', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
-                { id: 124, name: 'Capsicum Ungu 紫甜椒 (Purple Bell Pepper)', unit: 'kg', price: 20.00, category: 'Peppers & Chilies' },
-                { id: 125, name: 'Jalapeño 墨西哥辣椒', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
-                { id: 126, name: 'Habanero 哈瓦那辣椒', unit: 'kg', price: 40.00, category: 'Peppers & Chilies' },
+                { id: 23, name: 'Cili Merah 红辣椒 (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
+                { id: 24, name: 'Cili Padi 小辣椒 (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
+                { id: 25, name: 'Capsicum Merah 红甜椒 (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
                 
                 // === ROOT VEGETABLES ===
-                { id: 127, name: 'Lobak Merah 胡萝卜 (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables' },
-                { id: 128, name: 'Lobak Merah Baby 小胡萝卜 (Baby Carrots)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
-                { id: 129, name: 'Lobak Putih 白萝卜 (White Radish)', unit: 'kg', price: 4.80, category: 'Root Vegetables' },
-                { id: 130, name: 'Lobak Jepun 日本萝卜 (Japanese Radish)', unit: 'kg', price: 6.00, category: 'Root Vegetables' },
-                { id: 131, name: 'Kentang 马铃薯 (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables' },
-                { id: 132, name: 'Kentang Merah 红马铃薯 (Red Potato)', unit: 'kg', price: 5.50, category: 'Root Vegetables' },
-                { id: 133, name: 'Kentang Baby 小马铃薯 (Baby Potato)', unit: 'kg', price: 7.00, category: 'Root Vegetables' },
-                { id: 134, name: 'Ubi Kentang Merah 红薯 (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables' },
-                { id: 135, name: 'Ubi Kentang Oren 橙薯 (Orange Sweet Potato)', unit: 'kg', price: 4.50, category: 'Root Vegetables' },
-                { id: 136, name: 'Ubi Kentang Ungu 紫薯 (Purple Sweet Potato)', unit: 'kg', price: 5.00, category: 'Root Vegetables' },
-                { id: 137, name: 'Ubi Kayu 木薯 (Cassava)', unit: 'kg', price: 3.50, category: 'Root Vegetables' },
-                { id: 138, name: 'Keladi 芋头 (Taro)', unit: 'kg', price: 6.50, category: 'Root Vegetables' },
-                { id: 139, name: 'Keladi Cina 中式芋头 (Chinese Taro)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
-                { id: 140, name: 'Yam 山药', unit: 'kg', price: 7.00, category: 'Root Vegetables' },
-                { id: 141, name: 'Bit 甜菜根 (Beetroot)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
-                { id: 142, name: 'Bit Kuning 黄甜菜根 (Yellow Beetroot)', unit: 'kg', price: 10.00, category: 'Root Vegetables' },
-                { id: 143, name: 'Parsnip 欧洲萝卜', unit: 'kg', price: 12.00, category: 'Root Vegetables' },
-                { id: 144, name: 'Turnip 芜菁', unit: 'kg', price: 8.50, category: 'Root Vegetables' },
-                
-                // === CABBAGE FAMILY ===
-                { id: 145, name: 'Kobis Bulat 圆白菜 (Round Cabbage)', unit: 'head', price: 4.50, category: 'Cabbage Family' },
-                { id: 146, name: 'Kobis Panjang 长白菜 (Long Cabbage)', unit: 'head', price: 5.00, category: 'Cabbage Family' },
-                { id: 147, name: 'Kobis Merah 红包菜 (Red Cabbage)', unit: 'head', price: 6.50, category: 'Cabbage Family' },
-                { id: 148, name: 'Kobis Ungu 紫包菜 (Purple Cabbage)', unit: 'head', price: 7.00, category: 'Cabbage Family' },
-                { id: 149, name: 'Bunga Kobis 花椰菜 (Cauliflower)', unit: 'head', price: 6.80, category: 'Cabbage Family' },
-                { id: 150, name: 'Bunga Kobis Ungu 紫花椰菜 (Purple Cauliflower)', unit: 'head', price: 12.00, category: 'Cabbage Family' },
-                { id: 151, name: 'Broccoli 西兰花', unit: 'kg', price: 12.00, category: 'Cabbage Family' },
-                { id: 152, name: 'Broccoli Baby 小西兰花', unit: 'kg', price: 15.00, category: 'Cabbage Family' },
-                { id: 153, name: 'Broccolini 小芥兰花', unit: 'kg', price: 18.00, category: 'Cabbage Family' },
-                { id: 154, name: 'Brussels Sprouts 球芽甘蓝', unit: 'kg', price: 20.00, category: 'Cabbage Family' },
-                { id: 155, name: 'Kale 羽衣甘蓝', unit: 'kg', price: 15.00, category: 'Cabbage Family' },
-                { id: 156, name: 'Kale Merah 红羽衣甘蓝 (Red Kale)', unit: 'kg', price: 18.00, category: 'Cabbage Family' },
-                { id: 157, name: 'Kohlrabi 球茎甘蓝', unit: 'kg', price: 10.00, category: 'Cabbage Family' },
-                
-                // === CORN & MUSHROOMS ===
-                { id: 158, name: 'Jagung Kuning 黄玉米 (Yellow Corn)', unit: 'piece', price: 2.50, category: 'Corn & Mushrooms' },
-                { id: 159, name: 'Jagung Manis 甜玉米 (Sweet Corn)', unit: 'piece', price: 3.00, category: 'Corn & Mushrooms' },
-                { id: 160, name: 'Jagung Putih 白玉米 (White Corn)', unit: 'piece', price: 2.80, category: 'Corn & Mushrooms' },
-                { id: 161, name: 'Baby Corn 玉米笋', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
-                { id: 162, name: 'Cendawan Butang 白蘑菇 (Button Mushroom)', unit: 'kg', price: 12.00, category: 'Corn & Mushrooms' },
-                { id: 163, name: 'Cendawan Tiram 平菇 (Oyster Mushroom)', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
-                { id: 164, name: 'Cendawan Tiram Raja 杏鲍菇 (King Oyster)', unit: 'kg', price: 15.00, category: 'Corn & Mushrooms' },
-                { id: 165, name: 'Cendawan Shiitake 香菇', unit: 'kg', price: 25.00, category: 'Corn & Mushrooms' },
-                { id: 166, name: 'Cendawan Enoki 金针菇', unit: 'packet', price: 3.50, category: 'Corn & Mushrooms' },
-                { id: 167, name: 'Cendawan Shimeji 蟹味菇', unit: 'packet', price: 4.50, category: 'Corn & Mushrooms' },
-                { id: 168, name: 'Cendawan Maitake 舞茸', unit: 'kg', price: 35.00, category: 'Corn & Mushrooms' },
-                { id: 169, name: 'Portobello Mushroom 大褐菇', unit: 'kg', price: 20.00, category: 'Corn & Mushrooms' },
-                { id: 170, name: 'Cendawan Jerami 草菇 (Straw Mushroom)', unit: 'kg', price: 10.00, category: 'Corn & Mushrooms' },
-                
-                // === HERBS & SPICES ===
-                { id: 171, name: 'Halia 生姜 (Ginger)', unit: 'kg', price: 12.00, category: 'Herbs & Spices' },
-                { id: 172, name: 'Halia Muda 嫩姜 (Young Ginger)', unit: 'kg', price: 15.00, category: 'Herbs & Spices' },
-                { id: 173, name: 'Halia Bara 红姜 (Red Ginger)', unit: 'kg', price: 18.00, category: 'Herbs & Spices' },
-                { id: 174, name: 'Kunyit 黄姜 (Turmeric)', unit: 'kg', price: 8.00, category: 'Herbs & Spices' },
-                { id: 175, name: 'Kunyit Hidup 新鲜黄姜 (Fresh Turmeric)', unit: 'kg', price: 12.00, category: 'Herbs & Spices' },
-                { id: 176, name: 'Lengkuas 南姜 (Galangal)', unit: 'kg', price: 10.00, category: 'Herbs & Spices' },
-                { id: 177, name: 'Lengkuas Muda 嫩南姜 (Young Galangal)', unit: 'kg', price: 15.00, category: 'Herbs & Spices' },
-                { id: 178, name: 'Serai 香茅 (Lemongrass)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
-                { id: 179, name: 'Serai Wangi 柠檬草 (Citronella)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
-                { id: 180, name: 'Daun Limau Purut 柠檬叶 (Kaffir Lime Leaves)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
-                { id: 181, name: 'Daun Ketumbar 芫荽叶 (Coriander Leaves)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
-                { id: 182, name: 'Pudina 薄荷叶 (Mint Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
-                { id: 183, name: 'Pudina Asam 绿薄荷 (Spearmint)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
-                { id: 184, name: 'Selasih 九层塔 (Thai Basil)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
-                { id: 185, name: 'Selasih Putih 白九层塔 (White Basil)', unit: 'bunch', price: 3.50, category: 'Herbs & Spices' },
-                { id: 186, name: 'Daun Sup 芹菜叶 (Celery Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
-                { id: 187, name: 'Parsley 欧芹', unit: 'bunch', price: 4.00, category: 'Herbs & Spices' },
-                { id: 188, name: 'Parsley Kerinting 卷叶欧芹 (Curly Parsley)', unit: 'bunch', price: 4.50, category: 'Herbs & Spices' },
-                { id: 189, name: 'Rosemary 迷迭香', unit: 'bunch', price: 6.00, category: 'Herbs & Spices' },
-                { id: 190, name: 'Thyme 百里香', unit: 'bunch', price: 5.00, category: 'Herbs & Spices' },
-                { id: 191, name: 'Oregano 牛至', unit: 'bunch', price: 5.50, category: 'Herbs & Spices' },
-                { id: 192, name: 'Sage 鼠尾草', unit: 'bunch', price: 6.50, category: 'Herbs & Spices' },
-                { id: 193, name: 'Dill 莳萝', unit: 'bunch', price: 4.50, category: 'Herbs & Spices' },
-                { id: 194, name: 'Fennel 茴香', unit: 'kg', price: 8.00, category: 'Herbs & Spices' },
-                { id: 195, name: 'Tarragon 龙蒿', unit: 'bunch', price: 7.00, category: 'Herbs & Spices' },
-                
-                // === PREMIUM & IMPORTED ===
-                { id: 196, name: 'Asparagus 芦笋', unit: 'kg', price: 25.00, category: 'Premium & Imported' },
-                { id: 197, name: 'Asparagus Putih 白芦笋 (White Asparagus)', unit: 'kg', price: 35.00, category: 'Premium & Imported' },
-                { id: 198, name: 'Artichoke 朝鲜蓟', unit: 'piece', price: 8.00, category: 'Premium & Imported' },
-                { id: 199, name: 'Avocado 牛油果', unit: 'piece', price: 4.50, category: 'Premium & Imported' },
-                { id: 200, name: 'Avocado Hass 哈斯牛油果', unit: 'piece', price: 6.00, category: 'Premium & Imported' },
-                { id: 201, name: 'Radicchio 红菊苣', unit: 'head', price: 12.00, category: 'Premium & Imported' },
-                { id: 202, name: 'Endive 菊苣', unit: 'head', price: 10.00, category: 'Premium & Imported' },
-                { id: 203, name: 'Fennel Bulb 茴香球茎', unit: 'kg', price: 15.00, category: 'Premium & Imported' },
-                { id: 204, name: 'Leek Baby 小韭葱', unit: 'kg', price: 12.00, category: 'Premium & Imported' },
-                { id: 205, name: 'Microgreens Mix 微型蔬菜', unit: 'packet', price: 8.00, category: 'Premium & Imported' },
-                { id: 206, name: 'Sunflower Sprouts 向日葵芽', unit: 'packet', price: 6.00, category: 'Premium & Imported' },
-                { id: 207, name: 'Pea Shoots 豌豆苗', unit: 'kg', price: 20.00, category: 'Premium & Imported' },
-                { id: 208, name: 'Wasabi Leaves 山葵叶', unit: 'kg', price: 50.00, category: 'Premium & Imported' },
-                { id: 209, name: 'Edible Flowers Mix 食用花卉', unit: 'packet', price: 15.00, category: 'Premium & Imported' },
-                { id: 210, name: 'Purple Carrots 紫胡萝卜', unit: 'kg', price: 12.00, category: 'Premium & Imported' },
-                
-                // === SEASONAL SPECIALTIES ===
-                { id: 211, name: 'Pucuk Kelapa 椰芽 (Coconut Shoot)', unit: 'piece', price: 8.00, category: 'Seasonal Specialties' },
-                { id: 212, name: 'Rebung Betung 大竹笋 (Giant Bamboo Shoot)', unit: 'kg', price: 15.00, category: 'Seasonal Specialties' },
-                { id: 213, name: 'Tempoyak Durian 嫩榴莲 (Young Durian)', unit: 'piece', price: 12.00, category: 'Seasonal Specialties' },
-                { id: 214, name: 'Pucuk Rotan 藤芽 (Rattan Shoot)', unit: 'kg', price: 20.00, category: 'Seasonal Specialties' },
-                { id: 215, name: 'Daun Bawang Putih 蒜苗 (Garlic Scapes)', unit: 'bunch', price: 5.00, category: 'Seasonal Specialties' },
-                { id: 216, name: 'Pucuk Kacang 豆苗 (Bean Shoots)', unit: 'kg', price: 8.00, category: 'Seasonal Specialties' },
-                { id: 217, name: 'Midin 密定蕨 (Jungle Fern)', unit: 'kg', price: 25.00, category: 'Seasonal Specialties' },
-                { id: 218, name: 'Ensabi 野蕨菜 (Wild Fern)', unit: 'kg', price: 18.00, category: 'Seasonal Specialties' },
-                { id: 219, name: 'Paku Pakis 蕨菜 (Bracken Fern)', unit: 'kg', price: 15.00, category: 'Seasonal Specialties' },
-                { id: 220, name: 'Sayur Manis 甜菜叶 (Sweet Leaf)', unit: 'kg', price: 10.00, category: 'Seasonal Specialties' }
+                { id: 26, name: 'Lobak Merah 胡萝卜 (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables' },
+                { id: 27, name: 'Kentang 马铃薯 (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables' },
+                { id: 28, name: 'Ubi Kentang Merah 红薯 (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables' }
             ];
 
             orders = [];
+            saveDataToStorage();
+        }
+
+        // Settings Functions
+        function openSettings() {
+            populateSettingsForms();
+            showView('settings');
+        }
+
+        function populateSettingsForms() {
+            // Company form
+            document.getElementById('company-name').value = companySettings.name || '';
+            document.getElementById('company-tagline').value = companySettings.tagline || '';
+            document.getElementById('company-phone').value = companySettings.phone || '';
+            document.getElementById('company-email').value = companySettings.email || '';
+            document.getElementById('company-website').value = companySettings.website || '';
+            document.getElementById('company-address').value = companySettings.address || '';
+
+            // Invoice form
+            document.getElementById('invoice-prefix').value = companySettings.invoicePrefix || 'INV';
+            document.getElementById('payment-terms').value = companySettings.paymentTerms || 7;
+            document.getElementById('tax-rate').value = companySettings.taxRate || 0;
+            document.getElementById('invoice-notes').value = companySettings.invoiceNotes || '';
+
+            // Owner form
+            document.getElementById('owner-name').value = companySettings.ownerName || '';
+            document.getElementById('owner-title').value = companySettings.ownerTitle || '';
+            document.getElementById('owner-phone').value = companySettings.ownerPhone || '';
+            document.getElementById('owner-email').value = companySettings.ownerEmail || '';
+        }
+
+        function updateSettingsPreview() {
+            // Company preview
+            var companyPreview = '';
+            if (companySettings.name) {
+                companyPreview = companySettings.name;
+                if (companySettings.tagline) companyPreview += '\n' + companySettings.tagline;
+                if (companySettings.phone) companyPreview += '\nPhone: ' + companySettings.phone;
+                if (companySettings.email) companyPreview += '\nEmail: ' + companySettings.email;
+                if (companySettings.address) companyPreview += '\n' + companySettings.address;
+            } else {
+                companyPreview = 'No company information set yet.';
+            }
+            document.getElementById('preview-company').textContent = companyPreview;
+
+            // Invoice preview
+            var invoicePreview = '';
+            if (companySettings.invoicePrefix || companySettings.paymentTerms || companySettings.taxRate) {
+                invoicePreview = 'Prefix: ' + (companySettings.invoicePrefix || 'INV');
+                invoicePreview += '\nPayment Terms: ' + (companySettings.paymentTerms || 7) + ' days';
+                if (companySettings.taxRate > 0) {
+                    invoicePreview += '\nTax Rate: ' + companySettings.taxRate + '%';
+                }
+                if (companySettings.invoiceNotes) {
+                    invoicePreview += '\nNotes: ' + companySettings.invoiceNotes;
+                }
+            } else {
+                invoicePreview = 'Using default invoice settings.';
+            }
+            document.getElementById('preview-invoice').textContent = invoicePreview;
+
+            // Owner preview
+            var ownerPreview = '';
+            if (companySettings.ownerName) {
+                ownerPreview = companySettings.ownerName;
+                if (companySettings.ownerTitle) ownerPreview += '\n' + companySettings.ownerTitle;
+                if (companySettings.ownerPhone) ownerPreview += '\nPhone: ' + companySettings.ownerPhone;
+                if (companySettings.ownerEmail) ownerPreview += '\nEmail: ' + companySettings.ownerEmail;
+            } else {
+                ownerPreview = 'No owner information set yet.';
+            }
+            document.getElementById('preview-owner').textContent = ownerPreview;
+        }
+
+        function showSuccessMessage(message) {
+            var successMsg = document.getElementById('success-message');
+            if (message) {
+                successMsg.textContent = message;
+            }
+            successMsg.classList.add('show');
+            setTimeout(function() {
+                successMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        function resetAllSettings() {
+            if (confirm('Are you sure you want to reset all company settings? This action cannot be undone.')) {
+                companySettings = {
+                    name: '',
+                    tagline: '',
+                    phone: '',
+                    email: '',
+                    website: '',
+                    address: '',
+                    invoicePrefix: 'INV',
+                    paymentTerms: 7,
+                    taxRate: 0,
+                    invoiceNotes: '',
+                    ownerName: '',
+                    ownerTitle: '',
+                    ownerPhone: '',
+                    ownerEmail: ''
+                };
+                saveDataToStorage();
+                populateSettingsForms();
+                updateSettingsPreview();
+                showSuccessMessage('🔄 All settings have been reset to defaults!');
+            }
         }
 
         function setupEventListeners() {
@@ -2128,6 +2310,11 @@
             document.getElementById('product-form').addEventListener('submit', handleProductSubmit);
             document.getElementById('order-form').addEventListener('submit', handleOrderSubmit);
 
+            // Settings forms
+            document.getElementById('company-form').addEventListener('submit', handleCompanySubmit);
+            document.getElementById('invoice-form').addEventListener('submit', handleInvoiceSubmit);
+            document.getElementById('owner-form').addEventListener('submit', handleOwnerSubmit);
+
             // Order customer selection
             document.getElementById('order-customer').addEventListener('change', function() {
                 if (this.value) {
@@ -2136,6 +2323,48 @@
                     document.getElementById('order-items').classList.add('hidden');
                 }
             });
+        }
+
+        // Settings Form Handlers
+        function handleCompanySubmit(e) {
+            e.preventDefault();
+            
+            companySettings.name = document.getElementById('company-name').value.trim();
+            companySettings.tagline = document.getElementById('company-tagline').value.trim();
+            companySettings.phone = document.getElementById('company-phone').value.trim();
+            companySettings.email = document.getElementById('company-email').value.trim();
+            companySettings.website = document.getElementById('company-website').value.trim();
+            companySettings.address = document.getElementById('company-address').value.trim();
+
+            saveDataToStorage();
+            updateSettingsPreview();
+            showSuccessMessage('🏢 Company information saved successfully!');
+        }
+
+        function handleInvoiceSubmit(e) {
+            e.preventDefault();
+            
+            companySettings.invoicePrefix = document.getElementById('invoice-prefix').value.trim() || 'INV';
+            companySettings.paymentTerms = parseInt(document.getElementById('payment-terms').value) || 7;
+            companySettings.taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+            companySettings.invoiceNotes = document.getElementById('invoice-notes').value.trim();
+
+            saveDataToStorage();
+            updateSettingsPreview();
+            showSuccessMessage('📋 Invoice settings saved successfully!');
+        }
+
+        function handleOwnerSubmit(e) {
+            e.preventDefault();
+            
+            companySettings.ownerName = document.getElementById('owner-name').value.trim();
+            companySettings.ownerTitle = document.getElementById('owner-title').value.trim();
+            companySettings.ownerPhone = document.getElementById('owner-phone').value.trim();
+            companySettings.ownerEmail = document.getElementById('owner-email').value.trim();
+
+            saveDataToStorage();
+            updateSettingsPreview();
+            showSuccessMessage('👤 Owner details saved successfully!');
         }
 
         function setupCategoryFilters() {
@@ -2595,6 +2824,7 @@
                 }
                 orders = newOrders;
                 
+                saveDataToStorage();
                 updateStats();
                 renderViews();
             }
@@ -2632,6 +2862,7 @@
             }
 
             closeCustomerForm();
+            saveDataToStorage();
             updateStats();
             renderViews();
             populateOrderCustomers();
@@ -2642,7 +2873,7 @@
             editingProduct = null;
             document.getElementById('product-modal-title').textContent = 'Add Vegetable';
             document.getElementById('product-form').reset();
-            setupCategoryFilters(); // Ensure categories are loaded
+            setupCategoryFilters();
             document.getElementById('product-modal').classList.add('show');
         }
 
@@ -2679,6 +2910,7 @@
                     }
                 }
                 products = newProducts;
+                saveDataToStorage();
                 updateStats();
                 renderViews();
             }
@@ -2717,6 +2949,7 @@
             }
 
             closeProductForm();
+            saveDataToStorage();
             updateStats();
             renderViews();
         }
@@ -2727,11 +2960,9 @@
             document.getElementById('order-form').reset();
             document.getElementById('order-items').classList.add('hidden');
             
-            // Update modal title and button text
             document.querySelector('#order-modal .modal-header h3').textContent = 'Create Order';
             updateOrderFormButton();
             
-            // Clear the search field and quantities
             var orderSearch = document.getElementById('order-search');
             if (orderSearch) {
                 orderSearch.value = '';
@@ -2739,12 +2970,11 @@
             clearOrderQuantities();
             
             populateOrderCustomers();
-            setupCategoryFilters(); // Setup category filters for order form
+            setupCategoryFilters();
             document.getElementById('order-modal').classList.add('show');
         }
 
         function editOrder(orderId) {
-            // Find the order to edit
             var order = null;
             for (var i = 0; i < orders.length; i++) {
                 if (orders[i].id === orderId) {
@@ -2756,22 +2986,17 @@
             
             editingOrder = order;
             
-            // Update modal title and button text
             document.querySelector('#order-modal .modal-header h3').textContent = 'Edit Order #' + order.id;
             updateOrderFormButton();
             
-            // Reset form and clear quantities
             document.getElementById('order-form').reset();
             clearOrderQuantities();
             
-            // Populate customers and select the order's customer
             populateOrderCustomers();
             document.getElementById('order-customer').value = order.customerId;
             
-            // Show order items section
             initializeOrderItems();
             
-            // Pre-populate the order items with existing quantities
             for (var i = 0; i < order.items.length; i++) {
                 var item = order.items[i];
                 var quantityInput = document.getElementById('quantity-' + item.vegeId);
@@ -2802,11 +3027,9 @@
             document.getElementById('order-modal').classList.remove('show');
             editingOrder = null;
             
-            // Reset modal title and button text
             document.querySelector('#order-modal .modal-header h3').textContent = 'Create Order';
             updateOrderFormButton();
             
-            // Clear the search field and quantities
             var orderSearch = document.getElementById('order-search');
             if (orderSearch) {
                 orderSearch.value = '';
@@ -2829,7 +3052,7 @@
             renderOrderItems('', 'all');
             document.getElementById('order-items').classList.remove('hidden');
             updateOrderTotal();
-            updateOrderFormButton(); // Update button text when items section is shown
+            updateOrderFormButton();
         }
 
         function renderOrderItems(searchTerm, category) {
@@ -2873,11 +3096,9 @@
             container.innerHTML = itemsHTML;
         }
 
-        // Store current order quantities
         var currentOrderQuantities = {};
 
         function filterOrderItems(searchTerm) {
-            // Save current quantities before re-rendering
             for (var i = 0; i < products.length; i++) {
                 var product = products[i];
                 var quantityInput = document.getElementById('quantity-' + product.id);
@@ -2888,7 +3109,6 @@
             
             renderOrderItems(searchTerm, selectedOrderCategory);
             
-            // Restore quantities after re-rendering
             for (var productId in currentOrderQuantities) {
                 var quantityInput = document.getElementById('quantity-' + productId);
                 if (quantityInput) {
@@ -2965,24 +3185,22 @@
             }
             
             if (editingOrder) {
-                // Update existing order
                 for (var i = 0; i < orders.length; i++) {
                     if (orders[i].id === editingOrder.id) {
                         orders[i] = {
                             id: editingOrder.id,
                             customerId: customerId,
-                            date: editingOrder.date, // Keep original date
+                            date: editingOrder.date,
                             items: orderItems,
                             total: total,
-                            status: editingOrder.status, // Keep original status
-                            createdAt: editingOrder.createdAt, // Keep original creation time
-                            updatedAt: new Date().toISOString() // Add update timestamp
+                            status: editingOrder.status,
+                            createdAt: editingOrder.createdAt,
+                            updatedAt: new Date().toISOString()
                         };
                         break;
                     }
                 }
             } else {
-                // Create new order
                 var newOrder = {
                     id: Date.now(),
                     customerId: customerId,
@@ -2995,9 +3213,9 @@
                 orders.unshift(newOrder);
             }
             
-            // Clear form and quantities
             clearOrderQuantities();
             closeOrderForm();
+            saveDataToStorage();
             updateStats();
             renderViews();
         }
@@ -3092,7 +3310,7 @@
         }
 
         function deleteOrderFromDetails(orderId) {
-            deleteOrder(orderId, true); // true indicates it's called from details modal
+            deleteOrder(orderId, true);
         }
 
         // Sharing Functions
@@ -3121,7 +3339,6 @@
                 minute: '2-digit' 
             });
 
-            // Format items list
             var itemsList = '';
             for (var i = 0; i < order.items.length; i++) {
                 var item = order.items[i];
@@ -3130,7 +3347,13 @@
                 itemsList += '   ' + item.quantity + ' ' + item.unit + ' × RM' + item.price.toFixed(2) + ' = RM' + itemTotal + '\n';
             }
 
-            var message = '🥬 *VegeOrder Invoice*\n\n';
+            var companyName = companySettings.name || 'VegeOrder';
+            var companyTagline = companySettings.tagline || 'Professional Vegetable Supply & Order Management';
+            var companyPhone = companySettings.phone || '+60 12-345-6789';
+            var companyEmail = companySettings.email || 'info@vegeorder.my';
+
+            var message = '🥬 *' + companyName + ' Invoice*\n\n';
+            if (companyTagline) message += companyTagline + '\n\n';
             message += '📋 *Order #' + order.id + '*\n';
             message += '👤 Customer: ' + customerName + '\n';
             message += '📅 Date: ' + orderDate + ' at ' + orderTime + '\n';
@@ -3138,13 +3361,15 @@
             message += '📦 *Items Ordered:*\n';
             message += itemsList + '\n';
             message += '💰 *Total Amount: RM' + order.total.toFixed(2) + '*\n\n';
-            message += '🏪 Generated by VegeOrder App\n';
+            message += '🏪 ' + companyName + '\n';
+            if (companyPhone) message += '📞 ' + companyPhone + '\n';
+            if (companyEmail) message += '📧 ' + companyEmail + '\n';
             message += '📱 Professional Vegetable Order Management';
 
             return {
-                subject: 'VegeOrder Invoice #' + order.id + ' - ' + customerName,
+                subject: companyName + ' Invoice #' + order.id + ' - ' + customerName,
                 message: message,
-                plainMessage: message.replace(/\*/g, '').replace(/🥬|📋|👤|📅|📊|📦|💰|🏪|📱/g, '')
+                plainMessage: message.replace(/\*/g, '').replace(/🥬|📋|👤|📅|📊|📦|💰|🏪|📞|📧|📱/g, '')
             };
         }
 
@@ -3152,23 +3377,16 @@
             var formattedOrder = formatOrderForSharing(orderId);
             if (!formattedOrder) return;
 
-            // WhatsApp uses URL encoding for the message
             var encodedMessage = encodeURIComponent(formattedOrder.message);
-            
-            // WhatsApp Web/Mobile URL
             var whatsappUrl = 'https://wa.me/?text=' + encodedMessage;
             
-            // Open WhatsApp in a new window/tab
             try {
                 if (window.innerWidth <= 768) {
-                    // On mobile, try to open WhatsApp app directly
                     window.location.href = whatsappUrl;
                 } else {
-                    // On desktop, open in new tab
                     window.open(whatsappUrl, '_blank');
                 }
             } catch (error) {
-                // Fallback: copy to clipboard
                 copyToClipboard(formattedOrder.message);
                 alert('WhatsApp sharing not available. Order details copied to clipboard!');
             }
@@ -3178,25 +3396,19 @@
             var formattedOrder = formatOrderForSharing(orderId);
             if (!formattedOrder) return;
 
-            // Format email body with proper line breaks for email
             var emailBody = formattedOrder.plainMessage.replace(/\n/g, '%0D%0A');
             var emailSubject = encodeURIComponent(formattedOrder.subject);
-            
-            // Create mailto URL
             var mailtoUrl = 'mailto:?subject=' + emailSubject + '&body=' + emailBody;
             
             try {
-                // Open email client
                 window.location.href = mailtoUrl;
             } catch (error) {
-                // Fallback: copy to clipboard
                 copyToClipboard(formattedOrder.plainMessage);
                 alert('Email client not available. Order details copied to clipboard!');
             }
         }
 
         function copyToClipboard(text) {
-            // Modern approach
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(function() {
                     console.log('Text copied to clipboard');
@@ -3205,7 +3417,6 @@
                     fallbackCopyTextToClipboard(text);
                 });
             } else {
-                // Fallback for older browsers
                 fallbackCopyTextToClipboard(text);
             }
         }
@@ -3213,8 +3424,6 @@
         function fallbackCopyTextToClipboard(text) {
             var textArea = document.createElement("textarea");
             textArea.value = text;
-            
-            // Avoid scrolling to bottom
             textArea.style.top = "0";
             textArea.style.left = "0";
             textArea.style.position = "fixed";
@@ -3247,7 +3456,6 @@
             }
             if (!order) return;
 
-            // Store current order for export functions
             currentInvoiceOrder = order;
 
             var customer = null;
@@ -3265,14 +3473,13 @@
             
             var orderDate = new Date(order.createdAt);
             var invoiceDate = new Date();
-            var dueDate = new Date(invoiceDate.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days from invoice date
+            var dueDate = new Date(invoiceDate.getTime() + ((companySettings.paymentTerms || 7) * 24 * 60 * 60 * 1000));
             
-            // Generate invoice number based on date and order ID
-            var invoiceNumber = 'INV-' + invoiceDate.getFullYear() + 
+            var invoicePrefix = companySettings.invoicePrefix || 'INV';
+            var invoiceNumber = invoicePrefix + '-' + invoiceDate.getFullYear() + 
                                String(invoiceDate.getMonth() + 1).padStart(2, '0') + 
                                String(invoiceDate.getDate()).padStart(2, '0') + '-' + order.id;
 
-            // Calculate subtotal and totals
             var subtotal = 0;
             var itemsHTML = '';
             
@@ -3281,7 +3488,6 @@
                 var itemTotal = item.quantity * item.price;
                 subtotal += itemTotal;
                 
-                // Extract Chinese name if present
                 var vegeName = item.vegeName;
                 var chineseName = '';
                 var nameMatch = vegeName.match(/^([^]+?)\s([^\s]+)\s\((.+)\)$/);
@@ -3304,17 +3510,24 @@
                     '</tr>';
             }
 
-            // Calculate tax (6% SST for Malaysia if applicable)
-            var taxRate = 0; // Set to 0.06 for 6% SST if business is SST registered
-            var taxAmount = subtotal * taxRate;
+            var taxRate = companySettings.taxRate || 0;
+            var taxAmount = subtotal * (taxRate / 100);
             var totalAmount = subtotal + taxAmount;
 
+            // Company information with fallbacks
+            var businessName = companySettings.name || '🥬 VegeOrder';
+            var businessTagline = companySettings.tagline || 'Professional Vegetable Supply & Order Management';
+            var businessPhone = companySettings.phone || '+60 12-345-6789';
+            var businessEmail = companySettings.email || 'info@vegeorder.my';
+            var businessAddress = companySettings.address || '123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor';
+            var businessWebsite = companySettings.website ? ' | Website: ' + companySettings.website : '';
+
             var invoiceHTML = '<div class="invoice-business-header">' +
-                '<div class="business-name">🥬 VegeOrder</div>' +
-                '<div class="business-tagline">Professional Vegetable Supply & Order Management</div>' +
+                '<div class="business-name">' + businessName + '</div>' +
+                '<div class="business-tagline">' + businessTagline + '</div>' +
                 '<div class="business-contact">' +
-                    'Phone: +60 12-345-6789 | Email: info@vegeorder.my<br>' +
-                    'Address: 123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor' +
+                    'Phone: ' + businessPhone + ' | Email: ' + businessEmail + businessWebsite + '<br>' +
+                    'Address: ' + businessAddress +
                 '</div>' +
                 '</div>' +
 
@@ -3388,7 +3601,7 @@
             
             if (taxAmount > 0) {
                 invoiceHTML += '<div class="summary-row">' +
-                    '<span>SST (6%):</span>' +
+                    '<span>Tax (' + taxRate + '%):</span>' +
                     '<span>RM ' + taxAmount.toFixed(2) + '</span>' +
                     '</div>';
             }
@@ -3401,8 +3614,13 @@
 
                 '<div class="invoice-footer">' +
                     '<div class="footer-note">Thank you for your business!</div>' +
-                    '<div>Payment Terms: Net 7 days | All prices are in Malaysian Ringgit (RM)</div>' +
-                    '<div>Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by VegeOrder Professional System</div>' +
+                    '<div>Payment Terms: Net ' + (companySettings.paymentTerms || 7) + ' days | All prices are in Malaysian Ringgit (RM)</div>';
+            
+            if (companySettings.invoiceNotes) {
+                invoiceHTML += '<div style="margin-top: 8px;">' + companySettings.invoiceNotes + '</div>';
+            }
+            
+            invoiceHTML += '<div>Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by ' + businessName + '</div>' +
                 '</div>';
 
             document.getElementById('invoice-content').innerHTML = invoiceHTML;
@@ -3411,15 +3629,10 @@
 
         function closeInvoice() {
             document.getElementById('invoice-modal').classList.remove('show');
-            currentInvoiceOrder = null; // Clear current invoice data
+            currentInvoiceOrder = null;
         }
 
         function printInvoice() {
-            // Hide other elements and print only the invoice
-            var originalDisplay = document.body.style.display;
-            var invoiceModal = document.getElementById('invoice-modal');
-            
-            // Trigger print
             window.print();
         }
 
@@ -3430,7 +3643,6 @@
                 return;
             }
 
-            // Check if XLSX library is available
             if (typeof XLSX === 'undefined') {
                 alert('Excel export library not loaded. Please refresh the page and try again.');
                 return;
@@ -3449,18 +3661,19 @@
                 var customerName = customer ? customer.name : 'Unknown Customer';
                 var orderDate = new Date(order.createdAt);
                 var invoiceDate = new Date();
-                var invoiceNumber = 'INV-' + invoiceDate.getFullYear() + 
+                var invoicePrefix = companySettings.invoicePrefix || 'INV';
+                var invoiceNumber = invoicePrefix + '-' + invoiceDate.getFullYear() + 
                                    String(invoiceDate.getMonth() + 1).padStart(2, '0') + 
                                    String(invoiceDate.getDate()).padStart(2, '0') + '-' + order.id;
 
-                // Create workbook
+                var businessName = companySettings.name || 'VegeOrder';
+
                 var wb = XLSX.utils.book_new();
                 
-                // Business header data
                 var headerData = [
-                    ['VegeOrder - Professional Vegetable Supply'],
-                    ['Phone: +60 12-345-6789 | Email: info@vegeorder.my'],
-                    ['Address: 123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor'],
+                    [businessName + ' - Professional Vegetable Supply'],
+                    ['Phone: ' + (companySettings.phone || '+60 12-345-6789') + ' | Email: ' + (companySettings.email || 'info@vegeorder.my')],
+                    ['Address: ' + (companySettings.address || '123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor')],
                     [''],
                     ['INVOICE'],
                     [''],
@@ -3479,14 +3692,12 @@
                     ['Item Description', 'Chinese Name', 'Quantity', 'Unit', 'Unit Price (RM)', 'Total (RM)']
                 ];
 
-                // Add items data
                 var subtotal = 0;
                 for (var i = 0; i < order.items.length; i++) {
                     var item = order.items[i];
                     var itemTotal = item.quantity * item.price;
                     subtotal += itemTotal;
                     
-                    // Extract names
                     var vegeName = item.vegeName;
                     var chineseName = '';
                     var nameMatch = vegeName.match(/^([^]+?)\s([^\s]+)\s\((.+)\)$/);
@@ -3505,38 +3716,32 @@
                     ]);
                 }
 
-                // Add totals
+                var taxRate = companySettings.taxRate || 0;
+                var taxAmount = subtotal * (taxRate / 100);
+                var totalAmount = subtotal + taxAmount;
+
                 headerData.push(['']);
                 headerData.push(['', '', '', '', 'Subtotal:', subtotal]);
-                headerData.push(['', '', '', '', 'TOTAL AMOUNT:', subtotal]);
+                if (taxAmount > 0) {
+                    headerData.push(['', '', '', '', 'Tax (' + taxRate + '%):', taxAmount]);
+                }
+                headerData.push(['', '', '', '', 'TOTAL AMOUNT:', totalAmount]);
                 headerData.push(['']);
-                headerData.push(['Payment Terms: Net 7 days']);
-                headerData.push(['Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by VegeOrder']);
+                headerData.push(['Payment Terms: Net ' + (companySettings.paymentTerms || 7) + ' days']);
+                headerData.push(['Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by ' + businessName]);
 
-                // Create worksheet
                 var ws = XLSX.utils.aoa_to_sheet(headerData);
 
-                // Set column widths
                 var colWidths = [
-                    {wch: 35}, // Item Description
-                    {wch: 15}, // Chinese Name
-                    {wch: 10}, // Quantity
-                    {wch: 8},  // Unit
-                    {wch: 12}, // Unit Price
-                    {wch: 12}  // Total
+                    {wch: 35}, {wch: 15}, {wch: 10}, {wch: 8}, {wch: 12}, {wch: 12}
                 ];
                 ws['!cols'] = colWidths;
 
-                // Add worksheet to workbook
                 XLSX.utils.book_append_sheet(wb, ws, 'Invoice');
 
-                // Generate filename
                 var filename = 'Invoice_' + invoiceNumber + '_' + customerName.replace(/[^a-zA-Z0-9]/g, '_') + '.xlsx';
-
-                // Save file
                 XLSX.writeFile(wb, filename);
 
-                // Show success message
                 setTimeout(function() {
                     alert('Excel file downloaded successfully!');
                 }, 500);
@@ -3554,7 +3759,6 @@
             }
 
             try {
-                // Create a new window for PDF generation
                 var printWindow = window.open('', '_blank');
                 if (!printWindow) {
                     alert('Pop-up blocked. Please allow pop-ups and try again.');
@@ -3577,12 +3781,12 @@
                 
                 var orderDate = new Date(order.createdAt);
                 var invoiceDate = new Date();
-                var dueDate = new Date(invoiceDate.getTime() + (7 * 24 * 60 * 60 * 1000));
-                var invoiceNumber = 'INV-' + invoiceDate.getFullYear() + 
+                var dueDate = new Date(invoiceDate.getTime() + ((companySettings.paymentTerms || 7) * 24 * 60 * 60 * 1000));
+                var invoicePrefix = companySettings.invoicePrefix || 'INV';
+                var invoiceNumber = invoicePrefix + '-' + invoiceDate.getFullYear() + 
                                    String(invoiceDate.getMonth() + 1).padStart(2, '0') + 
                                    String(invoiceDate.getDate()).padStart(2, '0') + '-' + order.id;
 
-                // Calculate totals
                 var subtotal = 0;
                 var itemsHTML = '';
                 
@@ -3591,7 +3795,6 @@
                     var itemTotal = item.quantity * item.price;
                     subtotal += itemTotal;
                     
-                    // Extract Chinese name if present
                     var vegeName = item.vegeName;
                     var chineseName = '';
                     var nameMatch = vegeName.match(/^([^]+?)\s([^\s]+)\s\((.+)\)$/);
@@ -3611,6 +3814,16 @@
                         '<td style="padding: 12px; border-bottom: 1px solid #ddd; text-align: right; font-weight: 700;">RM ' + itemTotal.toFixed(2) + '</td>' +
                         '</tr>';
                 }
+
+                var taxRate = companySettings.taxRate || 0;
+                var taxAmount = subtotal * (taxRate / 100);
+                var totalAmount = subtotal + taxAmount;
+
+                var businessName = companySettings.name || 'VegeOrder';
+                var businessTagline = companySettings.tagline || 'Professional Vegetable Supply & Order Management';
+                var businessPhone = companySettings.phone || '+60 12-345-6789';
+                var businessEmail = companySettings.email || 'info@vegeorder.my';
+                var businessAddress = companySettings.address || '123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor';
 
                 var pdfHTML = '<!DOCTYPE html>' +
                 '<html><head>' +
@@ -3639,10 +3852,10 @@
                 '</head><body>' +
                 
                 '<div class="header">' +
-                    '<div class="business-name">🥬 VegeOrder</div>' +
-                    '<div style="font-size: 16px; margin-bottom: 10px;">Professional Vegetable Supply & Order Management</div>' +
-                    '<div class="business-info">Phone: +60 12-345-6789 | Email: info@vegeorder.my<br>' +
-                    'Address: 123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor</div>' +
+                    '<div class="business-name">🥬 ' + businessName + '</div>' +
+                    '<div style="font-size: 16px; margin-bottom: 10px;">' + businessTagline + '</div>' +
+                    '<div class="business-info">Phone: ' + businessPhone + ' | Email: ' + businessEmail + '<br>' +
+                    'Address: ' + businessAddress + '</div>' +
                 '</div>' +
 
                 '<div class="invoice-info">' +
@@ -3676,14 +3889,24 @@
                 '</table>' +
 
                 '<div class="totals">' +
-                    '<div class="total-row"><span>Subtotal:</span><span>RM ' + subtotal.toFixed(2) + '</span></div>' +
-                    '<div class="total-row total-final"><span>TOTAL AMOUNT:</span><span>RM ' + subtotal.toFixed(2) + '</span></div>' +
+                    '<div class="total-row"><span>Subtotal:</span><span>RM ' + subtotal.toFixed(2) + '</span></div>';
+                
+                if (taxAmount > 0) {
+                    pdfHTML += '<div class="total-row"><span>Tax (' + taxRate + '%):</span><span>RM ' + taxAmount.toFixed(2) + '</span></div>';
+                }
+                
+                pdfHTML += '<div class="total-row total-final"><span>TOTAL AMOUNT:</span><span>RM ' + totalAmount.toFixed(2) + '</span></div>' +
                 '</div>' +
 
                 '<div class="footer">' +
                     '<div style="font-weight: bold; margin-bottom: 8px;">Thank you for your business!</div>' +
-                    '<div>Payment Terms: Net 7 days | All prices are in Malaysian Ringgit (RM)</div>' +
-                    '<div>Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by VegeOrder Professional System</div>' +
+                    '<div>Payment Terms: Net ' + (companySettings.paymentTerms || 7) + ' days | All prices are in Malaysian Ringgit (RM)</div>';
+                
+                if (companySettings.invoiceNotes) {
+                    pdfHTML += '<div style="margin-top: 8px;">' + companySettings.invoiceNotes + '</div>';
+                }
+                
+                pdfHTML += '<div>Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by ' + businessName + '</div>' +
                 '</div>' +
 
                 '</body></html>';
@@ -3691,7 +3914,6 @@
                 printWindow.document.write(pdfHTML);
                 printWindow.document.close();
                 
-                // Auto-trigger print dialog for PDF save
                 printWindow.onload = function() {
                     printWindow.print();
                     printWindow.onafterprint = function() {
@@ -3699,7 +3921,6 @@
                     };
                 };
 
-                // Show success message
                 setTimeout(function() {
                     alert('PDF export initiated! Use your browser\'s print dialog to save as PDF.');
                 }, 1000);
@@ -3709,24 +3930,6 @@
                 alert('Error exporting to PDF. Please try again or use the print option.');
             }
         }
-
-        // Close invoice modal when clicking outside
-        document.addEventListener('click', function(e) {
-            var invoiceModal = document.getElementById('invoice-modal');
-            if (e.target === invoiceModal) {
-                closeInvoice();
-            }
-        });
-
-        // Close invoice modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                var invoiceModal = document.getElementById('invoice-modal');
-                if (invoiceModal.classList.contains('show')) {
-                    closeInvoice();
-                }
-            }
-        });
 
         function closeOrderDetails() {
             document.getElementById('order-details-modal').classList.remove('show');
@@ -3740,6 +3943,7 @@
                     break;
                 }
             }
+            saveDataToStorage();
             updateStats();
             renderViews();
             closeOrderDetails();
@@ -3754,10 +3958,10 @@
                     }
                 }
                 orders = newOrders;
+                saveDataToStorage();
                 updateStats();
                 renderViews();
                 
-                // Only close order details modal if called from the details modal
                 if (fromDetailsModal) {
                     closeOrderDetails();
                 }
@@ -3772,23 +3976,20 @@
             var scrollTimer = null;
 
             mainContent.addEventListener('scroll', function() {
-                // Show scroll indicator
                 if (!isScrolling) {
                     scrollIndicator.classList.add('show');
                     isScrolling = true;
                 }
 
-                // Update scroll indicator position
                 var scrollTop = mainContent.scrollTop;
                 var scrollHeight = mainContent.scrollHeight - mainContent.clientHeight;
                 var scrollPercent = (scrollTop / scrollHeight) * 100;
                 
-                var indicatorPosition = (scrollPercent / 100) * 20; // 20px is the indicator track height
+                var indicatorPosition = (scrollPercent / 100) * 20;
                 if (scrollIndicator.querySelector('::after')) {
                     scrollIndicator.style.setProperty('--scroll-position', indicatorPosition + 'px');
                 }
 
-                // Hide scroll indicator after scrolling stops
                 clearTimeout(scrollTimer);
                 scrollTimer = setTimeout(function() {
                     scrollIndicator.classList.remove('show');
@@ -3796,7 +3997,6 @@
                 }, 1000);
             });
 
-            // Add momentum scrolling for better mobile feel
             var startY = 0;
             var currentY = 0;
             var velocity = 0;
@@ -3836,7 +4036,6 @@
         
         // Mobile Optimizations
         function preventZoom() {
-            // Prevent zoom on input focus for iOS
             var inputs = document.querySelectorAll('input, select, textarea');
             for (var i = 0; i < inputs.length; i++) {
                 inputs[i].addEventListener('focus', function() {
@@ -3844,7 +4043,6 @@
                 });
             }
             
-            // Prevent double-tap zoom
             var lastTouchEnd = 0;
             document.addEventListener('touchend', function(event) {
                 var now = (new Date()).getTime();
@@ -3856,7 +4054,6 @@
         }
 
         function setupTouchFeedback() {
-            // Add touch feedback for all interactive elements
             document.addEventListener('touchstart', function(e) {
                 var target = e.target;
                 if (target.matches('button, .nav-item, .order-card, .customer-card, .product-card, .action-btn, .icon-btn, .category-btn, .share-btn, .invoice-btn')) {
@@ -3874,7 +4071,6 @@
                 }
             }, {passive: true});
 
-            // Prevent scrolling when touching buttons
             document.addEventListener('touchmove', function(e) {
                 if (e.target.matches('button, .nav-item, .action-btn, .icon-btn, .category-btn, .share-btn, .invoice-btn')) {
                     e.preventDefault();
@@ -3882,7 +4078,6 @@
             }, {passive: false});
         }
 
-        // Pull to refresh indicator
         function addPullToRefresh() {
             var mainContent = document.getElementById('main-content');
             var pullIndicator = document.createElement('div');
@@ -3936,6 +4131,24 @@
         document.addEventListener('click', function(e) {
             if (e.target.matches('button, .action-btn, .category-btn, .share-btn, .invoice-btn')) {
                 hapticFeedback();
+            }
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            var invoiceModal = document.getElementById('invoice-modal');
+            if (e.target === invoiceModal) {
+                closeInvoice();
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var invoiceModal = document.getElementById('invoice-modal');
+                if (invoiceModal.classList.contains('show')) {
+                    closeInvoice();
+                }
             }
         });
     </script>
