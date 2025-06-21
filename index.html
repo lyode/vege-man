@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, User, ShoppingCart, TrendingUp, Calendar, Search, Package, Menu, ArrowLeft, Home, Phone, Mail, MapPin, CheckCircle, Clock, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, User, ShoppingCart, TrendingUp, Search, Package, Home, Phone, Mail, MapPin, CheckCircle, Clock, Filter, ArrowLeft, MoreVertical } from 'lucide-react';
 
-export default function MobileVegeOrderManager() {
-  // State management
+export default function VegeOrderMobileApp() {
+  // Core state
   const [currentView, setCurrentView] = useState('dashboard');
   const [customers, setCustomers] = useState([]);
   const [vegetables, setVegetables] = useState([]);
   const [orders, setOrders] = useState([]);
+  
+  // UI state
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [orderFilter, setOrderFilter] = useState('all');
+  const [selectedCustomer, setSelectedCustomer] = useState('');
+  
+  // Modal states
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showVegeForm, setShowVegeForm] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [showOrderDetails, setShowOrderDetails] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [editingVege, setEditingVege] = useState(null);
-  const [selectedCustomer, setSelectedCustomer] = useState('');
-  const [orderFilter, setOrderFilter] = useState('all');
-
+  
   // Form states
   const [customerForm, setCustomerForm] = useState({
     name: '', phone: '', address: '', email: ''
@@ -29,16 +33,17 @@ export default function MobileVegeOrderManager() {
     customerId: '', items: []
   });
 
-  // Touch feedback state
-  const [touchedButton, setTouchedButton] = useState(null);
+  // Touch interaction state
+  const [activeTouch, setActiveTouch] = useState(null);
 
-  // Load initial data
+  // Initialize data
   useEffect(() => {
     setCustomers(window.appCustomers || [
       { id: 1, name: 'Ahmad Restaurant', phone: '012-3456789', address: 'Jalan Sultan, KL', email: 'ahmad@restaurant.com' },
       { id: 2, name: 'Siti Catering', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' },
       { id: 3, name: 'Lee Kitchen', phone: '019-9876543', address: 'Chinatown, KL', email: 'lee@kitchen.com' },
-      { id: 4, name: 'Mama Warung', phone: '017-1234567', address: 'Petaling Jaya', email: 'mama@warung.my' }
+      { id: 4, name: 'Mama Warung', phone: '017-1234567', address: 'Petaling Jaya', email: 'mama@warung.my' },
+      { id: 5, name: 'Restoran Sedap', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' }
     ]);
     
     setVegetables(window.appVegetables || [
@@ -51,25 +56,30 @@ export default function MobileVegeOrderManager() {
       { id: 7, name: 'Cucumber', unit: 'kg', price: 3.80 },
       { id: 8, name: 'Lettuce', unit: 'head', price: 2.50 },
       { id: 9, name: 'Broccoli', unit: 'kg', price: 9.00 },
-      { id: 10, name: 'Cauliflower', unit: 'head', price: 4.80 }
+      { id: 10, name: 'Cauliflower', unit: 'head', price: 4.80 },
+      { id: 11, name: 'Eggplant', unit: 'kg', price: 5.50 },
+      { id: 12, name: 'Green Beans', unit: 'kg', price: 7.20 }
     ]);
     
     setOrders(window.appOrders || []);
   }, []);
 
-  // Save data to memory
+  // Persist data
   useEffect(() => { window.appCustomers = customers; }, [customers]);
   useEffect(() => { window.appVegetables = vegetables; }, [vegetables]);
   useEffect(() => { window.appOrders = orders; }, [orders]);
 
-  // Touch feedback
-  const handleTouchStart = (buttonId) => {
-    setTouchedButton(buttonId);
-    setTimeout(() => setTouchedButton(null), 150);
+  // Touch feedback helper
+  const handleTouch = (id, action) => {
+    setActiveTouch(id);
+    setTimeout(() => {
+      setActiveTouch(null);
+      if (action) action();
+    }, 100);
   };
 
   // Customer functions
-  const handleSaveCustomer = () => {
+  const saveCustomer = () => {
     if (!customerForm.name.trim()) return;
     
     if (editingCustomer) {
@@ -78,29 +88,32 @@ export default function MobileVegeOrderManager() {
       ));
       setEditingCustomer(null);
     } else {
-      const newCustomer = { id: Date.now(), ...customerForm };
-      setCustomers([...customers, newCustomer]);
+      setCustomers([...customers, { id: Date.now(), ...customerForm }]);
     }
     
-    setCustomerForm({ name: '', phone: '', address: '', email: '' });
-    setShowCustomerForm(false);
+    resetCustomerForm();
   };
 
-  const handleEditCustomer = (customer) => {
+  const editCustomer = (customer) => {
     setEditingCustomer(customer);
     setCustomerForm(customer);
     setShowCustomerForm(true);
   };
 
-  const handleDeleteCustomer = (id) => {
-    if (window.confirm('Delete this customer?')) {
+  const deleteCustomer = (id) => {
+    if (confirm('Delete this customer?')) {
       setCustomers(customers.filter(c => c.id !== id));
       setOrders(orders.filter(o => o.customerId !== id));
     }
   };
 
+  const resetCustomerForm = () => {
+    setCustomerForm({ name: '', phone: '', address: '', email: '' });
+    setShowCustomerForm(false);
+  };
+
   // Vegetable functions
-  const handleSaveVege = () => {
+  const saveVege = () => {
     if (!vegeForm.name.trim() || !vegeForm.price) return;
     
     if (editingVege) {
@@ -109,28 +122,31 @@ export default function MobileVegeOrderManager() {
       ));
       setEditingVege(null);
     } else {
-      const newVege = { id: Date.now(), ...vegeForm, price: parseFloat(vegeForm.price) };
-      setVegetables([...vegetables, newVege]);
+      setVegetables([...vegetables, { id: Date.now(), ...vegeForm, price: parseFloat(vegeForm.price) }]);
     }
     
-    setVegeForm({ name: '', unit: '', price: '' });
-    setShowVegeForm(false);
+    resetVegeForm();
   };
 
-  const handleEditVege = (vege) => {
+  const editVege = (vege) => {
     setEditingVege(vege);
     setVegeForm({ ...vege, price: vege.price.toString() });
     setShowVegeForm(true);
   };
 
-  const handleDeleteVege = (id) => {
-    if (window.confirm('Delete this product?')) {
+  const deleteVege = (id) => {
+    if (confirm('Delete this product?')) {
       setVegetables(vegetables.filter(v => v.id !== id));
     }
   };
 
+  const resetVegeForm = () => {
+    setVegeForm({ name: '', unit: '', price: '' });
+    setShowVegeForm(false);
+  };
+
   // Order functions
-  const initializeOrderForm = (customerId) => {
+  const initOrderForm = (customerId) => {
     setOrderForm({
       customerId,
       items: vegetables.map(vege => ({
@@ -143,7 +159,7 @@ export default function MobileVegeOrderManager() {
     });
   };
 
-  const handleSaveOrder = () => {
+  const saveOrder = () => {
     if (!orderForm.customerId) return;
     
     const orderItems = orderForm.items.filter(item => item.quantity > 0);
@@ -162,8 +178,7 @@ export default function MobileVegeOrderManager() {
     };
     
     setOrders([newOrder, ...orders]);
-    setOrderForm({ customerId: '', items: [] });
-    setShowOrderForm(false);
+    resetOrderForm();
   };
 
   const updateOrderItem = (vegeId, quantity) => {
@@ -184,12 +199,31 @@ export default function MobileVegeOrderManager() {
   };
 
   const deleteOrder = (orderId) => {
-    if (window.confirm('Delete this order?')) {
+    if (confirm('Delete this order?')) {
       setOrders(orders.filter(order => order.id !== orderId));
     }
   };
 
-  // Filter functions
+  const resetOrderForm = () => {
+    setOrderForm({ customerId: '', items: [] });
+    setShowOrderForm(false);
+  };
+
+  // Data helpers
+  const getCustomerName = (customerId) => {
+    const customer = customers.find(c => c.id === customerId);
+    return customer ? customer.name : 'Unknown';
+  };
+
+  const getCustomerOrders = (customerId) => {
+    return orders.filter(order => order.customerId === customerId);
+  };
+
+  const getCustomerTotal = (customerId) => {
+    return getCustomerOrders(customerId).reduce((sum, order) => sum + order.total, 0);
+  };
+
+  // Filtered data
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.phone.includes(searchTerm)
@@ -205,161 +239,128 @@ export default function MobileVegeOrderManager() {
 
   // Analytics
   const totalSales = todayOrders.reduce((sum, order) => sum + order.total, 0);
-  const pendingOrders = todayOrders.filter(order => order.status === 'pending').length;
-  const completedOrders = todayOrders.filter(order => order.status === 'completed').length;
-
-  const getCustomerName = (customerId) => {
-    const customer = customers.find(c => c.id === customerId);
-    return customer ? customer.name : 'Unknown';
-  };
-
-  const getCustomerOrders = (customerId) => {
-    return orders.filter(order => order.customerId === customerId);
-  };
-
-  const getCustomerTotal = (customerId) => {
-    return getCustomerOrders(customerId).reduce((sum, order) => sum + order.total, 0);
-  };
+  const pendingCount = todayOrders.filter(order => order.status === 'pending').length;
+  const completedCount = todayOrders.filter(order => order.status === 'completed').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-600 via-emerald-600 to-teal-500 pb-20">
-      {/* Mobile Header */}
-      <div className="bg-white/10 backdrop-blur-lg border-b border-white/20 sticky top-0 z-40">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 text-white">
+      {/* Status Bar Simulation */}
+      <div className="h-8 bg-black/20"></div>
+      
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-md sticky top-8 z-40 border-b border-white/20">
         <div className="px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">🥬</div>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-green-400 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+              🥬
+            </div>
             <div>
-              <h1 className="text-lg font-bold text-white leading-none">VegeOrder</h1>
-              <p className="text-white/70 text-xs">Mobile Manager</p>
+              <h1 className="font-bold text-lg leading-tight">VegeOrder</h1>
+              <p className="text-xs text-green-100 opacity-80">Mobile Manager</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-white/80 text-xs">Today</p>
-            <p className="text-white font-semibold text-sm">{new Date().toLocaleDateString()}</p>
+            <p className="text-xs text-green-100">{new Date().toLocaleDateString('en-MY', { 
+              weekday: 'short', 
+              day: 'numeric', 
+              month: 'short' 
+            })}</p>
+            <p className="text-xs text-green-200 font-medium">RM {totalSales.toFixed(2)}</p>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-4">
-        {/* Dashboard View */}
+      <div className="px-4 pb-24 pt-2">
+        {/* Dashboard */}
         {currentView === 'dashboard' && (
-          <div className="space-y-4 pt-4">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white/80 text-xs uppercase tracking-wide">Customers</p>
-                    <p className="text-2xl font-bold text-white">{customers.length}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                    <User className="text-blue-300" size={20} />
-                  </div>
-                </div>
+          <div className="space-y-4">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
+                <div className="text-xs text-green-100 mb-1">Customers</div>
+                <div className="text-xl font-bold">{customers.length}</div>
               </div>
-              
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white/80 text-xs uppercase tracking-wide">Products</p>
-                    <p className="text-2xl font-bold text-white">{vegetables.length}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
-                    <Package className="text-green-300" size={20} />
-                  </div>
-                </div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
+                <div className="text-xs text-green-100 mb-1">Products</div>
+                <div className="text-xl font-bold">{vegetables.length}</div>
+              </div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
+                <div className="text-xs text-green-100 mb-1">Orders</div>
+                <div className="text-xl font-bold">{todayOrders.length}</div>
               </div>
             </div>
 
-            {/* Sales Overview */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
+            {/* Today's Performance */}
+            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-white/80 text-sm font-medium">Today's Performance</p>
-                <TrendingUp className="text-yellow-300" size={18} />
+                <h3 className="font-semibold">Today's Sales</h3>
+                <TrendingUp size={18} className="text-green-200" />
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-white/70 text-sm">Total Sales</span>
-                  <span className="text-white font-bold">RM {totalSales.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70 text-sm">Orders</span>
-                  <span className="text-white">{todayOrders.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70 text-sm">Pending</span>
-                  <span className="text-yellow-300">{pendingOrders}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70 text-sm">Completed</span>
-                  <span className="text-green-300">{completedOrders}</span>
-                </div>
+              <div className="text-2xl font-bold mb-2">RM {totalSales.toFixed(2)}</div>
+              <div className="flex justify-between text-sm">
+                <span className="text-green-100">Pending: {pendingCount}</span>
+                <span className="text-green-100">Done: {completedCount}</span>
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
-              <h3 className="text-white font-semibold mb-3">Quick Actions</h3>
+            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
+              <h3 className="font-semibold mb-3">Quick Actions</h3>
               <div className="grid grid-cols-2 gap-3">
                 <button
-                  onTouchStart={() => handleTouchStart('new-order')}
+                  onTouchStart={() => handleTouch('new-order')}
                   onClick={() => setShowOrderForm(true)}
-                  className={`bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-2xl flex flex-col items-center gap-2 transition-all duration-200 ${
-                    touchedButton === 'new-order' ? 'scale-95' : 'active:scale-95'
+                  className={`bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-2xl flex flex-col items-center space-y-2 font-medium transition-transform ${
+                    activeTouch === 'new-order' ? 'scale-95' : 'active:scale-95'
                   }`}
                 >
                   <Plus size={24} />
-                  <span className="text-sm font-medium">New Order</span>
+                  <span className="text-sm">New Order</span>
                 </button>
                 <button
-                  onTouchStart={() => handleTouchStart('view-orders')}
+                  onTouchStart={() => handleTouch('view-orders')}
                   onClick={() => setCurrentView('orders')}
-                  className={`bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4 rounded-2xl flex flex-col items-center gap-2 transition-all duration-200 ${
-                    touchedButton === 'view-orders' ? 'scale-95' : 'active:scale-95'
+                  className={`bg-gradient-to-r from-blue-500 to-cyan-500 p-4 rounded-2xl flex flex-col items-center space-y-2 font-medium transition-transform ${
+                    activeTouch === 'view-orders' ? 'scale-95' : 'active:scale-95'
                   }`}
                 >
                   <ShoppingCart size={24} />
-                  <span className="text-sm font-medium">View Orders</span>
+                  <span className="text-sm">Orders</span>
                 </button>
               </div>
             </div>
 
-            {/* Recent Activity */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
+            {/* Recent Orders */}
+            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-white font-semibold">Recent Orders</h3>
-                <button
-                  onClick={() => setCurrentView('orders')}
-                  className="text-white/60 hover:text-white text-sm"
-                >
+                <h3 className="font-semibold">Recent Orders</h3>
+                <button onClick={() => setCurrentView('orders')} className="text-sm text-green-200">
                   View All
                 </button>
               </div>
               {todayOrders.length === 0 ? (
-                <div className="text-center py-6">
-                  <Clock className="mx-auto mb-2 text-white/40" size={32} />
-                  <p className="text-white/60 text-sm">No orders today</p>
+                <div className="text-center py-6 text-green-100">
+                  <Clock size={32} className="mx-auto mb-2 opacity-60" />
+                  <p className="text-sm">No orders today</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {todayOrders.slice(0, 3).map(order => (
                     <div 
-                      key={order.id} 
-                      className="bg-white/10 rounded-xl p-3 cursor-pointer hover:bg-white/20 transition-colors"
+                      key={order.id}
                       onClick={() => setShowOrderDetails(order)}
+                      className="bg-white/10 rounded-xl p-3 active:bg-white/20 transition-colors"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <p className="text-white font-medium text-sm">{getCustomerName(order.customerId)}</p>
-                          <p className="text-white/60 text-xs">{order.items.length} items • {new Date(order.createdAt).toLocaleTimeString()}</p>
+                          <p className="font-medium text-sm">{getCustomerName(order.customerId)}</p>
+                          <p className="text-xs text-green-100">{order.items.length} items</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-green-300 font-semibold text-sm">RM {order.total.toFixed(2)}</p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                            order.status === 'completed' 
-                              ? 'bg-green-500/20 text-green-300' 
-                              : 'bg-yellow-500/20 text-yellow-300'
+                          <p className="font-semibold text-sm">RM {order.total.toFixed(2)}</p>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            order.status === 'completed' ? 'bg-green-500/30' : 'bg-yellow-500/30'
                           }`}>
                             {order.status}
                           </span>
@@ -373,16 +374,16 @@ export default function MobileVegeOrderManager() {
           </div>
         )}
 
-        {/* Customers View */}
+        {/* Customers */}
         {currentView === 'customers' && (
-          <div className="space-y-4 pt-4">
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-white">Customers</h2>
+              <h2 className="text-xl font-bold">Customers</h2>
               <button
-                onTouchStart={() => handleTouchStart('add-customer')}
+                onTouchStart={() => handleTouch('add-customer')}
                 onClick={() => setShowCustomerForm(true)}
-                className={`bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-2xl transition-all duration-200 ${
-                  touchedButton === 'add-customer' ? 'scale-95' : 'active:scale-95'
+                className={`bg-blue-500 p-3 rounded-full transition-transform ${
+                  activeTouch === 'add-customer' ? 'scale-95' : 'active:scale-95'
                 }`}
               >
                 <Plus size={20} />
@@ -391,68 +392,66 @@ export default function MobileVegeOrderManager() {
 
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-4 top-4 text-white/60" size={16} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" size={16} />
               <input
                 type="text"
                 placeholder="Search customers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white/30"
+                className="w-full bg-white/20 border-0 rounded-2xl pl-10 pr-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30"
               />
             </div>
 
             {/* Customer List */}
             <div className="space-y-3">
               {filteredCustomers.map(customer => (
-                <div key={customer.id} className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
+                <div key={customer.id} className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex-1">
-                      <h3 className="text-white font-semibold text-lg">{customer.name}</h3>
+                      <h3 className="font-semibold text-lg">{customer.name}</h3>
                       <div className="space-y-1 mt-2">
-                        <div className="flex items-center gap-2">
-                          <Phone size={14} className="text-white/60" />
-                          <span className="text-white/80 text-sm">{customer.phone}</span>
+                        <div className="flex items-center space-x-2">
+                          <Phone size={12} className="text-green-200" />
+                          <span className="text-sm">{customer.phone}</span>
                         </div>
                         {customer.address && (
-                          <div className="flex items-center gap-2">
-                            <MapPin size={14} className="text-white/60" />
-                            <span className="text-white/70 text-sm">{customer.address}</span>
+                          <div className="flex items-center space-x-2">
+                            <MapPin size={12} className="text-green-200" />
+                            <span className="text-sm text-green-100">{customer.address}</span>
                           </div>
                         )}
                         {customer.email && (
-                          <div className="flex items-center gap-2">
-                            <Mail size={14} className="text-white/60" />
-                            <span className="text-white/70 text-sm">{customer.email}</span>
+                          <div className="flex items-center space-x-2">
+                            <Mail size={12} className="text-green-200" />
+                            <span className="text-sm text-green-100">{customer.email}</span>
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex space-x-2">
                       <button
-                        onTouchStart={() => handleTouchStart(`edit-${customer.id}`)}
-                        onClick={() => handleEditCustomer(customer)}
-                        className={`text-white/60 hover:text-blue-300 p-2 rounded-xl transition-all duration-200 ${
-                          touchedButton === `edit-${customer.id}` ? 'scale-95 bg-white/10' : 'active:scale-95'
+                        onTouchStart={() => handleTouch(`edit-c-${customer.id}`)}
+                        onClick={() => editCustomer(customer)}
+                        className={`p-2 rounded-xl bg-white/10 transition-transform ${
+                          activeTouch === `edit-c-${customer.id}` ? 'scale-95' : 'active:scale-95'
                         }`}
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
-                        onTouchStart={() => handleTouchStart(`delete-${customer.id}`)}
-                        onClick={() => handleDeleteCustomer(customer.id)}
-                        className={`text-white/60 hover:text-red-400 p-2 rounded-xl transition-all duration-200 ${
-                          touchedButton === `delete-${customer.id}` ? 'scale-95 bg-white/10' : 'active:scale-95'
+                        onTouchStart={() => handleTouch(`del-c-${customer.id}`)}
+                        onClick={() => deleteCustomer(customer.id)}
+                        className={`p-2 rounded-xl bg-red-500/20 transition-transform ${
+                          activeTouch === `del-c-${customer.id}` ? 'scale-95' : 'active:scale-95'
                         }`}
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
-                  <div className="border-t border-white/20 pt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/70 text-sm">{getCustomerOrders(customer.id).length} total orders</span>
-                      <span className="text-green-300 font-semibold">RM {getCustomerTotal(customer.id).toFixed(2)}</span>
-                    </div>
+                  <div className="border-t border-white/20 pt-3 flex justify-between text-sm">
+                    <span className="text-green-100">{getCustomerOrders(customer.id).length} orders</span>
+                    <span className="font-semibold">RM {getCustomerTotal(customer.id).toFixed(2)}</span>
                   </div>
                 </div>
               ))}
@@ -460,51 +459,50 @@ export default function MobileVegeOrderManager() {
           </div>
         )}
 
-        {/* Vegetables View */}
+        {/* Products */}
         {currentView === 'vegetables' && (
-          <div className="space-y-4 pt-4">
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-white">Products</h2>
+              <h2 className="text-xl font-bold">Products</h2>
               <button
-                onTouchStart={() => handleTouchStart('add-product')}
+                onTouchStart={() => handleTouch('add-product')}
                 onClick={() => setShowVegeForm(true)}
-                className={`bg-green-500 hover:bg-green-600 text-white p-3 rounded-2xl transition-all duration-200 ${
-                  touchedButton === 'add-product' ? 'scale-95' : 'active:scale-95'
+                className={`bg-green-500 p-3 rounded-full transition-transform ${
+                  activeTouch === 'add-product' ? 'scale-95' : 'active:scale-95'
                 }`}
               >
                 <Plus size={20} />
               </button>
             </div>
 
-            {/* Products Grid */}
             <div className="grid grid-cols-1 gap-3">
               {vegetables.map(vege => (
-                <div key={vege.id} className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
+                <div key={vege.id} className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
                   <div className="flex justify-between items-center">
                     <div className="flex-1">
-                      <h3 className="text-white font-semibold text-lg">{vege.name}</h3>
-                      <p className="text-white/60 text-sm">per {vege.unit}</p>
+                      <h3 className="font-semibold">{vege.name}</h3>
+                      <p className="text-sm text-green-100">per {vege.unit}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-green-300">RM {vege.price.toFixed(2)}</p>
-                      <div className="flex gap-2 mt-2">
+                      <p className="text-xl font-bold">RM {vege.price.toFixed(2)}</p>
+                      <div className="flex space-x-2 mt-2">
                         <button
-                          onTouchStart={() => handleTouchStart(`edit-vege-${vege.id}`)}
-                          onClick={() => handleEditVege(vege)}
-                          className={`text-white/60 hover:text-blue-300 p-2 rounded-xl transition-all duration-200 ${
-                            touchedButton === `edit-vege-${vege.id}` ? 'scale-95 bg-white/10' : 'active:scale-95'
+                          onTouchStart={() => handleTouch(`edit-v-${vege.id}`)}
+                          onClick={() => editVege(vege)}
+                          className={`p-2 rounded-xl bg-white/10 transition-transform ${
+                            activeTouch === `edit-v-${vege.id}` ? 'scale-95' : 'active:scale-95'
                           }`}
                         >
-                          <Edit size={16} />
+                          <Edit size={14} />
                         </button>
                         <button
-                          onTouchStart={() => handleTouchStart(`delete-vege-${vege.id}`)}
-                          onClick={() => handleDeleteVege(vege.id)}
-                          className={`text-white/60 hover:text-red-400 p-2 rounded-xl transition-all duration-200 ${
-                            touchedButton === `delete-vege-${vege.id}` ? 'scale-95 bg-white/10' : 'active:scale-95'
+                          onTouchStart={() => handleTouch(`del-v-${vege.id}`)}
+                          onClick={() => deleteVege(vege.id)}
+                          className={`p-2 rounded-xl bg-red-500/20 transition-transform ${
+                            activeTouch === `del-v-${vege.id}` ? 'scale-95' : 'active:scale-95'
                           }`}
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
@@ -515,16 +513,16 @@ export default function MobileVegeOrderManager() {
           </div>
         )}
 
-        {/* Orders View */}
+        {/* Orders */}
         {currentView === 'orders' && (
-          <div className="space-y-4 pt-4">
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-white">Orders</h2>
+              <h2 className="text-xl font-bold">Orders</h2>
               <button
-                onTouchStart={() => handleTouchStart('add-order')}
+                onTouchStart={() => handleTouch('add-order')}
                 onClick={() => setShowOrderForm(true)}
-                className={`bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-2xl transition-all duration-200 ${
-                  touchedButton === 'add-order' ? 'scale-95' : 'active:scale-95'
+                className={`bg-purple-500 p-3 rounded-full transition-transform ${
+                  activeTouch === 'add-order' ? 'scale-95' : 'active:scale-95'
                 }`}
               >
                 <Plus size={20} />
@@ -537,20 +535,20 @@ export default function MobileVegeOrderManager() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-white/20 border-0 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-white/30"
               />
               
-              <div className="flex gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {['all', 'pending', 'completed'].map(filter => (
                   <button
                     key={filter}
-                    onTouchStart={() => handleTouchStart(`filter-${filter}`)}
+                    onTouchStart={() => handleTouch(`filter-${filter}`)}
                     onClick={() => setOrderFilter(filter)}
-                    className={`flex-1 py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-200 ${
+                    className={`py-3 px-2 rounded-2xl text-sm font-medium transition-all ${
                       orderFilter === filter
-                        ? 'bg-white/20 text-white'
-                        : 'bg-white/10 text-white/70 hover:text-white'
-                    } ${touchedButton === `filter-${filter}` ? 'scale-95' : 'active:scale-95'}`}
+                        ? 'bg-white/30 text-white'
+                        : 'bg-white/10 text-green-100'
+                    } ${activeTouch === `filter-${filter}` ? 'scale-95' : 'active:scale-95'}`}
                   >
                     {filter.charAt(0).toUpperCase() + filter.slice(1)}
                   </button>
@@ -561,50 +559,45 @@ export default function MobileVegeOrderManager() {
             {/* Orders List */}
             {filteredOrders.length === 0 ? (
               <div className="text-center py-12">
-                <ShoppingCart className="mx-auto mb-4 text-white/40" size={48} />
-                <p className="text-white/60">No orders found</p>
+                <ShoppingCart size={48} className="mx-auto mb-4 opacity-40" />
+                <p className="text-green-100">No orders found</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {filteredOrders.map(order => (
                   <div 
-                    key={order.id} 
-                    className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 cursor-pointer hover:bg-white/20 transition-all"
+                    key={order.id}
                     onClick={() => setShowOrderDetails(order)}
+                    className="bg-white/15 backdrop-blur-sm rounded-2xl p-4 active:bg-white/25 transition-colors"
                   >
-                    <div className="flex justify-between items-start mb-3">
+                    <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
-                        <h3 className="text-white font-semibold">{getCustomerName(order.customerId)}</h3>
-                        <p className="text-white/60 text-sm">Order #{order.id}</p>
-                        <p className="text-white/60 text-xs">{new Date(order.createdAt).toLocaleString()}</p>
+                        <h3 className="font-semibold">{getCustomerName(order.customerId)}</h3>
+                        <p className="text-sm text-green-100">#{order.id}</p>
+                        <p className="text-xs text-green-200">{new Date(order.createdAt).toLocaleString()}</p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          order.status === 'completed' 
-                            ? 'bg-green-500/20 text-green-300' 
-                            : 'bg-yellow-500/20 text-yellow-300'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        order.status === 'completed' ? 'bg-green-500/30' : 'bg-yellow-500/30'
+                      }`}>
+                        {order.status}
+                      </span>
                     </div>
                     
-                    <div className="space-y-1 mb-3">
+                    <div className="text-sm text-green-100 mb-2">
                       {order.items.slice(0, 2).map(item => (
-                        <div key={item.vegeId} className="flex justify-between text-sm">
-                          <span className="text-white/80">{item.vegeName}</span>
-                          <span className="text-white/80">{item.quantity} {item.unit}</span>
+                        <div key={item.vegeId}>
+                          {item.vegeName}: {item.quantity} {item.unit}
                         </div>
                       ))}
                       {order.items.length > 2 && (
-                        <p className="text-white/60 text-xs">+{order.items.length - 2} more items</p>
+                        <div className="text-xs">+{order.items.length - 2} more items</div>
                       )}
                     </div>
                     
-                    <div className="border-t border-white/20 pt-3">
+                    <div className="border-t border-white/20 pt-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-white font-medium">Total:</span>
-                        <span className="text-xl font-bold text-green-300">RM {order.total.toFixed(2)}</span>
+                        <span className="font-medium">Total:</span>
+                        <span className="text-xl font-bold">RM {order.total.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -616,8 +609,8 @@ export default function MobileVegeOrderManager() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-lg border-t border-white/20 px-4 py-2 safe-area-inset-bottom">
-        <div className="flex justify-around">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-md border-t border-white/20">
+        <div className="flex justify-around py-2 px-2">
           {[
             { id: 'dashboard', label: 'Home', icon: Home },
             { id: 'customers', label: 'Customers', icon: User },
@@ -626,229 +619,134 @@ export default function MobileVegeOrderManager() {
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onTouchStart={() => handleTouchStart(`nav-${id}`)}
+              onTouchStart={() => handleTouch(`nav-${id}`)}
               onClick={() => setCurrentView(id)}
-              className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all duration-200 ${
+              className={`flex flex-col items-center py-2 px-3 rounded-2xl transition-all ${
                 currentView === id
                   ? 'text-white bg-white/20'
-                  : 'text-white/60 hover:text-white'
-              } ${touchedButton === `nav-${id}` ? 'scale-95' : 'active:scale-95'}`}
+                  : 'text-green-200'
+              } ${activeTouch === `nav-${id}` ? 'scale-95' : 'active:scale-95'}`}
             >
               <Icon size={20} />
-              <span className="text-xs font-medium">{label}</span>
+              <span className="text-xs mt-1 font-medium">{label}</span>
             </button>
           ))}
         </div>
+        {/* Home Indicator */}
+        <div className="h-1 bg-white/30 rounded-full mx-auto mb-1 w-32"></div>
       </div>
-
-      {/* Order Details Modal */}
-      {showOrderDetails && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
-          <div className="bg-white/10 backdrop-blur-lg rounded-t-3xl p-6 w-full max-h-[80vh] overflow-y-auto border-t border-white/20">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-white">Order Details</h3>
-              <button
-                onTouchStart={() => handleTouchStart('close-details')}
-                onClick={() => setShowOrderDetails(null)}
-                className={`text-white/60 hover:text-white p-2 rounded-xl transition-all duration-200 ${
-                  touchedButton === 'close-details' ? 'scale-95 bg-white/10' : 'active:scale-95'
-                }`}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-white/10 rounded-2xl p-4">
-                <h4 className="text-white font-semibold mb-2">{getCustomerName(showOrderDetails.customerId)}</h4>
-                <p className="text-white/70 text-sm">Order #{showOrderDetails.id}</p>
-                <p className="text-white/70 text-sm">{new Date(showOrderDetails.createdAt).toLocaleString()}</p>
-              </div>
-
-              <div className="bg-white/10 rounded-2xl p-4">
-                <h4 className="text-white font-semibold mb-3">Items</h4>
-                <div className="space-y-2">
-                  {showOrderDetails.items.map(item => (
-                    <div key={item.vegeId} className="flex justify-between items-center">
-                      <div>
-                        <span className="text-white">{item.vegeName}</span>
-                        <span className="text-white/60 text-sm block">RM {item.price.toFixed(2)} per {item.unit}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-white">{item.quantity} {item.unit}</span>
-                        <span className="text-green-300 text-sm block">RM {(item.quantity * item.price).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white/10 rounded-2xl p-4">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-white font-semibold">Total Amount:</span>
-                  <span className="text-2xl font-bold text-green-300">RM {showOrderDetails.total.toFixed(2)}</span>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onTouchStart={() => handleTouchStart('toggle-status')}
-                    onClick={() => toggleOrderStatus(showOrderDetails.id)}
-                    className={`flex-1 py-3 rounded-2xl flex items-center justify-center gap-2 transition-all duration-200 ${
-                      showOrderDetails.status === 'completed'
-                        ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                        : 'bg-green-500 hover:bg-green-600 text-white'
-                    } ${touchedButton === 'toggle-status' ? 'scale-95' : 'active:scale-95'}`}
-                  >
-                    {showOrderDetails.status === 'completed' ? (
-                      <>
-                        <Clock size={16} />
-                        Mark Pending
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle size={16} />
-                        Mark Complete
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onTouchStart={() => handleTouchStart('delete-order')}
-                    onClick={() => {
-                      deleteOrder(showOrderDetails.id);
-                      setShowOrderDetails(null);
-                    }}
-                    className={`bg-red-500 hover:bg-red-600 text-white p-3 rounded-2xl transition-all duration-200 ${
-                      touchedButton === 'delete-order' ? 'scale-95' : 'active:scale-95'
-                    }`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Customer Form Modal */}
       {showCustomerForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
-          <div className="bg-white/10 backdrop-blur-lg rounded-t-3xl p-6 w-full max-h-[90vh] overflow-y-auto border-t border-white/20">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-white">
-                {editingCustomer ? 'Edit Customer' : 'Add Customer'}
-              </h3>
-              <button
-                onTouchStart={() => handleTouchStart('close-customer-form')}
-                onClick={() => {
-                  setShowCustomerForm(false);
-                  setEditingCustomer(null);
-                  setCustomerForm({ name: '', phone: '', address: '', email: '' });
-                }}
-                className={`text-white/60 hover:text-white p-2 rounded-xl transition-all duration-200 ${
-                  touchedButton === 'close-customer-form' ? 'scale-95 bg-white/10' : 'active:scale-95'
-                }`}
-              >
-                <X size={20} />
-              </button>
+        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
+          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[85vh] overflow-y-auto text-gray-800">
+            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold">
+                  {editingCustomer ? 'Edit Customer' : 'Add Customer'}
+                </h3>
+                <button
+                  onTouchStart={() => handleTouch('close-customer')}
+                  onClick={resetCustomerForm}
+                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
+                    activeTouch === 'close-customer' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="p-6 space-y-4">
               <input
                 type="text"
                 placeholder="Customer Name *"
                 value={customerForm.name}
                 onChange={(e) => setCustomerForm({ ...customerForm, name: e.target.value })}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <input
                 type="tel"
                 placeholder="Phone Number"
                 value={customerForm.phone}
                 onChange={(e) => setCustomerForm({ ...customerForm, phone: e.target.value })}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <textarea
                 placeholder="Address"
                 value={customerForm.address}
                 onChange={(e) => setCustomerForm({ ...customerForm, address: e.target.value })}
                 rows="3"
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
               />
               <input
                 type="email"
                 placeholder="Email"
                 value={customerForm.email}
                 onChange={(e) => setCustomerForm({ ...customerForm, email: e.target.value })}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-            </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onTouchStart={() => handleTouchStart('save-customer')}
-                onClick={handleSaveCustomer}
-                className={`flex-1 bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold transition-all duration-200 ${
-                  touchedButton === 'save-customer' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                <Save size={18} />
-                {editingCustomer ? 'Update' : 'Save'}
-              </button>
-              <button
-                onTouchStart={() => handleTouchStart('cancel-customer')}
-                onClick={() => {
-                  setShowCustomerForm(false);
-                  setEditingCustomer(null);
-                  setCustomerForm({ name: '', phone: '', address: '', email: '' });
-                }}
-                className={`flex-1 bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-2xl font-semibold transition-all duration-200 ${
-                  touchedButton === 'cancel-customer' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                Cancel
-              </button>
+              
+              <div className="grid grid-cols-2 gap-3 pt-4">
+                <button
+                  onTouchStart={() => handleTouch('save-customer')}
+                  onClick={saveCustomer}
+                  className={`bg-green-500 text-white py-4 rounded-2xl font-semibold transition-transform ${
+                    activeTouch === 'save-customer' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  {editingCustomer ? 'Update' : 'Save'}
+                </button>
+                <button
+                  onTouchStart={() => handleTouch('cancel-customer')}
+                  onClick={resetCustomerForm}
+                  className={`bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
+                    activeTouch === 'cancel-customer' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Vegetable Form Modal */}
+      {/* Product Form Modal */}
       {showVegeForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
-          <div className="bg-white/10 backdrop-blur-lg rounded-t-3xl p-6 w-full max-h-[90vh] overflow-y-auto border-t border-white/20">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-white">
-                {editingVege ? 'Edit Product' : 'Add Product'}
-              </h3>
-              <button
-                onTouchStart={() => handleTouchStart('close-vege-form')}
-                onClick={() => {
-                  setShowVegeForm(false);
-                  setEditingVege(null);
-                  setVegeForm({ name: '', unit: '', price: '' });
-                }}
-                className={`text-white/60 hover:text-white p-2 rounded-xl transition-all duration-200 ${
-                  touchedButton === 'close-vege-form' ? 'scale-95 bg-white/10' : 'active:scale-95'
-                }`}
-              >
-                <X size={20} />
-              </button>
+        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
+          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[85vh] overflow-y-auto text-gray-800">
+            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold">
+                  {editingVege ? 'Edit Product' : 'Add Product'}
+                </h3>
+                <button
+                  onTouchStart={() => handleTouch('close-vege')}
+                  onClick={resetVegeForm}
+                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
+                    activeTouch === 'close-vege' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="p-6 space-y-4">
               <input
                 type="text"
                 placeholder="Product Name *"
                 value={vegeForm.name}
                 onChange={(e) => setVegeForm({ ...vegeForm, name: e.target.value })}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <input
                 type="text"
                 placeholder="Unit (kg, piece, head, etc.)"
                 value={vegeForm.unit}
                 onChange={(e) => setVegeForm({ ...vegeForm, unit: e.target.value })}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <input
                 type="number"
@@ -856,34 +754,29 @@ export default function MobileVegeOrderManager() {
                 placeholder="Price (RM) *"
                 value={vegeForm.price}
                 onChange={(e) => setVegeForm({ ...vegeForm, price: e.target.value })}
-                className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-            </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onTouchStart={() => handleTouchStart('save-vege')}
-                onClick={handleSaveVege}
-                className={`flex-1 bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold transition-all duration-200 ${
-                  touchedButton === 'save-vege' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                <Save size={18} />
-                {editingVege ? 'Update' : 'Save'}
-              </button>
-              <button
-                onTouchStart={() => handleTouchStart('cancel-vege')}
-                onClick={() => {
-                  setShowVegeForm(false);
-                  setEditingVege(null);
-                  setVegeForm({ name: '', unit: '', price: '' });
-                }}
-                className={`flex-1 bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-2xl font-semibold transition-all duration-200 ${
-                  touchedButton === 'cancel-vege' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                Cancel
-              </button>
+              
+              <div className="grid grid-cols-2 gap-3 pt-4">
+                <button
+                  onTouchStart={() => handleTouch('save-vege')}
+                  onClick={saveVege}
+                  className={`bg-green-500 text-white py-4 rounded-2xl font-semibold transition-transform ${
+                    activeTouch === 'save-vege' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  {editingVege ? 'Update' : 'Save'}
+                </button>
+                <button
+                  onTouchStart={() => handleTouch('cancel-vege')}
+                  onClick={resetVegeForm}
+                  className={`bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
+                    activeTouch === 'cancel-vege' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -891,40 +784,37 @@ export default function MobileVegeOrderManager() {
 
       {/* Order Form Modal */}
       {showOrderForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
-          <div className="bg-white/10 backdrop-blur-lg rounded-t-3xl p-6 w-full max-h-[90vh] overflow-y-auto border-t border-white/20">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-white">Create Order</h3>
-              <button
-                onTouchStart={() => handleTouchStart('close-order-form')}
-                onClick={() => {
-                  setShowOrderForm(false);
-                  setOrderForm({ customerId: '', items: [] });
-                }}
-                className={`text-white/60 hover:text-white p-2 rounded-xl transition-all duration-200 ${
-                  touchedButton === 'close-order-form' ? 'scale-95 bg-white/10' : 'active:scale-95'
-                }`}
-              >
-                <X size={20} />
-              </button>
+        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
+          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[90vh] overflow-y-auto text-gray-800">
+            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold">Create Order</h3>
+                <button
+                  onTouchStart={() => handleTouch('close-order')}
+                  onClick={resetOrderForm}
+                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
+                    activeTouch === 'close-order' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             
-            <div className="space-y-6">
+            <div className="p-6 space-y-6">
               <div>
-                <label className="block text-white/80 text-sm mb-3 font-medium">Select Customer *</label>
+                <label className="block text-gray-700 font-medium mb-3">Select Customer *</label>
                 <select
                   value={orderForm.customerId}
                   onChange={(e) => {
                     setOrderForm({ ...orderForm, customerId: e.target.value });
-                    if (e.target.value) {
-                      initializeOrderForm(e.target.value);
-                    }
+                    if (e.target.value) initOrderForm(e.target.value);
                   }}
-                  className="w-full bg-white/20 border border-white/30 rounded-2xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="" className="bg-gray-800">Select customer...</option>
+                  <option value="">Choose customer...</option>
                   {customers.map(customer => (
-                    <option key={customer.id} value={customer.id} className="bg-gray-800">
+                    <option key={customer.id} value={customer.id}>
                       {customer.name}
                     </option>
                   ))}
@@ -933,20 +823,20 @@ export default function MobileVegeOrderManager() {
 
               {orderForm.items.length > 0 && (
                 <div>
-                  <label className="block text-white/80 text-sm mb-3 font-medium">Order Items</label>
+                  <label className="block text-gray-700 font-medium mb-3">Order Items</label>
                   <div className="space-y-3 max-h-64 overflow-y-auto">
                     {orderForm.items.map(item => (
-                      <div key={item.vegeId} className="bg-white/10 rounded-2xl p-4">
+                      <div key={item.vegeId} className="bg-gray-50 rounded-2xl p-4">
                         <div className="flex justify-between items-center mb-3">
-                          <div className="flex-1">
-                            <span className="text-white font-medium">{item.vegeName}</span>
-                            <span className="text-white/60 text-sm block">RM {item.price.toFixed(2)} per {item.unit}</span>
+                          <div>
+                            <span className="font-medium text-gray-800">{item.vegeName}</span>
+                            <span className="text-sm text-gray-600 block">RM {item.price.toFixed(2)} per {item.unit}</span>
                           </div>
-                          <span className="text-green-300 font-semibold">
+                          <span className="font-semibold text-green-600">
                             RM {(item.quantity * item.price || 0).toFixed(2)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center space-x-3">
                           <input
                             type="number"
                             step="0.1"
@@ -954,50 +844,140 @@ export default function MobileVegeOrderManager() {
                             placeholder="0"
                             value={item.quantity || ''}
                             onChange={(e) => updateOrderItem(item.vegeId, e.target.value)}
-                            className="flex-1 bg-white/20 border border-white/30 rounded-xl px-3 py-3 text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="flex-1 bg-white border-0 rounded-xl px-3 py-3 text-gray-800 text-center focus:outline-none focus:ring-2 focus:ring-green-500"
                           />
-                          <span className="text-white/60 text-sm w-16">{item.unit}</span>
+                          <span className="text-gray-600 text-sm w-16">{item.unit}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="bg-white/10 rounded-2xl p-4 mt-4">
+                  <div className="bg-green-50 rounded-2xl p-4 mt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-white font-semibold text-lg">Total Amount:</span>
-                      <span className="text-2xl font-bold text-green-300">
+                      <span className="font-semibold text-gray-800 text-lg">Total:</span>
+                      <span className="text-2xl font-bold text-green-600">
                         RM {orderForm.items.reduce((sum, item) => sum + (item.quantity * item.price || 0), 0).toFixed(2)}
                       </span>
                     </div>
                   </div>
                 </div>
               )}
+              
+              <div className="grid grid-cols-2 gap-3 pt-4">
+                <button
+                  onTouchStart={() => handleTouch('save-order')}
+                  onClick={saveOrder}
+                  disabled={!orderForm.customerId || orderForm.items.filter(item => item.quantity > 0).length === 0}
+                  className={`bg-green-500 disabled:bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
+                    activeTouch === 'save-order' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  Create Order
+                </button>
+                <button
+                  onTouchStart={() => handleTouch('cancel-order')}
+                  onClick={resetOrderForm}
+                  className={`bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
+                    activeTouch === 'cancel-order' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {showOrderDetails && (
+        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
+          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[85vh] overflow-y-auto text-gray-800">
+            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold">Order Details</h3>
+                <button
+                  onTouchStart={() => handleTouch('close-details')}
+                  onClick={() => setShowOrderDetails(null)}
+                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
+                    activeTouch === 'close-details' ? 'scale-95' : 'active:scale-95'
+                  }`}
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             
-            <div className="flex gap-3 mt-6">
-              <button
-                onTouchStart={() => handleTouchStart('save-order')}
-                onClick={handleSaveOrder}
-                disabled={!orderForm.customerId || orderForm.items.filter(item => item.quantity > 0).length === 0}
-                className={`flex-1 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold transition-all duration-200 ${
-                  touchedButton === 'save-order' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                <Save size={18} />
-                Create Order
-              </button>
-              <button
-                onTouchStart={() => handleTouchStart('cancel-order')}
-                onClick={() => {
-                  setShowOrderForm(false);
-                  setOrderForm({ customerId: '', items: [] });
-                }}
-                className={`flex-1 bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-2xl font-semibold transition-all duration-200 ${
-                  touchedButton === 'cancel-order' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                Cancel
-              </button>
+            <div className="p-6 space-y-4">
+              <div className="bg-gray-50 rounded-2xl p-4">
+                <h4 className="font-semibold text-lg mb-2">{getCustomerName(showOrderDetails.customerId)}</h4>
+                <p className="text-gray-600">Order #{showOrderDetails.id}</p>
+                <p className="text-gray-600 text-sm">{new Date(showOrderDetails.createdAt).toLocaleString()}</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl p-4">
+                <h4 className="font-semibold mb-3">Items Ordered</h4>
+                <div className="space-y-2">
+                  {showOrderDetails.items.map(item => (
+                    <div key={item.vegeId} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                      <div>
+                        <span className="font-medium">{item.vegeName}</span>
+                        <span className="text-gray-600 text-sm block">RM {item.price.toFixed(2)} per {item.unit}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-medium">{item.quantity} {item.unit}</span>
+                        <span className="text-green-600 text-sm block">RM {(item.quantity * item.price).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-green-50 rounded-2xl p-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="font-semibold text-lg">Total Amount:</span>
+                  <span className="text-2xl font-bold text-green-600">RM {showOrderDetails.total.toFixed(2)}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onTouchStart={() => handleTouch('toggle-status')}
+                    onClick={() => {
+                      toggleOrderStatus(showOrderDetails.id);
+                      setShowOrderDetails({...showOrderDetails, status: showOrderDetails.status === 'pending' ? 'completed' : 'pending'});
+                    }}
+                    className={`py-3 rounded-2xl font-semibold transition-transform ${
+                      showOrderDetails.status === 'completed'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-green-500 text-white'
+                    } ${activeTouch === 'toggle-status' ? 'scale-95' : 'active:scale-95'}`}
+                  >
+                    {showOrderDetails.status === 'completed' ? (
+                      <>
+                        <Clock size={16} className="inline mr-2" />
+                        Mark Pending
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle size={16} className="inline mr-2" />
+                        Mark Complete
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onTouchStart={() => handleTouch('delete-order-detail')}
+                    onClick={() => {
+                      deleteOrder(showOrderDetails.id);
+                      setShowOrderDetails(null);
+                    }}
+                    className={`bg-red-500 text-white py-3 rounded-2xl font-semibold transition-transform ${
+                      activeTouch === 'delete-order-detail' ? 'scale-95' : 'active:scale-95'
+                    }`}
+                  >
+                    <Trash2 size={16} className="inline mr-2" />
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
