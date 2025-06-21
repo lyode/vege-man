@@ -1569,6 +1569,27 @@
                     defaultTerms: 'This quotation is valid for 30 days from the date of issue. Prices are subject to change without notice. Payment terms: Net 30 days.'
                 };
                 
+                // New: Customer slot management
+                this.customerSlots = {
+                    total: 10, // Free tier: 10 customers
+                    used: 0,
+                    remaining: 10,
+                    plan: 'free', // free, premium, enterprise
+                    addonSlots: 0,
+                    lastUpgrade: null,
+                    upgradeHistory: []
+                };
+                
+                // Storage Keys
+                this.STORAGE_KEYS = {
+                    COMPANY_SETTINGS: 'vegeorder_company_settings',
+                    CUSTOMERS: 'vegeorder_customers',
+                    PRODUCTS: 'vegeorder_products',
+                    ORDERS: 'vegeorder_orders',
+                    QUOTATIONS: 'vegeorder_quotations',
+                    CUSTOMER_SLOTS: 'vegeorder_customer_slots' // New
+                };
+                
                 this.init();
             }
             
@@ -1583,42 +1604,52 @@
                 this.renderViews();
                 this.checkLowStock();
                 this.setupNotifications();
+                this.updateCustomerSlotUsage(); // New: Update slot usage
                 
                 // Enhanced mobile features
                 this.preventZoom();
                 this.setupTouchFeedback();
                 this.setupPullToRefresh();
                 
-                console.log('🥬 VegeOrder Pro with Quotations initialized!');
+                console.log('🥬 VegeOrder Pro with Quotations and Customer Slots initialized!');
             }
             
             async loadDataFromStorage() {
                 try {
-                    const savedSettings = await this.storage.loadData('vegeorder_company_settings');
+                    const savedSettings = await this.storage.loadData(this.STORAGE_KEYS.COMPANY_SETTINGS);
                     if (savedSettings) {
                         this.companySettings = { ...this.companySettings, ...savedSettings };
                     }
                     
-                    const savedCustomers = await this.storage.loadData('vegeorder_customers');
+                    const savedCustomers = await this.storage.loadData(this.STORAGE_KEYS.CUSTOMERS);
                     if (savedCustomers) {
                         this.customers = savedCustomers;
                     }
                     
-                    const savedProducts = await this.storage.loadData('vegeorder_products');
+                    const savedProducts = await this.storage.loadData(this.STORAGE_KEYS.PRODUCTS);
                     if (savedProducts) {
                         this.products = savedProducts;
                     }
                     
-                    const savedOrders = await this.storage.loadData('vegeorder_orders');
+                    const savedOrders = await this.storage.loadData(this.STORAGE_KEYS.ORDERS);
                     if (savedOrders) {
                         this.orders = savedOrders;
                     }
                     
                     // New: Load quotations
-                    const savedQuotations = await this.storage.loadData('vegeorder_quotations');
+                    const savedQuotations = await this.storage.loadData(this.STORAGE_KEYS.QUOTATIONS);
                     if (savedQuotations) {
                         this.quotations = savedQuotations;
                     }
+                    
+                    // New: Load customer slots
+                    const savedCustomerSlots = await this.storage.loadData(this.STORAGE_KEYS.CUSTOMER_SLOTS);
+                    if (savedCustomerSlots) {
+                        this.customerSlots = { ...this.customerSlots, ...savedCustomerSlots };
+                    }
+                    
+                    // Update customer slot usage
+                    this.updateCustomerSlotUsage();
                 } catch (error) {
                     console.error('Error loading data:', error);
                 }
@@ -1704,11 +1735,102 @@
             }
             
             saveDataToStorage() {
-                this.storage.saveData('vegeorder_company_settings', this.companySettings);
-                this.storage.saveData('vegeorder_customers', this.customers);
-                this.storage.saveData('vegeorder_products', this.products);
-                this.storage.saveData('vegeorder_orders', this.orders);
-                this.storage.saveData('vegeorder_quotations', this.quotations); // New: Save quotations
+                this.storage.saveData(this.STORAGE_KEYS.COMPANY_SETTINGS, this.companySettings);
+                this.storage.saveData(this.STORAGE_KEYS.CUSTOMERS, this.customers);
+                this.storage.saveData(this.STORAGE_KEYS.PRODUCTS, this.products);
+                this.storage.saveData(this.STORAGE_KEYS.ORDERS, this.orders);
+                this.storage.saveData(this.STORAGE_KEYS.QUOTATIONS, this.quotations);
+                this.storage.saveData(this.STORAGE_KEYS.CUSTOMER_SLOTS, this.customerSlots); // New
+            }
+            
+            // New: Update customer slot usage
+            updateCustomerSlotUsage() {
+                this.customerSlots.used = this.customers.length;
+                this.customerSlots.remaining = this.customerSlots.total - this.customerSlots.used;
+                
+                // Check for warnings
+                if (this.customerSlots.remaining <= 2 && this.customerSlots.remaining > 0) {
+                    this.showCustomerSlotWarning();
+                } else if (this.customerSlots.remaining <= 0) {
+                    this.showCustomerSlotLimitReached();
+                }
+            }
+            
+            // New: Show customer slot warning
+            showCustomerSlotWarning() {
+                const remaining = this.customerSlots.remaining;
+                this.showNotification(`⚠️ Only ${remaining} customer slot${remaining === 1 ? '' : 's'} remaining! Upgrade to add more.`, 'warning');
+            }
+            
+            // New: Show customer slot limit reached
+            showCustomerSlotLimitReached() {
+                this.showNotification('🚫 Customer limit reached! Upgrade to add more customers.', 'error');
+            }
+            
+            // New: Check if can add customer
+            canAddCustomer() {
+                return this.customerSlots.remaining > 0;
+            }
+            
+            // New: Add customer slots (purchase)
+            addCustomerSlots(quantity, plan = 'addon') {
+                const upgrade = {
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    plan: plan,
+                    slotsAdded: quantity,
+                    price: this.calculateSlotPrice(quantity, plan),
+                    paymentMethod: 'simulated'
+                };
+                
+                this.customerSlots.total += quantity;
+                this.customerSlots.addonSlots += quantity;
+                this.customerSlots.lastUpgrade = new Date().toISOString();
+                this.customerSlots.upgradeHistory.push(upgrade);
+                
+                this.updateCustomerSlotUsage();
+                this.saveDataToStorage();
+                
+                this.showNotification(`🎉 Successfully added ${quantity} customer slots!`, 'success');
+                return true;
+            }
+            
+            // New: Calculate slot price
+            calculateSlotPrice(quantity, plan) {
+                const prices = {
+                    addon: 2.00, // RM 2.00 per slot for addon
+                    premium: 1.50, // RM 1.50 per slot for premium bundle
+                    enterprise: 1.00 // RM 1.00 per slot for enterprise
+                };
+                
+                return quantity * (prices[plan] || prices.addon);
+            }
+            
+            // New: Upgrade to premium plan
+            upgradeToPremium() {
+                const premiumSlots = 100;
+                const currentAddonSlots = this.customerSlots.addonSlots;
+                
+                this.customerSlots.plan = 'premium';
+                this.customerSlots.total = premiumSlots + currentAddonSlots;
+                
+                const upgrade = {
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    plan: 'premium',
+                    slotsAdded: premiumSlots - 10, // Minus the original 10 free slots
+                    price: 99.00, // RM 99 for premium plan
+                    paymentMethod: 'simulated'
+                };
+                
+                this.customerSlots.lastUpgrade = new Date().toISOString();
+                this.customerSlots.upgradeHistory.push(upgrade);
+                
+                this.updateCustomerSlotUsage();
+                this.saveDataToStorage();
+                
+                this.showNotification('🎉 Upgraded to Premium Plan! You now have 100 customer slots.', 'success');
+                return true;
             }
             
             setupEventListeners() {
@@ -1798,8 +1920,18 @@
                 document.getElementById('customers-count').textContent = this.customers.length;
                 document.getElementById('products-count').textContent = this.products.length;
                 document.getElementById('orders-count').textContent = todayOrders.length;
-                document.getElementById('quotations-count').textContent = this.quotations.length; // New
+                document.getElementById('quotations-count').textContent = this.quotations.length;
                 document.getElementById('daily-sales').textContent = 'RM ' + totalSales.toFixed(2);
+                
+                // New: Update customer slot display in trends
+                const customersTrendElement = document.getElementById('customers-trend');
+                if (customersTrendElement) {
+                    const usage = `${this.customers.length}/${this.customerSlots.total}`;
+                    customersTrendElement.textContent = usage;
+                    customersTrendElement.className = 'stat-trend ' + 
+                        (this.customerSlots.remaining <= 2 ? 'trend-down' : 
+                         this.customerSlots.remaining <= 5 ? 'trend-neutral' : 'trend-up');
+                }
                 
                 // Update revenue display
                 const revenueShort = totalSales >= 1000 ? 
@@ -2401,6 +2533,13 @@
                     return;
                 }
                 
+                // New: Check customer slot limit for new customers
+                if (!this.editingCustomer && !this.canAddCustomer()) {
+                    this.showCustomerSlotLimitReached();
+                    this.showUpgradeDialog();
+                    return;
+                }
+                
                 if (this.editingCustomer) {
                     const index = this.customers.findIndex(c => c.id === this.editingCustomer.id);
                     this.customers[index] = { ...this.editingCustomer, ...formData };
@@ -2408,6 +2547,7 @@
                 } else {
                     const newCustomer = { id: Date.now(), ...formData };
                     this.customers.push(newCustomer);
+                    this.updateCustomerSlotUsage(); // New: Update slot usage
                     this.showNotification('✅ Customer added successfully!', 'success');
                 }
                 
@@ -2415,7 +2555,100 @@
                 this.saveDataToStorage();
                 this.updateStats();
                 this.renderViews();
-                this.populateQuotationCustomers(); // New: Update quotation customer dropdown
+                this.populateQuotationCustomers(); // Update quotation customer dropdown
+            }
+            
+            // New: Show upgrade dialog
+            showUpgradeDialog() {
+                // Create and show upgrade modal
+                const upgradeModal = document.createElement('div');
+                upgradeModal.className = 'modal show';
+                upgradeModal.id = 'upgrade-modal';
+                upgradeModal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>🚀 Upgrade Customer Slots</h3>
+                            <button class="close-btn" onclick="closeUpgradeDialog()">✕</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="text-align: center; margin-bottom: 24px;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">📈</div>
+                                <h4 style="color: #1f2937; margin-bottom: 8px;">You've reached your customer limit!</h4>
+                                <p style="color: #6b7280;">Current: ${this.customers.length}/${this.customerSlots.total} customers</p>
+                            </div>
+                            
+                            <div style="display: grid; gap: 16px; margin-bottom: 24px;">
+                                <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 2px solid #0891b2; border-radius: 16px; padding: 20px;">
+                                    <h4 style="color: #0c4a6e; margin-bottom: 12px;">💎 Premium Plan</h4>
+                                    <div style="color: #0c4a6e; font-size: 32px; font-weight: 800; margin-bottom: 8px;">RM 99</div>
+                                    <div style="color: #0369a1; margin-bottom: 16px;">100 Customer Slots</div>
+                                    <ul style="color: #0369a1; font-size: 14px; margin-bottom: 16px; padding-left: 20px;">
+                                        <li>Advanced analytics</li>
+                                        <li>Priority support</li>
+                                        <li>Export features</li>
+                                        <li>Bulk operations</li>
+                                    </ul>
+                                    <button class="btn btn-primary" style="width: 100%;" onclick="purchasePremiumPlan()">
+                                        Upgrade to Premium
+                                    </button>
+                                </div>
+                                
+                                <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 2px solid #8b5cf6; border-radius: 16px; padding: 20px;">
+                                    <h4 style="color: #581c87; margin-bottom: 12px;">📦 Add-on Slots</h4>
+                                    <div style="color: #581c87; font-size: 20px; font-weight: 700; margin-bottom: 8px;">RM 2.00 per slot</div>
+                                    <div style="color: #7c3aed; margin-bottom: 16px;">Choose your quantity</div>
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
+                                        <button class="btn btn-gray" style="padding: 12px 8px; font-size: 14px;" onclick="selectAddonSlots(50)">
+                                            50 Slots<br><small>RM 100</small>
+                                        </button>
+                                        <button class="btn btn-purple" style="padding: 12px 8px; font-size: 14px;" onclick="selectAddonSlots(100)">
+                                            100 Slots<br><small>RM 200</small>
+                                        </button>
+                                        <button class="btn btn-warning" style="padding: 12px 8px; font-size: 14px;" onclick="selectAddonSlots(200)">
+                                            200 Slots<br><small>RM 400</small>
+                                        </button>
+                                    </div>
+                                    
+                                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                                        <input type="number" placeholder="Custom quantity" id="custom-slots" 
+                                               style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px;"
+                                               min="1" max="1000">
+                                        <button class="btn btn-purple" onclick="selectCustomSlots()" style="padding: 12px 16px; font-size: 14px;">
+                                            Add
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="addon-selection" style="display: none;">
+                                        <div style="background: white; padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #d1d5db;">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                <span style="color: #374151; font-weight: 600;">Selected:</span>
+                                                <span id="selected-quantity" style="color: #1f2937; font-weight: 700;">0 slots</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span style="color: #374151; font-weight: 600;">Total:</span>
+                                                <span id="selected-price" style="color: #1f2937; font-weight: 700; font-size: 18px;">RM 0.00</span>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-success" style="width: 100%;" onclick="purchaseAddonSlots()">
+                                            Purchase Add-on Slots
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; padding: 16px; background: #f9fafb; border-radius: 12px;">
+                                <div style="font-size: 24px; margin-bottom: 8px;">💳</div>
+                                <p style="color: #6b7280; font-size: 14px; margin: 0;">
+                                    <strong>Secure Payment:</strong> All transactions are processed securely. 
+                                    Instant activation upon payment confirmation.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(upgradeModal);
             }
             
             // New: Handle quotation submit
