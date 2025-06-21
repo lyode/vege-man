@@ -1,0 +1,765 @@
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit, Trash2, Save, X, User, ShoppingCart, TrendingUp, Calendar, Search, Package } from 'lucide-react';
+
+export default function VegeOrderManagement() {
+  // State management
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [customers, setCustomers] = useState([]);
+  const [vegetables, setVegetables] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [showVegeForm, setShowVegeForm] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState(null);
+  const [editingVege, setEditingVege] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState('');
+
+  // Form states
+  const [customerForm, setCustomerForm] = useState({
+    name: '', phone: '', address: '', email: ''
+  });
+  const [vegeForm, setVegeForm] = useState({
+    name: '', unit: '', price: ''
+  });
+  const [orderForm, setOrderForm] = useState({
+    customerId: '', items: []
+  });
+
+  // Load data from memory on component mount
+  useEffect(() => {
+    setCustomers(window.appCustomers || [
+      { id: 1, name: 'Ahmad Restaurant', phone: '012-3456789', address: 'Jalan Sultan, KL', email: 'ahmad@restaurant.com' },
+      { id: 2, name: 'Siti Catering', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' }
+    ]);
+    setVegetables(window.appVegetables || [
+      { id: 1, name: 'Spinach', unit: 'kg', price: 8.50 },
+      { id: 2, name: 'Tomatoes', unit: 'kg', price: 6.00 },
+      { id: 3, name: 'Onions', unit: 'kg', price: 4.50 },
+      { id: 4, name: 'Carrots', unit: 'kg', price: 5.20 },
+      { id: 5, name: 'Cabbage', unit: 'head', price: 3.00 },
+      { id: 6, name: 'Bell Peppers', unit: 'kg', price: 12.00 }
+    ]);
+    setOrders(window.appOrders || []);
+  }, []);
+
+  // Save data to memory whenever state changes
+  useEffect(() => {
+    window.appCustomers = customers;
+  }, [customers]);
+
+  useEffect(() => {
+    window.appVegetables = vegetables;
+  }, [vegetables]);
+
+  useEffect(() => {
+    window.appOrders = orders;
+  }, [orders]);
+
+  // Customer management functions
+  const handleSaveCustomer = () => {
+    if (!customerForm.name.trim()) return;
+    
+    if (editingCustomer) {
+      setCustomers(customers.map(c => 
+        c.id === editingCustomer.id ? { ...editingCustomer, ...customerForm } : c
+      ));
+      setEditingCustomer(null);
+    } else {
+      const newCustomer = {
+        id: Date.now(),
+        ...customerForm
+      };
+      setCustomers([...customers, newCustomer]);
+    }
+    
+    setCustomerForm({ name: '', phone: '', address: '', email: '' });
+    setShowCustomerForm(false);
+  };
+
+  const handleEditCustomer = (customer) => {
+    setEditingCustomer(customer);
+    setCustomerForm(customer);
+    setShowCustomerForm(true);
+  };
+
+  const handleDeleteCustomer = (id) => {
+    setCustomers(customers.filter(c => c.id !== id));
+    setOrders(orders.filter(o => o.customerId !== id));
+  };
+
+  // Vegetable management functions
+  const handleSaveVege = () => {
+    if (!vegeForm.name.trim() || !vegeForm.price) return;
+    
+    if (editingVege) {
+      setVegetables(vegetables.map(v => 
+        v.id === editingVege.id ? { ...editingVege, ...vegeForm, price: parseFloat(vegeForm.price) } : v
+      ));
+      setEditingVege(null);
+    } else {
+      const newVege = {
+        id: Date.now(),
+        ...vegeForm,
+        price: parseFloat(vegeForm.price)
+      };
+      setVegetables([...vegetables, newVege]);
+    }
+    
+    setVegeForm({ name: '', unit: '', price: '' });
+    setShowVegeForm(false);
+  };
+
+  const handleEditVege = (vege) => {
+    setEditingVege(vege);
+    setVegeForm({ ...vege, price: vege.price.toString() });
+    setShowVegeForm(true);
+  };
+
+  const handleDeleteVege = (id) => {
+    setVegetables(vegetables.filter(v => v.id !== id));
+  };
+
+  // Order management functions
+  const initializeOrderForm = (customerId) => {
+    setOrderForm({
+      customerId,
+      items: vegetables.map(vege => ({
+        vegeId: vege.id,
+        vegeName: vege.name,
+        unit: vege.unit,
+        price: vege.price,
+        quantity: 0
+      }))
+    });
+  };
+
+  const handleSaveOrder = () => {
+    if (!orderForm.customerId) return;
+    
+    const orderItems = orderForm.items.filter(item => item.quantity > 0);
+    if (orderItems.length === 0) return;
+
+    const total = orderItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    
+    const newOrder = {
+      id: Date.now(),
+      customerId: parseInt(orderForm.customerId),
+      date: selectedDate,
+      items: orderItems,
+      total: total,
+      status: 'pending'
+    };
+    
+    setOrders([...orders, newOrder]);
+    setOrderForm({ customerId: '', items: [] });
+    setShowOrderForm(false);
+  };
+
+  const updateOrderItem = (vegeId, quantity) => {
+    setOrderForm({
+      ...orderForm,
+      items: orderForm.items.map(item =>
+        item.vegeId === vegeId ? { ...item, quantity: parseFloat(quantity) || 0 } : item
+      )
+    });
+  };
+
+  const toggleOrderStatus = (orderId) => {
+    setOrders(orders.map(order =>
+      order.id === orderId 
+        ? { ...order, status: order.status === 'pending' ? 'completed' : 'pending' }
+        : order
+    ));
+  };
+
+  const deleteOrder = (orderId) => {
+    setOrders(orders.filter(order => order.id !== orderId));
+  };
+
+  // Filter functions
+  const filteredCustomers = customers.filter(customer =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const todayOrders = orders.filter(order => order.date === selectedDate);
+  const filteredOrders = selectedCustomer 
+    ? todayOrders.filter(order => order.customerId === parseInt(selectedCustomer))
+    : todayOrders;
+
+  // Analytics
+  const totalSales = orders
+    .filter(order => order.date === selectedDate)
+    .reduce((sum, order) => sum + order.total, 0);
+
+  const getCustomerName = (customerId) => {
+    const customer = customers.find(c => c.id === customerId);
+    return customer ? customer.name : 'Unknown Customer';
+  };
+
+  const getCustomerOrders = (customerId) => {
+    return orders.filter(order => order.customerId === customerId);
+  };
+
+  const getCustomerTotal = (customerId) => {
+    return getCustomerOrders(customerId).reduce((sum, order) => sum + order.total, 0);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-600 via-emerald-600 to-teal-500 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">
+            🥬 Vegetable Order Management System
+          </h1>
+          <p className="text-green-100">Manage customers, vegetables, and daily orders efficiently</p>
+        </div>
+
+        {/* Navigation */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 mb-6 border border-white/20">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
+              { id: 'customers', label: 'Customers', icon: User },
+              { id: 'vegetables', label: 'Vegetables', icon: Package },
+              { id: 'orders', label: 'Daily Orders', icon: ShoppingCart }
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setCurrentView(id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
+                  currentView === id
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Icon size={16} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Dashboard View */}
+        {currentView === 'dashboard' && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 text-sm">Total Customers</p>
+                    <p className="text-3xl font-bold text-white">{customers.length}</p>
+                  </div>
+                  <User className="text-blue-300" size={32} />
+                </div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 text-sm">Today's Orders</p>
+                    <p className="text-3xl font-bold text-white">{todayOrders.length}</p>
+                  </div>
+                  <ShoppingCart className="text-green-300" size={32} />
+                </div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 text-sm">Today's Sales</p>
+                    <p className="text-3xl font-bold text-white">RM {totalSales.toFixed(2)}</p>
+                  </div>
+                  <TrendingUp className="text-yellow-300" size={32} />
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Orders */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4">Recent Orders</h3>
+              {todayOrders.length === 0 ? (
+                <p className="text-white/60">No orders for today yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {todayOrders.slice(0, 5).map(order => (
+                    <div key={order.id} className="bg-white/10 rounded-xl p-4 flex justify-between items-center">
+                      <div>
+                        <p className="text-white font-medium">{getCustomerName(order.customerId)}</p>
+                        <p className="text-white/60 text-sm">{order.items.length} items • RM {order.total.toFixed(2)}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        order.status === 'completed' 
+                          ? 'bg-green-500/20 text-green-300' 
+                          : 'bg-yellow-500/20 text-yellow-300'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Customers View */}
+        {currentView === 'customers' && (
+          <div className="space-y-6">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-white">Customer Management</h3>
+                <button
+                  onClick={() => setShowCustomerForm(true)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors"
+                >
+                  <Plus size={16} />
+                  Add Customer
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 text-white/60" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search customers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-white/20 border border-white/30 rounded-xl pl-10 pr-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredCustomers.map(customer => (
+                  <div key={customer.id} className="bg-white/10 rounded-xl p-4 border border-white/20">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="text-white font-medium">{customer.name}</h4>
+                        <p className="text-white/60 text-sm">{customer.phone}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => handleEditCustomer(customer)}
+                          className="text-white/60 hover:text-blue-300 transition-colors"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCustomer(customer.id)}
+                          className="text-white/60 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-white/70 text-xs mb-2">{customer.address}</p>
+                    <p className="text-white/70 text-xs mb-3">{customer.email}</p>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-white/60">Orders: {getCustomerOrders(customer.id).length}</span>
+                      <span className="text-green-300 font-medium">RM {getCustomerTotal(customer.id).toFixed(2)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Vegetables View */}
+        {currentView === 'vegetables' && (
+          <div className="space-y-6">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-white">Vegetable Inventory</h3>
+                <button
+                  onClick={() => setShowVegeForm(true)}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors"
+                >
+                  <Plus size={16} />
+                  Add Vegetable
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {vegetables.map(vege => (
+                  <div key={vege.id} className="bg-white/10 rounded-xl p-4 border border-white/20">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="text-white font-medium">{vege.name}</h4>
+                        <p className="text-white/60 text-sm">per {vege.unit}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => handleEditVege(vege)}
+                          className="text-white/60 hover:text-blue-300 transition-colors"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteVege(vege.id)}
+                          className="text-white/60 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-2xl font-bold text-green-300">RM {vege.price.toFixed(2)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Orders View */}
+        {currentView === 'orders' && (
+          <div className="space-y-6">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-white">Daily Orders</h3>
+                <div className="flex gap-4">
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="bg-white/20 border border-white/30 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <select
+                    value={selectedCustomer}
+                    onChange={(e) => setSelectedCustomer(e.target.value)}
+                    className="bg-white/20 border border-white/30 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <option value="">All Customers</option>
+                    {customers.map(customer => (
+                      <option key={customer.id} value={customer.id} className="bg-gray-800">
+                        {customer.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => setShowOrderForm(true)}
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors"
+                  >
+                    <Plus size={16} />
+                    New Order
+                  </button>
+                </div>
+              </div>
+
+              {filteredOrders.length === 0 ? (
+                <div className="text-center py-8">
+                  <ShoppingCart className="mx-auto mb-4 text-white/60" size={48} />
+                  <p className="text-white/60">No orders for the selected date and customer.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredOrders.map(order => (
+                    <div key={order.id} className="bg-white/10 rounded-xl p-4 border border-white/20">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="text-white font-medium">{getCustomerName(order.customerId)}</h4>
+                          <p className="text-white/60 text-sm">Order #{order.id} • {order.date}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            order.status === 'completed' 
+                              ? 'bg-green-500/20 text-green-300' 
+                              : 'bg-yellow-500/20 text-yellow-300'
+                          }`}>
+                            {order.status}
+                          </span>
+                          <button
+                            onClick={() => toggleOrderStatus(order.id)}
+                            className="text-white/60 hover:text-blue-300 transition-colors"
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            onClick={() => deleteOrder(order.id)}
+                            className="text-white/60 hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 mb-3">
+                        {order.items.map(item => (
+                          <div key={item.vegeId} className="flex justify-between text-sm">
+                            <span className="text-white/80">{item.vegeName}</span>
+                            <span className="text-white/80">
+                              {item.quantity} {item.unit} × RM {item.price.toFixed(2)} = RM {(item.quantity * item.price).toFixed(2)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="border-t border-white/20 pt-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-white font-medium">Total:</span>
+                          <span className="text-xl font-bold text-green-300">RM {order.total.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Customer Form Modal */}
+        {showCustomerForm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 w-full max-w-md border border-white/20">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-white">
+                  {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCustomerForm(false);
+                    setEditingCustomer(null);
+                    setCustomerForm({ name: '', phone: '', address: '', email: '' });
+                  }}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Customer Name *"
+                  value={customerForm.name}
+                  onChange={(e) => setCustomerForm({ ...customerForm, name: e.target.value })}
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  value={customerForm.phone}
+                  onChange={(e) => setCustomerForm({ ...customerForm, phone: e.target.value })}
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="text"
+                  placeholder="Address"
+                  value={customerForm.address}
+                  onChange={(e) => setCustomerForm({ ...customerForm, address: e.target.value })}
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={customerForm.email}
+                  onChange={(e) => setCustomerForm({ ...customerForm, email: e.target.value })}
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleSaveCustomer}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                >
+                  <Save size={16} />
+                  {editingCustomer ? 'Update' : 'Save'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCustomerForm(false);
+                    setEditingCustomer(null);
+                    setCustomerForm({ name: '', phone: '', address: '', email: '' });
+                  }}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Vegetable Form Modal */}
+        {showVegeForm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 w-full max-w-md border border-white/20">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-white">
+                  {editingVege ? 'Edit Vegetable' : 'Add New Vegetable'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowVegeForm(false);
+                    setEditingVege(null);
+                    setVegeForm({ name: '', unit: '', price: '' });
+                  }}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Vegetable Name *"
+                  value={vegeForm.name}
+                  onChange={(e) => setVegeForm({ ...vegeForm, name: e.target.value })}
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="text"
+                  placeholder="Unit (kg, piece, head, etc.)"
+                  value={vegeForm.unit}
+                  onChange={(e) => setVegeForm({ ...vegeForm, unit: e.target.value })}
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Price (RM) *"
+                  value={vegeForm.price}
+                  onChange={(e) => setVegeForm({ ...vegeForm, price: e.target.value })}
+                  className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleSaveVege}
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                >
+                  <Save size={16} />
+                  {editingVege ? 'Update' : 'Save'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowVegeForm(false);
+                    setEditingVege(null);
+                    setVegeForm({ name: '', unit: '', price: '' });
+                  }}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Order Form Modal */}
+        {showOrderForm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-white">Create New Order</h3>
+                <button
+                  onClick={() => {
+                    setShowOrderForm(false);
+                    setOrderForm({ customerId: '', items: [] });
+                  }}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-white/80 text-sm mb-2">Select Customer *</label>
+                  <select
+                    value={orderForm.customerId}
+                    onChange={(e) => {
+                      setOrderForm({ ...orderForm, customerId: e.target.value });
+                      if (e.target.value) {
+                        initializeOrderForm(e.target.value);
+                      }
+                    }}
+                    className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <option value="" className="bg-gray-800">Select a customer...</option>
+                    {customers.map(customer => (
+                      <option key={customer.id} value={customer.id} className="bg-gray-800">
+                        {customer.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {orderForm.items.length > 0 && (
+                  <div>
+                    <label className="block text-white/80 text-sm mb-2">Order Items</label>
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {orderForm.items.map(item => (
+                        <div key={item.vegeId} className="bg-white/10 rounded-xl p-3 flex items-center justify-between">
+                          <div className="flex-1">
+                            <span className="text-white font-medium">{item.vegeName}</span>
+                            <span className="text-white/60 text-sm ml-2">RM {item.price.toFixed(2)} per {item.unit}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              step="0.1"
+                              min="0"
+                              placeholder="0"
+                              value={item.quantity || ''}
+                              onChange={(e) => updateOrderItem(item.vegeId, e.target.value)}
+                              className="w-20 bg-white/20 border border-white/30 rounded-lg px-2 py-1 text-white text-center focus:outline-none focus:ring-1 focus:ring-blue-400"
+                            />
+                            <span className="text-white/60 text-sm w-12">{item.unit}</span>
+                            <span className="text-white font-medium w-16 text-right">
+                              RM {(item.quantity * item.price || 0).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="border-t border-white/20 pt-3 mt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white font-medium">Total Amount:</span>
+                        <span className="text-xl font-bold text-green-300">
+                          RM {orderForm.items.reduce((sum, item) => sum + (item.quantity * item.price || 0), 0).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleSaveOrder}
+                  disabled={!orderForm.customerId || orderForm.items.filter(item => item.quantity > 0).length === 0}
+                  className="flex-1 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                >
+                  <Save size={16} />
+                  Create Order
+                </button>
+                <button
+                  onClick={() => {
+                    setShowOrderForm(false);
+                    setOrderForm({ customerId: '', items: [] });
+                  }}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
