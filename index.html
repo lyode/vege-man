@@ -524,6 +524,7 @@
         .invoice-actions {
             display: flex;
             gap: 12px;
+            flex-wrap: wrap;
         }
         
         .invoice-btn {
@@ -537,6 +538,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
         
         .invoice-btn:active {
@@ -545,6 +547,16 @@
         
         .invoice-btn.print {
             background: #10b981;
+            color: white;
+        }
+        
+        .invoice-btn.excel {
+            background: #059669;
+            color: white;
+        }
+        
+        .invoice-btn.pdf {
+            background: #dc2626;
             color: white;
         }
         
@@ -786,11 +798,47 @@
             
             .invoice-actions {
                 flex-direction: column;
+                gap: 8px;
             }
             
             .invoice-btn {
                 width: 100%;
                 justify-content: center;
+                padding: 12px 16px;
+            }
+            
+            .invoice-header {
+                padding: 16px 20px;
+            }
+            
+            .invoice-title {
+                font-size: 16px;
+            }
+        }
+        
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .invoice-table th,
+            .invoice-table td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+            
+            .invoice-table th {
+                font-size: 10px;
+            }
+            
+            .business-name {
+                font-size: 20px;
+            }
+            
+            .invoice-actions {
+                gap: 6px;
+            }
+            
+            .invoice-btn {
+                padding: 10px 12px;
+                font-size: 13px;
             }
         }
         
@@ -1699,6 +1747,14 @@
                         <span>🖨️</span>
                         <span>Print</span>
                     </button>
+                    <button class="invoice-btn excel" onclick="exportToExcel()">
+                        <span>📊</span>
+                        <span>Excel</span>
+                    </button>
+                    <button class="invoice-btn pdf" onclick="exportToPDF()">
+                        <span>📄</span>
+                        <span>PDF</span>
+                    </button>
                     <button class="invoice-btn close" onclick="closeInvoice()">
                         <span>✕</span>
                         <span>Close</span>
@@ -1711,6 +1767,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         // App State Variables
         var currentView = 'dashboard';
@@ -1725,6 +1782,7 @@
         var selectedOrderDetails = null;
         var selectedCategory = 'all';
         var selectedOrderCategory = 'all';
+        var currentInvoiceOrder = null;
 
         // Get unique categories
         function getCategories() {
@@ -3189,6 +3247,9 @@
             }
             if (!order) return;
 
+            // Store current order for export functions
+            currentInvoiceOrder = order;
+
             var customer = null;
             for (var i = 0; i < customers.length; i++) {
                 if (customers[i].id === order.customerId) {
@@ -3350,6 +3411,7 @@
 
         function closeInvoice() {
             document.getElementById('invoice-modal').classList.remove('show');
+            currentInvoiceOrder = null; // Clear current invoice data
         }
 
         function printInvoice() {
@@ -3359,6 +3421,293 @@
             
             // Trigger print
             window.print();
+        }
+
+        // Export Functions
+        function exportToExcel() {
+            if (!currentInvoiceOrder) {
+                alert('No invoice data available for export');
+                return;
+            }
+
+            // Check if XLSX library is available
+            if (typeof XLSX === 'undefined') {
+                alert('Excel export library not loaded. Please refresh the page and try again.');
+                return;
+            }
+
+            try {
+                var order = currentInvoiceOrder;
+                var customer = null;
+                for (var i = 0; i < customers.length; i++) {
+                    if (customers[i].id === order.customerId) {
+                        customer = customers[i];
+                        break;
+                    }
+                }
+
+                var customerName = customer ? customer.name : 'Unknown Customer';
+                var orderDate = new Date(order.createdAt);
+                var invoiceDate = new Date();
+                var invoiceNumber = 'INV-' + invoiceDate.getFullYear() + 
+                                   String(invoiceDate.getMonth() + 1).padStart(2, '0') + 
+                                   String(invoiceDate.getDate()).padStart(2, '0') + '-' + order.id;
+
+                // Create workbook
+                var wb = XLSX.utils.book_new();
+                
+                // Business header data
+                var headerData = [
+                    ['VegeOrder - Professional Vegetable Supply'],
+                    ['Phone: +60 12-345-6789 | Email: info@vegeorder.my'],
+                    ['Address: 123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor'],
+                    [''],
+                    ['INVOICE'],
+                    [''],
+                    ['Invoice Number:', invoiceNumber],
+                    ['Invoice Date:', invoiceDate.toLocaleDateString('en-MY')],
+                    ['Order Date:', orderDate.toLocaleDateString('en-MY')],
+                    ['Order Status:', order.status.toUpperCase()],
+                    [''],
+                    ['BILL TO:'],
+                    ['Customer:', customerName],
+                    ['Phone:', customer ? customer.phone : 'N/A'],
+                    ['Email:', customer ? customer.email : 'N/A'],
+                    ['Address:', customer ? customer.address : 'N/A'],
+                    [''],
+                    ['ITEMS ORDERED:'],
+                    ['Item Description', 'Chinese Name', 'Quantity', 'Unit', 'Unit Price (RM)', 'Total (RM)']
+                ];
+
+                // Add items data
+                var subtotal = 0;
+                for (var i = 0; i < order.items.length; i++) {
+                    var item = order.items[i];
+                    var itemTotal = item.quantity * item.price;
+                    subtotal += itemTotal;
+                    
+                    // Extract names
+                    var vegeName = item.vegeName;
+                    var chineseName = '';
+                    var nameMatch = vegeName.match(/^([^]+?)\s([^\s]+)\s\((.+)\)$/);
+                    if (nameMatch) {
+                        vegeName = nameMatch[1] + ' (' + nameMatch[3] + ')';
+                        chineseName = nameMatch[2];
+                    }
+                    
+                    headerData.push([
+                        vegeName,
+                        chineseName,
+                        item.quantity,
+                        item.unit,
+                        item.price,
+                        itemTotal
+                    ]);
+                }
+
+                // Add totals
+                headerData.push(['']);
+                headerData.push(['', '', '', '', 'Subtotal:', subtotal]);
+                headerData.push(['', '', '', '', 'TOTAL AMOUNT:', subtotal]);
+                headerData.push(['']);
+                headerData.push(['Payment Terms: Net 7 days']);
+                headerData.push(['Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by VegeOrder']);
+
+                // Create worksheet
+                var ws = XLSX.utils.aoa_to_sheet(headerData);
+
+                // Set column widths
+                var colWidths = [
+                    {wch: 35}, // Item Description
+                    {wch: 15}, // Chinese Name
+                    {wch: 10}, // Quantity
+                    {wch: 8},  // Unit
+                    {wch: 12}, // Unit Price
+                    {wch: 12}  // Total
+                ];
+                ws['!cols'] = colWidths;
+
+                // Add worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'Invoice');
+
+                // Generate filename
+                var filename = 'Invoice_' + invoiceNumber + '_' + customerName.replace(/[^a-zA-Z0-9]/g, '_') + '.xlsx';
+
+                // Save file
+                XLSX.writeFile(wb, filename);
+
+                // Show success message
+                setTimeout(function() {
+                    alert('Excel file downloaded successfully!');
+                }, 500);
+
+            } catch (error) {
+                console.error('Excel export error:', error);
+                alert('Error exporting to Excel: ' + error.message + '\nPlease try again or use the PDF option.');
+            }
+        }
+
+        function exportToPDF() {
+            if (!currentInvoiceOrder) {
+                alert('No invoice data available for export');
+                return;
+            }
+
+            try {
+                // Create a new window for PDF generation
+                var printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    alert('Pop-up blocked. Please allow pop-ups and try again.');
+                    return;
+                }
+
+                var order = currentInvoiceOrder;
+                var customer = null;
+                for (var i = 0; i < customers.length; i++) {
+                    if (customers[i].id === order.customerId) {
+                        customer = customers[i];
+                        break;
+                    }
+                }
+
+                var customerName = customer ? customer.name : 'Unknown Customer';
+                var customerPhone = customer ? customer.phone : 'N/A';
+                var customerAddress = customer ? customer.address : 'N/A';
+                var customerEmail = customer ? customer.email : 'N/A';
+                
+                var orderDate = new Date(order.createdAt);
+                var invoiceDate = new Date();
+                var dueDate = new Date(invoiceDate.getTime() + (7 * 24 * 60 * 60 * 1000));
+                var invoiceNumber = 'INV-' + invoiceDate.getFullYear() + 
+                                   String(invoiceDate.getMonth() + 1).padStart(2, '0') + 
+                                   String(invoiceDate.getDate()).padStart(2, '0') + '-' + order.id;
+
+                // Calculate totals
+                var subtotal = 0;
+                var itemsHTML = '';
+                
+                for (var i = 0; i < order.items.length; i++) {
+                    var item = order.items[i];
+                    var itemTotal = item.quantity * item.price;
+                    subtotal += itemTotal;
+                    
+                    // Extract Chinese name if present
+                    var vegeName = item.vegeName;
+                    var chineseName = '';
+                    var nameMatch = vegeName.match(/^([^]+?)\s([^\s]+)\s\((.+)\)$/);
+                    if (nameMatch) {
+                        vegeName = nameMatch[1] + ' (' + nameMatch[3] + ')';
+                        chineseName = nameMatch[2];
+                    }
+                    
+                    itemsHTML += '<tr>' +
+                        '<td style="padding: 12px; border-bottom: 1px solid #ddd;">' +
+                            '<div style="font-weight: 700; color: #1f2937; font-size: 14px;">' + vegeName + '</div>' +
+                            (chineseName ? '<div style="font-size: 12px; color: #6b7280; font-style: italic;">' + chineseName + '</div>' : '') +
+                        '</td>' +
+                        '<td style="padding: 12px; border-bottom: 1px solid #ddd; text-align: center;">' + item.quantity + '</td>' +
+                        '<td style="padding: 12px; border-bottom: 1px solid #ddd; text-align: center;">' + item.unit + '</td>' +
+                        '<td style="padding: 12px; border-bottom: 1px solid #ddd; text-align: right;">RM ' + item.price.toFixed(2) + '</td>' +
+                        '<td style="padding: 12px; border-bottom: 1px solid #ddd; text-align: right; font-weight: 700;">RM ' + itemTotal.toFixed(2) + '</td>' +
+                        '</tr>';
+                }
+
+                var pdfHTML = '<!DOCTYPE html>' +
+                '<html><head>' +
+                '<title>Invoice_' + invoiceNumber + '_' + customerName.replace(/[^a-zA-Z0-9]/g, '_') + '</title>' +
+                '<style>' +
+                    'body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #333; line-height: 1.4; }' +
+                    '.header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #10b981; }' +
+                    '.business-name { font-size: 28px; font-weight: bold; color: #10b981; margin-bottom: 8px; }' +
+                    '.business-info { font-size: 14px; color: #666; }' +
+                    '.invoice-info { display: table; width: 100%; margin-bottom: 30px; }' +
+                    '.info-section { display: table-cell; width: 50%; vertical-align: top; padding: 15px; background: #f9f9f9; }' +
+                    '.info-section:first-child { border-right: 1px solid #ddd; }' +
+                    '.section-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #333; text-transform: uppercase; }' +
+                    '.info-row { margin-bottom: 6px; }' +
+                    '.info-label { font-weight: bold; display: inline-block; width: 120px; }' +
+                    '.items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }' +
+                    '.items-table th { background: #10b981; color: white; padding: 12px; text-align: left; font-weight: bold; }' +
+                    '.items-table td { padding: 12px; border-bottom: 1px solid #ddd; }' +
+                    '.items-table tr:nth-child(even) { background: #f9f9f9; }' +
+                    '.totals { background: #f0f9f5; padding: 20px; border: 2px solid #10b981; margin-bottom: 20px; }' +
+                    '.total-row { display: flex; justify-content: space-between; margin-bottom: 8px; }' +
+                    '.total-final { font-size: 18px; font-weight: bold; color: #10b981; padding-top: 12px; border-top: 2px solid #10b981; }' +
+                    '.footer { text-align: center; font-size: 12px; color: #666; background: #f9f9f9; padding: 15px; }' +
+                    '@media print { body { margin: 0; } }' +
+                '</style>' +
+                '</head><body>' +
+                
+                '<div class="header">' +
+                    '<div class="business-name">🥬 VegeOrder</div>' +
+                    '<div style="font-size: 16px; margin-bottom: 10px;">Professional Vegetable Supply & Order Management</div>' +
+                    '<div class="business-info">Phone: +60 12-345-6789 | Email: info@vegeorder.my<br>' +
+                    'Address: 123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor</div>' +
+                '</div>' +
+
+                '<div class="invoice-info">' +
+                    '<div class="info-section">' +
+                        '<div class="section-title">Invoice Information</div>' +
+                        '<div class="info-row"><span class="info-label">Invoice Number:</span>' + invoiceNumber + '</div>' +
+                        '<div class="info-row"><span class="info-label">Invoice Date:</span>' + invoiceDate.toLocaleDateString('en-MY') + '</div>' +
+                        '<div class="info-row"><span class="info-label">Order Date:</span>' + orderDate.toLocaleDateString('en-MY') + '</div>' +
+                        '<div class="info-row"><span class="info-label">Due Date:</span>' + dueDate.toLocaleDateString('en-MY') + '</div>' +
+                        '<div class="info-row"><span class="info-label">Status:</span><span style="text-transform: uppercase; font-weight: bold; color: ' + 
+                        (order.status === 'completed' ? '#10b981' : '#f59e0b') + ';">' + order.status + '</span></div>' +
+                    '</div>' +
+                    '<div class="info-section">' +
+                        '<div class="section-title">Bill To</div>' +
+                        '<div class="info-row"><span class="info-label">Customer:</span>' + customerName + '</div>' +
+                        '<div class="info-row"><span class="info-label">Phone:</span>' + customerPhone + '</div>' +
+                        '<div class="info-row"><span class="info-label">Email:</span>' + customerEmail + '</div>' +
+                        '<div class="info-row"><span class="info-label">Address:</span>' + customerAddress + '</div>' +
+                    '</div>' +
+                '</div>' +
+
+                '<table class="items-table">' +
+                    '<thead><tr>' +
+                        '<th>Item Description</th>' +
+                        '<th style="text-align: center;">Quantity</th>' +
+                        '<th style="text-align: center;">Unit</th>' +
+                        '<th style="text-align: right;">Unit Price</th>' +
+                        '<th style="text-align: right;">Total</th>' +
+                    '</tr></thead>' +
+                    '<tbody>' + itemsHTML + '</tbody>' +
+                '</table>' +
+
+                '<div class="totals">' +
+                    '<div class="total-row"><span>Subtotal:</span><span>RM ' + subtotal.toFixed(2) + '</span></div>' +
+                    '<div class="total-row total-final"><span>TOTAL AMOUNT:</span><span>RM ' + subtotal.toFixed(2) + '</span></div>' +
+                '</div>' +
+
+                '<div class="footer">' +
+                    '<div style="font-weight: bold; margin-bottom: 8px;">Thank you for your business!</div>' +
+                    '<div>Payment Terms: Net 7 days | All prices are in Malaysian Ringgit (RM)</div>' +
+                    '<div>Generated on ' + invoiceDate.toLocaleString('en-MY') + ' by VegeOrder Professional System</div>' +
+                '</div>' +
+
+                '</body></html>';
+
+                printWindow.document.write(pdfHTML);
+                printWindow.document.close();
+                
+                // Auto-trigger print dialog for PDF save
+                printWindow.onload = function() {
+                    printWindow.print();
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                };
+
+                // Show success message
+                setTimeout(function() {
+                    alert('PDF export initiated! Use your browser\'s print dialog to save as PDF.');
+                }, 1000);
+
+            } catch (error) {
+                console.error('PDF export error:', error);
+                alert('Error exporting to PDF. Please try again or use the print option.');
+            }
         }
 
         // Close invoice modal when clicking outside
