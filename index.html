@@ -398,6 +398,22 @@
             background: rgba(255,255,255,0.25);
         }
         
+        .icon-btn.edit-btn {
+            background: rgba(59, 130, 246, 0.8);
+        }
+        
+        .icon-btn.edit-btn:active {
+            background: rgba(59, 130, 246, 1);
+        }
+        
+        .icon-btn.delete-btn {
+            background: rgba(239, 68, 68, 0.8);
+        }
+        
+        .icon-btn.delete-btn:active {
+            background: rgba(239, 68, 68, 1);
+        }
+        
         .customer-actions, .product-actions {
             display: flex;
             gap: 8px;
@@ -1282,6 +1298,7 @@
         var orderFilter = 'all';
         var editingCustomer = null;
         var editingProduct = null;
+        var editingOrder = null;
         var selectedOrderDetails = null;
         var selectedCategory = 'all';
         var selectedOrderCategory = 'all';
@@ -1836,7 +1853,11 @@
                     }
                 }
                 var customerName = customer ? customer.name : 'Unknown';
-                ordersHTML += '<div class="order-card" onclick="showOrderDetails(' + order.id + ')" style="margin-bottom: 12px; cursor: pointer;">' +
+                ordersHTML += '<div class="order-card" style="margin-bottom: 12px; position: relative;">' +
+                    '<div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; z-index: 10;">' +
+                    '<button class="icon-btn edit-btn" onclick="editOrder(' + order.id + ')" style="width: 36px; height: 36px; font-size: 14px;" title="Edit Order">✏️</button>' +
+                    '</div>' +
+                    '<div onclick="showOrderDetails(' + order.id + ')" style="cursor: pointer; padding-right: 80px;">' +
                     '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
                     '<div style="flex: 1;">' +
                     '<p style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">' + customerName + '</p>' +
@@ -1845,6 +1866,7 @@
                     '<div style="text-align: right;">' +
                     '<p style="font-weight: 700; font-size: 16px; color: #4ade80; margin-bottom: 6px;">RM ' + order.total.toFixed(2) + '</p>' +
                     '<span class="order-status status-' + order.status + '">' + order.status + '</span>' +
+                    '</div>' +
                     '</div>' +
                     '</div>' +
                     '</div>';
@@ -2016,7 +2038,12 @@
                     itemsHTML += '<div style="font-size: 12px; color: rgba(255,255,255,0.7);">+' + (order.items.length - 2) + ' more items</div>';
                 }
                 
-                ordersHTML += '<div class="order-card" onclick="showOrderDetails(' + order.id + ')" style="cursor: pointer;">' +
+                ordersHTML += '<div class="order-card" style="position: relative;">' +
+                    '<div style="position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 10;">' +
+                    '<button class="icon-btn edit-btn" onclick="editOrder(' + order.id + ')" title="Edit Order">✏️</button>' +
+                    '<button class="icon-btn delete-btn" onclick="deleteOrder(' + order.id + ')" title="Delete Order">🗑️</button>' +
+                    '</div>' +
+                    '<div onclick="showOrderDetails(' + order.id + ')" style="cursor: pointer; padding-right: 100px;">' +
                     '<div class="order-header">' +
                     '<div style="flex: 1;">' +
                     '<h3 style="font-weight: 700; margin-bottom: 4px;">' + customerName + '</h3>' +
@@ -2029,6 +2056,7 @@
                     '<div class="order-total">' +
                     '<span style="font-weight: 600;">Total:</span>' +
                     '<span class="total-amount">RM ' + order.total.toFixed(2) + '</span>' +
+                    '</div>' +
                     '</div>' +
                     '</div>';
             }
@@ -2214,8 +2242,13 @@
 
         // Order Functions
         function openOrderForm() {
+            editingOrder = null;
             document.getElementById('order-form').reset();
             document.getElementById('order-items').classList.add('hidden');
+            
+            // Update modal title and button text
+            document.querySelector('#order-modal .modal-header h3').textContent = 'Create Order';
+            updateOrderFormButton();
             
             // Clear the search field and quantities
             var orderSearch = document.getElementById('order-search');
@@ -2229,8 +2262,68 @@
             document.getElementById('order-modal').classList.add('show');
         }
 
+        function editOrder(orderId) {
+            // Find the order to edit
+            var order = null;
+            for (var i = 0; i < orders.length; i++) {
+                if (orders[i].id === orderId) {
+                    order = orders[i];
+                    break;
+                }
+            }
+            if (!order) return;
+            
+            editingOrder = order;
+            
+            // Update modal title and button text
+            document.querySelector('#order-modal .modal-header h3').textContent = 'Edit Order #' + order.id;
+            updateOrderFormButton();
+            
+            // Reset form and clear quantities
+            document.getElementById('order-form').reset();
+            clearOrderQuantities();
+            
+            // Populate customers and select the order's customer
+            populateOrderCustomers();
+            document.getElementById('order-customer').value = order.customerId;
+            
+            // Show order items section
+            initializeOrderItems();
+            
+            // Pre-populate the order items with existing quantities
+            for (var i = 0; i < order.items.length; i++) {
+                var item = order.items[i];
+                var quantityInput = document.getElementById('quantity-' + item.vegeId);
+                if (quantityInput) {
+                    quantityInput.value = item.quantity;
+                    updateOrderItemTotal(item.vegeId, item.price, item.quantity);
+                }
+            }
+            
+            setupCategoryFilters();
+            document.getElementById('order-modal').classList.add('show');
+        }
+
+        function updateOrderFormButton() {
+            var submitBtn = document.querySelector('#order-form .form-btn[type="submit"]');
+            if (submitBtn) {
+                if (editingOrder) {
+                    submitBtn.textContent = 'Update Order';
+                    submitBtn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+                } else {
+                    submitBtn.textContent = 'Create Order';
+                    submitBtn.style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
+                }
+            }
+        }
+
         function closeOrderForm() {
             document.getElementById('order-modal').classList.remove('show');
+            editingOrder = null;
+            
+            // Reset modal title and button text
+            document.querySelector('#order-modal .modal-header h3').textContent = 'Create Order';
+            updateOrderFormButton();
             
             // Clear the search field and quantities
             var orderSearch = document.getElementById('order-search');
@@ -2255,6 +2348,7 @@
             renderOrderItems('', 'all');
             document.getElementById('order-items').classList.remove('hidden');
             updateOrderTotal();
+            updateOrderFormButton(); // Update button text when items section is shown
         }
 
         function renderOrderItems(searchTerm, category) {
@@ -2389,17 +2483,36 @@
                 total += orderItems[i].quantity * orderItems[i].price;
             }
             
-            var newOrder = {
-                id: Date.now(),
-                customerId: customerId,
-                date: selectedDate,
-                items: orderItems,
-                total: total,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-
-            orders.unshift(newOrder);
+            if (editingOrder) {
+                // Update existing order
+                for (var i = 0; i < orders.length; i++) {
+                    if (orders[i].id === editingOrder.id) {
+                        orders[i] = {
+                            id: editingOrder.id,
+                            customerId: customerId,
+                            date: editingOrder.date, // Keep original date
+                            items: orderItems,
+                            total: total,
+                            status: editingOrder.status, // Keep original status
+                            createdAt: editingOrder.createdAt, // Keep original creation time
+                            updatedAt: new Date().toISOString() // Add update timestamp
+                        };
+                        break;
+                    }
+                }
+            } else {
+                // Create new order
+                var newOrder = {
+                    id: Date.now(),
+                    customerId: customerId,
+                    date: selectedDate,
+                    items: orderItems,
+                    total: total,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                };
+                orders.unshift(newOrder);
+            }
             
             // Clear form and quantities
             clearOrderQuantities();
@@ -2445,10 +2558,16 @@
             var statusText = order.status === 'completed' ? '⏰ Mark Pending' : '✅ Mark Complete';
             var statusColor = order.status === 'completed' ? 'linear-gradient(135deg, #eab308, #ca8a04)' : 'linear-gradient(135deg, #10b981, #059669)';
             
+            var updatedText = '';
+            if (order.updatedAt) {
+                updatedText = '<p style="color: #6b7280; font-size: 12px; margin-top: 4px;">Last updated: ' + new Date(order.updatedAt).toLocaleString() + '</p>';
+            }
+            
             var content = '<div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb;">' +
                 '<h4 style="font-weight: 700; font-size: 20px; margin-bottom: 8px; color: #1f2937;">' + (customer ? customer.name : 'Unknown Customer') + '</h4>' +
                 '<p style="color: #6b7280; font-weight: 600;">Order #' + order.id + '</p>' +
-                '<p style="color: #6b7280; font-size: 14px;">' + new Date(order.createdAt).toLocaleString() + '</p>' +
+                '<p style="color: #6b7280; font-size: 14px;">Created: ' + new Date(order.createdAt).toLocaleString() + '</p>' +
+                updatedText +
                 '</div>' +
                 '<div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb;">' +
                 '<h4 style="font-weight: 700; margin-bottom: 16px; color: #1f2937; font-size: 18px;">Items Ordered</h4>' +
@@ -2459,14 +2578,24 @@
                 '<span style="font-weight: 700; font-size: 20px; color: #1f2937;">Total Amount:</span>' +
                 '<span style="font-size: 28px; font-weight: 800; color: #059669;">RM ' + order.total.toFixed(2) + '</span>' +
                 '</div>' +
-                '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">' +
+                '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">' +
+                '<button onclick="editOrderFromDetails(' + order.id + ')" class="form-btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); font-weight: 700;">✏️ Edit</button>' +
                 '<button onclick="toggleOrderStatus(' + order.id + ')" class="form-btn" style="background: ' + statusColor + '; font-weight: 700;">' + statusText + '</button>' +
-                '<button onclick="deleteOrder(' + order.id + ')" class="form-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); font-weight: 700;">🗑️ Delete</button>' +
+                '<button onclick="deleteOrderFromDetails(' + order.id + ')" class="form-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); font-weight: 700;">🗑️ Delete</button>' +
                 '</div>' +
                 '</div>';
 
             document.getElementById('order-details-content').innerHTML = content;
             document.getElementById('order-details-modal').classList.add('show');
+        }
+
+        function editOrderFromDetails(orderId) {
+            closeOrderDetails();
+            editOrder(orderId);
+        }
+
+        function deleteOrderFromDetails(orderId) {
+            deleteOrder(orderId, true); // true indicates it's called from details modal
         }
 
         function closeOrderDetails() {
@@ -2486,7 +2615,7 @@
             closeOrderDetails();
         }
 
-        function deleteOrder(orderId) {
+        function deleteOrder(orderId, fromDetailsModal) {
             if (confirm('Delete this order permanently?')) {
                 var newOrders = [];
                 for (var i = 0; i < orders.length; i++) {
@@ -2497,7 +2626,11 @@
                 orders = newOrders;
                 updateStats();
                 renderViews();
-                closeOrderDetails();
+                
+                // Only close order details modal if called from the details modal
+                if (fromDetailsModal) {
+                    closeOrderDetails();
+                }
             }
         }
 
