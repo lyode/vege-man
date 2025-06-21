@@ -1,987 +1,1580 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, User, ShoppingCart, TrendingUp, Search, Package, Home, Phone, Mail, MapPin, CheckCircle, Clock, Filter, ArrowLeft, MoreVertical } from 'lucide-react';
-
-export default function VegeOrderMobileApp() {
-  // Core state
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [customers, setCustomers] = useState([]);
-  const [vegetables, setVegetables] = useState([]);
-  const [orders, setOrders] = useState([]);
-  
-  // UI state
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [orderFilter, setOrderFilter] = useState('all');
-  const [selectedCustomer, setSelectedCustomer] = useState('');
-  
-  // Modal states
-  const [showCustomerForm, setShowCustomerForm] = useState(false);
-  const [showVegeForm, setShowVegeForm] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
-  const [showOrderDetails, setShowOrderDetails] = useState(null);
-  const [editingCustomer, setEditingCustomer] = useState(null);
-  const [editingVege, setEditingVege] = useState(null);
-  
-  // Form states
-  const [customerForm, setCustomerForm] = useState({
-    name: '', phone: '', address: '', email: ''
-  });
-  const [vegeForm, setVegeForm] = useState({
-    name: '', unit: '', price: ''
-  });
-  const [orderForm, setOrderForm] = useState({
-    customerId: '', items: []
-  });
-
-  // Touch interaction state
-  const [activeTouch, setActiveTouch] = useState(null);
-
-  // Initialize data
-  useEffect(() => {
-    setCustomers(window.appCustomers || [
-      { id: 1, name: 'Ahmad Restaurant', phone: '012-3456789', address: 'Jalan Sultan, KL', email: 'ahmad@restaurant.com' },
-      { id: 2, name: 'Siti Catering', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' },
-      { id: 3, name: 'Lee Kitchen', phone: '019-9876543', address: 'Chinatown, KL', email: 'lee@kitchen.com' },
-      { id: 4, name: 'Mama Warung', phone: '017-1234567', address: 'Petaling Jaya', email: 'mama@warung.my' },
-      { id: 5, name: 'Restoran Sedap', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' }
-    ]);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#10b981">
+    <title>VegeOrder Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #0d9488 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .status-bar {
+            height: 32px;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            position: sticky;
+            top: 32px;
+            z-index: 40;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .app-icon {
+            width: 32px;
+            height: 32px;
+            background: #4ade80;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .app-title h1 {
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        .app-title p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .header-right {
+            text-align: right;
+        }
+        
+        .header-right p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .main-content {
+            padding: 8px 16px 120px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .action-btn {
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.1s;
+            cursor: pointer;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .action-btn.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        }
+        
+        .action-btn.blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        }
+        
+        .btn {
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-primary { background: #3b82f6; }
+        .btn-success { background: #10b981; }
+        .btn-danger { background: #ef4444; }
+        .btn-purple { background: #8b5cf6; }
+        .btn-gray { background: #6b7280; }
+        
+        .input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 16px;
+        }
+        
+        .input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .input:focus {
+            outline: none;
+            ring: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .search-input {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .search-input input {
+            padding-left: 44px;
+        }
+        
+        .customer-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .customer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .customer-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .customer-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .customer-stats {
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding: 8px;
+        }
+        
+        .nav-items {
+            display: flex;
+            justify-around;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 16px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: white;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+        
+        .home-indicator {
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            width: 128px;
+            margin: 4px auto;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: flex-end;
+            z-index: 50;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            color: #1f2937;
+        }
+        
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
+            border: none;
+            background: #f3f4f6;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        .close-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background: #f3f4f6;
+            color: #1f2937;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .form-input::placeholder {
+            color: #6b7280;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            ring: 2px solid #10b981;
+        }
+        
+        .form-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .form-btn {
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        .form-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .filter-btn {
+            padding: 12px 8px;
+            border-radius: 16px;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.1);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn.active {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .filter-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .order-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .order-card:active {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+        }
+        
+        .status-completed {
+            background: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        
+        .order-items {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 12px;
+        }
+        
+        .order-total {
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .total-amount {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .product-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .product-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .product-info p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .product-price {
+            text-align: right;
+        }
+        
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .add-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            border: none;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        .add-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 0;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .empty-icon {
+            margin: 0 auto 16px;
+            opacity: 0.4;
+        }
+        
+        .order-item {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .item-price {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .item-total {
+            font-weight: 600;
+            color: #10b981;
+        }
+        
+        .quantity-input {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .quantity-input input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: white;
+            color: #1f2937;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .quantity-input input:focus {
+            outline: none;
+            ring: 2px solid #10b981;
+        }
+        
+        .unit-label {
+            color: #6b7280;
+            font-size: 14px;
+            width: 64px;
+        }
+        
+        .order-summary {
+            background: #ecfdf5;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 18px;
+        }
+        
+        .summary-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        /* Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+        
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        .icon-lg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar"></div>
     
-    setVegetables(window.appVegetables || [
-      { id: 1, name: 'Spinach', unit: 'kg', price: 8.50 },
-      { id: 2, name: 'Tomatoes', unit: 'kg', price: 6.00 },
-      { id: 3, name: 'Onions', unit: 'kg', price: 4.50 },
-      { id: 4, name: 'Carrots', unit: 'kg', price: 5.20 },
-      { id: 5, name: 'Cabbage', unit: 'head', price: 3.00 },
-      { id: 6, name: 'Bell Peppers', unit: 'kg', price: 12.00 },
-      { id: 7, name: 'Cucumber', unit: 'kg', price: 3.80 },
-      { id: 8, name: 'Lettuce', unit: 'head', price: 2.50 },
-      { id: 9, name: 'Broccoli', unit: 'kg', price: 9.00 },
-      { id: 10, name: 'Cauliflower', unit: 'head', price: 4.80 },
-      { id: 11, name: 'Eggplant', unit: 'kg', price: 5.50 },
-      { id: 12, name: 'Green Beans', unit: 'kg', price: 7.20 }
-    ]);
-    
-    setOrders(window.appOrders || []);
-  }, []);
-
-  // Persist data
-  useEffect(() => { window.appCustomers = customers; }, [customers]);
-  useEffect(() => { window.appVegetables = vegetables; }, [vegetables]);
-  useEffect(() => { window.appOrders = orders; }, [orders]);
-
-  // Touch feedback helper
-  const handleTouch = (id, action) => {
-    setActiveTouch(id);
-    setTimeout(() => {
-      setActiveTouch(null);
-      if (action) action();
-    }, 100);
-  };
-
-  // Customer functions
-  const saveCustomer = () => {
-    if (!customerForm.name.trim()) return;
-    
-    if (editingCustomer) {
-      setCustomers(customers.map(c => 
-        c.id === editingCustomer.id ? { ...editingCustomer, ...customerForm } : c
-      ));
-      setEditingCustomer(null);
-    } else {
-      setCustomers([...customers, { id: Date.now(), ...customerForm }]);
-    }
-    
-    resetCustomerForm();
-  };
-
-  const editCustomer = (customer) => {
-    setEditingCustomer(customer);
-    setCustomerForm(customer);
-    setShowCustomerForm(true);
-  };
-
-  const deleteCustomer = (id) => {
-    if (confirm('Delete this customer?')) {
-      setCustomers(customers.filter(c => c.id !== id));
-      setOrders(orders.filter(o => o.customerId !== id));
-    }
-  };
-
-  const resetCustomerForm = () => {
-    setCustomerForm({ name: '', phone: '', address: '', email: '' });
-    setShowCustomerForm(false);
-  };
-
-  // Vegetable functions
-  const saveVege = () => {
-    if (!vegeForm.name.trim() || !vegeForm.price) return;
-    
-    if (editingVege) {
-      setVegetables(vegetables.map(v => 
-        v.id === editingVege.id ? { ...editingVege, ...vegeForm, price: parseFloat(vegeForm.price) } : v
-      ));
-      setEditingVege(null);
-    } else {
-      setVegetables([...vegetables, { id: Date.now(), ...vegeForm, price: parseFloat(vegeForm.price) }]);
-    }
-    
-    resetVegeForm();
-  };
-
-  const editVege = (vege) => {
-    setEditingVege(vege);
-    setVegeForm({ ...vege, price: vege.price.toString() });
-    setShowVegeForm(true);
-  };
-
-  const deleteVege = (id) => {
-    if (confirm('Delete this product?')) {
-      setVegetables(vegetables.filter(v => v.id !== id));
-    }
-  };
-
-  const resetVegeForm = () => {
-    setVegeForm({ name: '', unit: '', price: '' });
-    setShowVegeForm(false);
-  };
-
-  // Order functions
-  const initOrderForm = (customerId) => {
-    setOrderForm({
-      customerId,
-      items: vegetables.map(vege => ({
-        vegeId: vege.id,
-        vegeName: vege.name,
-        unit: vege.unit,
-        price: vege.price,
-        quantity: 0
-      }))
-    });
-  };
-
-  const saveOrder = () => {
-    if (!orderForm.customerId) return;
-    
-    const orderItems = orderForm.items.filter(item => item.quantity > 0);
-    if (orderItems.length === 0) return;
-
-    const total = orderItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-    
-    const newOrder = {
-      id: Date.now(),
-      customerId: parseInt(orderForm.customerId),
-      date: selectedDate,
-      items: orderItems,
-      total: total,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    };
-    
-    setOrders([newOrder, ...orders]);
-    resetOrderForm();
-  };
-
-  const updateOrderItem = (vegeId, quantity) => {
-    setOrderForm({
-      ...orderForm,
-      items: orderForm.items.map(item =>
-        item.vegeId === vegeId ? { ...item, quantity: parseFloat(quantity) || 0 } : item
-      )
-    });
-  };
-
-  const toggleOrderStatus = (orderId) => {
-    setOrders(orders.map(order =>
-      order.id === orderId 
-        ? { ...order, status: order.status === 'pending' ? 'completed' : 'pending' }
-        : order
-    ));
-  };
-
-  const deleteOrder = (orderId) => {
-    if (confirm('Delete this order?')) {
-      setOrders(orders.filter(order => order.id !== orderId));
-    }
-  };
-
-  const resetOrderForm = () => {
-    setOrderForm({ customerId: '', items: [] });
-    setShowOrderForm(false);
-  };
-
-  // Data helpers
-  const getCustomerName = (customerId) => {
-    const customer = customers.find(c => c.id === customerId);
-    return customer ? customer.name : 'Unknown';
-  };
-
-  const getCustomerOrders = (customerId) => {
-    return orders.filter(order => order.customerId === customerId);
-  };
-
-  const getCustomerTotal = (customerId) => {
-    return getCustomerOrders(customerId).reduce((sum, order) => sum + order.total, 0);
-  };
-
-  // Filtered data
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm)
-  );
-
-  const todayOrders = orders.filter(order => order.date === selectedDate);
-  const filteredOrders = todayOrders.filter(order => {
-    if (orderFilter === 'pending') return order.status === 'pending';
-    if (orderFilter === 'completed') return order.status === 'completed';
-    if (selectedCustomer) return order.customerId === parseInt(selectedCustomer);
-    return true;
-  });
-
-  // Analytics
-  const totalSales = todayOrders.reduce((sum, order) => sum + order.total, 0);
-  const pendingCount = todayOrders.filter(order => order.status === 'pending').length;
-  const completedCount = todayOrders.filter(order => order.status === 'completed').length;
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 text-white">
-      {/* Status Bar Simulation */}
-      <div className="h-8 bg-black/20"></div>
-      
-      {/* Header */}
-      <div className="bg-white/10 backdrop-blur-md sticky top-8 z-40 border-b border-white/20">
-        <div className="px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-green-400 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              🥬
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="app-icon">🥬</div>
+            <div class="app-title">
+                <h1>VegeOrder</h1>
+                <p>Mobile Manager</p>
             </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight">VegeOrder</h1>
-              <p className="text-xs text-green-100 opacity-80">Mobile Manager</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-green-100">{new Date().toLocaleDateString('en-MY', { 
-              weekday: 'short', 
-              day: 'numeric', 
-              month: 'short' 
-            })}</p>
-            <p className="text-xs text-green-200 font-medium">RM {totalSales.toFixed(2)}</p>
-          </div>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="px-4 pb-24 pt-2">
-        {/* Dashboard */}
-        {currentView === 'dashboard' && (
-          <div className="space-y-4">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
-                <div className="text-xs text-green-100 mb-1">Customers</div>
-                <div className="text-xl font-bold">{customers.length}</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
-                <div className="text-xs text-green-100 mb-1">Products</div>
-                <div className="text-xl font-bold">{vegetables.length}</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
-                <div className="text-xs text-green-100 mb-1">Orders</div>
-                <div className="text-xl font-bold">{todayOrders.length}</div>
-              </div>
-            </div>
-
-            {/* Today's Performance */}
-            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold">Today's Sales</h3>
-                <TrendingUp size={18} className="text-green-200" />
-              </div>
-              <div className="text-2xl font-bold mb-2">RM {totalSales.toFixed(2)}</div>
-              <div className="flex justify-between text-sm">
-                <span className="text-green-100">Pending: {pendingCount}</span>
-                <span className="text-green-100">Done: {completedCount}</span>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
-              <h3 className="font-semibold mb-3">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onTouchStart={() => handleTouch('new-order')}
-                  onClick={() => setShowOrderForm(true)}
-                  className={`bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-2xl flex flex-col items-center space-y-2 font-medium transition-transform ${
-                    activeTouch === 'new-order' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  <Plus size={24} />
-                  <span className="text-sm">New Order</span>
-                </button>
-                <button
-                  onTouchStart={() => handleTouch('view-orders')}
-                  onClick={() => setCurrentView('orders')}
-                  className={`bg-gradient-to-r from-blue-500 to-cyan-500 p-4 rounded-2xl flex flex-col items-center space-y-2 font-medium transition-transform ${
-                    activeTouch === 'view-orders' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  <ShoppingCart size={24} />
-                  <span className="text-sm">Orders</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Recent Orders */}
-            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-semibold">Recent Orders</h3>
-                <button onClick={() => setCurrentView('orders')} className="text-sm text-green-200">
-                  View All
-                </button>
-              </div>
-              {todayOrders.length === 0 ? (
-                <div className="text-center py-6 text-green-100">
-                  <Clock size={32} className="mx-auto mb-2 opacity-60" />
-                  <p className="text-sm">No orders today</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {todayOrders.slice(0, 3).map(order => (
-                    <div 
-                      key={order.id}
-                      onClick={() => setShowOrderDetails(order)}
-                      className="bg-white/10 rounded-xl p-3 active:bg-white/20 transition-colors"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{getCustomerName(order.customerId)}</p>
-                          <p className="text-xs text-green-100">{order.items.length} items</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-sm">RM {order.total.toFixed(2)}</p>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            order.status === 'completed' ? 'bg-green-500/30' : 'bg-yellow-500/30'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Customers */}
-        {currentView === 'customers' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">Customers</h2>
-              <button
-                onTouchStart={() => handleTouch('add-customer')}
-                onClick={() => setShowCustomerForm(true)}
-                className={`bg-blue-500 p-3 rounded-full transition-transform ${
-                  activeTouch === 'add-customer' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                <Plus size={20} />
-              </button>
-            </div>
-
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" size={16} />
-              <input
-                type="text"
-                placeholder="Search customers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/20 border-0 rounded-2xl pl-10 pr-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30"
-              />
-            </div>
-
-            {/* Customer List */}
-            <div className="space-y-3">
-              {filteredCustomers.map(customer => (
-                <div key={customer.id} className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{customer.name}</h3>
-                      <div className="space-y-1 mt-2">
-                        <div className="flex items-center space-x-2">
-                          <Phone size={12} className="text-green-200" />
-                          <span className="text-sm">{customer.phone}</span>
-                        </div>
-                        {customer.address && (
-                          <div className="flex items-center space-x-2">
-                            <MapPin size={12} className="text-green-200" />
-                            <span className="text-sm text-green-100">{customer.address}</span>
-                          </div>
-                        )}
-                        {customer.email && (
-                          <div className="flex items-center space-x-2">
-                            <Mail size={12} className="text-green-200" />
-                            <span className="text-sm text-green-100">{customer.email}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onTouchStart={() => handleTouch(`edit-c-${customer.id}`)}
-                        onClick={() => editCustomer(customer)}
-                        className={`p-2 rounded-xl bg-white/10 transition-transform ${
-                          activeTouch === `edit-c-${customer.id}` ? 'scale-95' : 'active:scale-95'
-                        }`}
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        onTouchStart={() => handleTouch(`del-c-${customer.id}`)}
-                        onClick={() => deleteCustomer(customer.id)}
-                        className={`p-2 rounded-xl bg-red-500/20 transition-transform ${
-                          activeTouch === `del-c-${customer.id}` ? 'scale-95' : 'active:scale-95'
-                        }`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="border-t border-white/20 pt-3 flex justify-between text-sm">
-                    <span className="text-green-100">{getCustomerOrders(customer.id).length} orders</span>
-                    <span className="font-semibold">RM {getCustomerTotal(customer.id).toFixed(2)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Products */}
-        {currentView === 'vegetables' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">Products</h2>
-              <button
-                onTouchStart={() => handleTouch('add-product')}
-                onClick={() => setShowVegeForm(true)}
-                className={`bg-green-500 p-3 rounded-full transition-transform ${
-                  activeTouch === 'add-product' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                <Plus size={20} />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
-              {vegetables.map(vege => (
-                <div key={vege.id} className="bg-white/15 backdrop-blur-sm rounded-2xl p-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{vege.name}</h3>
-                      <p className="text-sm text-green-100">per {vege.unit}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold">RM {vege.price.toFixed(2)}</p>
-                      <div className="flex space-x-2 mt-2">
-                        <button
-                          onTouchStart={() => handleTouch(`edit-v-${vege.id}`)}
-                          onClick={() => editVege(vege)}
-                          className={`p-2 rounded-xl bg-white/10 transition-transform ${
-                            activeTouch === `edit-v-${vege.id}` ? 'scale-95' : 'active:scale-95'
-                          }`}
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button
-                          onTouchStart={() => handleTouch(`del-v-${vege.id}`)}
-                          onClick={() => deleteVege(vege.id)}
-                          className={`p-2 rounded-xl bg-red-500/20 transition-transform ${
-                            activeTouch === `del-v-${vege.id}` ? 'scale-95' : 'active:scale-95'
-                          }`}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Orders */}
-        {currentView === 'orders' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">Orders</h2>
-              <button
-                onTouchStart={() => handleTouch('add-order')}
-                onClick={() => setShowOrderForm(true)}
-                className={`bg-purple-500 p-3 rounded-full transition-transform ${
-                  activeTouch === 'add-order' ? 'scale-95' : 'active:scale-95'
-                }`}
-              >
-                <Plus size={20} />
-              </button>
-            </div>
-
-            {/* Filters */}
-            <div className="space-y-3">
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full bg-white/20 border-0 rounded-2xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-white/30"
-              />
-              
-              <div className="grid grid-cols-3 gap-2">
-                {['all', 'pending', 'completed'].map(filter => (
-                  <button
-                    key={filter}
-                    onTouchStart={() => handleTouch(`filter-${filter}`)}
-                    onClick={() => setOrderFilter(filter)}
-                    className={`py-3 px-2 rounded-2xl text-sm font-medium transition-all ${
-                      orderFilter === filter
-                        ? 'bg-white/30 text-white'
-                        : 'bg-white/10 text-green-100'
-                    } ${activeTouch === `filter-${filter}` ? 'scale-95' : 'active:scale-95'}`}
-                  >
-                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Orders List */}
-            {filteredOrders.length === 0 ? (
-              <div className="text-center py-12">
-                <ShoppingCart size={48} className="mx-auto mb-4 opacity-40" />
-                <p className="text-green-100">No orders found</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredOrders.map(order => (
-                  <div 
-                    key={order.id}
-                    onClick={() => setShowOrderDetails(order)}
-                    className="bg-white/15 backdrop-blur-sm rounded-2xl p-4 active:bg-white/25 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{getCustomerName(order.customerId)}</h3>
-                        <p className="text-sm text-green-100">#{order.id}</p>
-                        <p className="text-xs text-green-200">{new Date(order.createdAt).toLocaleString()}</p>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'completed' ? 'bg-green-500/30' : 'bg-yellow-500/30'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </div>
-                    
-                    <div className="text-sm text-green-100 mb-2">
-                      {order.items.slice(0, 2).map(item => (
-                        <div key={item.vegeId}>
-                          {item.vegeName}: {item.quantity} {item.unit}
-                        </div>
-                      ))}
-                      {order.items.length > 2 && (
-                        <div className="text-xs">+{order.items.length - 2} more items</div>
-                      )}
-                    </div>
-                    
-                    <div className="border-t border-white/20 pt-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Total:</span>
-                        <span className="text-xl font-bold">RM {order.total.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-md border-t border-white/20">
-        <div className="flex justify-around py-2 px-2">
-          {[
-            { id: 'dashboard', label: 'Home', icon: Home },
-            { id: 'customers', label: 'Customers', icon: User },
-            { id: 'vegetables', label: 'Products', icon: Package },
-            { id: 'orders', label: 'Orders', icon: ShoppingCart }
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onTouchStart={() => handleTouch(`nav-${id}`)}
-              onClick={() => setCurrentView(id)}
-              className={`flex flex-col items-center py-2 px-3 rounded-2xl transition-all ${
-                currentView === id
-                  ? 'text-white bg-white/20'
-                  : 'text-green-200'
-              } ${activeTouch === `nav-${id}` ? 'scale-95' : 'active:scale-95'}`}
-            >
-              <Icon size={20} />
-              <span className="text-xs mt-1 font-medium">{label}</span>
-            </button>
-          ))}
+        <div class="header-right">
+            <p id="current-date">Today</p>
+            <p id="daily-sales">RM 0.00</p>
         </div>
-        {/* Home Indicator */}
-        <div className="h-1 bg-white/30 rounded-full mx-auto mb-1 w-32"></div>
-      </div>
-
-      {/* Customer Form Modal */}
-      {showCustomerForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
-          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[85vh] overflow-y-auto text-gray-800">
-            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold">
-                  {editingCustomer ? 'Edit Customer' : 'Add Customer'}
-                </h3>
-                <button
-                  onTouchStart={() => handleTouch('close-customer')}
-                  onClick={resetCustomerForm}
-                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
-                    activeTouch === 'close-customer' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <input
-                type="text"
-                placeholder="Customer Name *"
-                value={customerForm.name}
-                onChange={(e) => setCustomerForm({ ...customerForm, name: e.target.value })}
-                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={customerForm.phone}
-                onChange={(e) => setCustomerForm({ ...customerForm, phone: e.target.value })}
-                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <textarea
-                placeholder="Address"
-                value={customerForm.address}
-                onChange={(e) => setCustomerForm({ ...customerForm, address: e.target.value })}
-                rows="3"
-                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={customerForm.email}
-                onChange={(e) => setCustomerForm({ ...customerForm, email: e.target.value })}
-                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              
-              <div className="grid grid-cols-2 gap-3 pt-4">
-                <button
-                  onTouchStart={() => handleTouch('save-customer')}
-                  onClick={saveCustomer}
-                  className={`bg-green-500 text-white py-4 rounded-2xl font-semibold transition-transform ${
-                    activeTouch === 'save-customer' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  {editingCustomer ? 'Update' : 'Save'}
-                </button>
-                <button
-                  onTouchStart={() => handleTouch('cancel-customer')}
-                  onClick={resetCustomerForm}
-                  className={`bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
-                    activeTouch === 'cancel-customer' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Product Form Modal */}
-      {showVegeForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
-          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[85vh] overflow-y-auto text-gray-800">
-            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold">
-                  {editingVege ? 'Edit Product' : 'Add Product'}
-                </h3>
-                <button
-                  onTouchStart={() => handleTouch('close-vege')}
-                  onClick={resetVegeForm}
-                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
-                    activeTouch === 'close-vege' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <input
-                type="text"
-                placeholder="Product Name *"
-                value={vegeForm.name}
-                onChange={(e) => setVegeForm({ ...vegeForm, name: e.target.value })}
-                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <input
-                type="text"
-                placeholder="Unit (kg, piece, head, etc.)"
-                value={vegeForm.unit}
-                onChange={(e) => setVegeForm({ ...vegeForm, unit: e.target.value })}
-                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Price (RM) *"
-                value={vegeForm.price}
-                onChange={(e) => setVegeForm({ ...vegeForm, price: e.target.value })}
-                className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              
-              <div className="grid grid-cols-2 gap-3 pt-4">
-                <button
-                  onTouchStart={() => handleTouch('save-vege')}
-                  onClick={saveVege}
-                  className={`bg-green-500 text-white py-4 rounded-2xl font-semibold transition-transform ${
-                    activeTouch === 'save-vege' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  {editingVege ? 'Update' : 'Save'}
-                </button>
-                <button
-                  onTouchStart={() => handleTouch('cancel-vege')}
-                  onClick={resetVegeForm}
-                  className={`bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
-                    activeTouch === 'cancel-vege' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Order Form Modal */}
-      {showOrderForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
-          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[90vh] overflow-y-auto text-gray-800">
-            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold">Create Order</h3>
-                <button
-                  onTouchStart={() => handleTouch('close-order')}
-                  onClick={resetOrderForm}
-                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
-                    activeTouch === 'close-order' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 space-y-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-3">Select Customer *</label>
-                <select
-                  value={orderForm.customerId}
-                  onChange={(e) => {
-                    setOrderForm({ ...orderForm, customerId: e.target.value });
-                    if (e.target.value) initOrderForm(e.target.value);
-                  }}
-                  className="w-full bg-gray-100 border-0 rounded-2xl px-4 py-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">Choose customer...</option>
-                  {customers.map(customer => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {orderForm.items.length > 0 && (
-                <div>
-                  <label className="block text-gray-700 font-medium mb-3">Order Items</label>
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {orderForm.items.map(item => (
-                      <div key={item.vegeId} className="bg-gray-50 rounded-2xl p-4">
-                        <div className="flex justify-between items-center mb-3">
-                          <div>
-                            <span className="font-medium text-gray-800">{item.vegeName}</span>
-                            <span className="text-sm text-gray-600 block">RM {item.price.toFixed(2)} per {item.unit}</span>
-                          </div>
-                          <span className="font-semibold text-green-600">
-                            RM {(item.quantity * item.price || 0).toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            placeholder="0"
-                            value={item.quantity || ''}
-                            onChange={(e) => updateOrderItem(item.vegeId, e.target.value)}
-                            className="flex-1 bg-white border-0 rounded-xl px-3 py-3 text-gray-800 text-center focus:outline-none focus:ring-2 focus:ring-green-500"
-                          />
-                          <span className="text-gray-600 text-sm w-16">{item.unit}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="bg-green-50 rounded-2xl p-4 mt-4">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-gray-800 text-lg">Total:</span>
-                      <span className="text-2xl font-bold text-green-600">
-                        RM {orderForm.items.reduce((sum, item) => sum + (item.quantity * item.price || 0), 0).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div className="grid grid-cols-2 gap-3 pt-4">
-                <button
-                  onTouchStart={() => handleTouch('save-order')}
-                  onClick={saveOrder}
-                  disabled={!orderForm.customerId || orderForm.items.filter(item => item.quantity > 0).length === 0}
-                  className={`bg-green-500 disabled:bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
-                    activeTouch === 'save-order' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  Create Order
-                </button>
-                <button
-                  onTouchStart={() => handleTouch('cancel-order')}
-                  onClick={resetOrderForm}
-                  className={`bg-gray-400 text-white py-4 rounded-2xl font-semibold transition-transform ${
-                    activeTouch === 'cancel-order' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Order Details Modal */}
-      {showOrderDetails && (
-        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
-          <div className="bg-white/95 backdrop-blur-lg rounded-t-3xl w-full max-h-[85vh] overflow-y-auto text-gray-800">
-            <div className="sticky top-0 bg-white/95 backdrop-blur-lg border-b border-gray-200 px-6 py-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold">Order Details</h3>
-                <button
-                  onTouchStart={() => handleTouch('close-details')}
-                  onClick={() => setShowOrderDetails(null)}
-                  className={`p-2 rounded-full bg-gray-100 transition-transform ${
-                    activeTouch === 'close-details' ? 'scale-95' : 'active:scale-95'
-                  }`}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <div className="bg-gray-50 rounded-2xl p-4">
-                <h4 className="font-semibold text-lg mb-2">{getCustomerName(showOrderDetails.customerId)}</h4>
-                <p className="text-gray-600">Order #{showOrderDetails.id}</p>
-                <p className="text-gray-600 text-sm">{new Date(showOrderDetails.createdAt).toLocaleString()}</p>
-              </div>
-
-              <div className="bg-gray-50 rounded-2xl p-4">
-                <h4 className="font-semibold mb-3">Items Ordered</h4>
-                <div className="space-y-2">
-                  {showOrderDetails.items.map(item => (
-                    <div key={item.vegeId} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <div>
-                        <span className="font-medium">{item.vegeName}</span>
-                        <span className="text-gray-600 text-sm block">RM {item.price.toFixed(2)} per {item.unit}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-medium">{item.quantity} {item.unit}</span>
-                        <span className="text-green-600 text-sm block">RM {(item.quantity * item.price).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-green-50 rounded-2xl p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="font-semibold text-lg">Total Amount:</span>
-                  <span className="text-2xl font-bold text-green-600">RM {showOrderDetails.total.toFixed(2)}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onTouchStart={() => handleTouch('toggle-status')}
-                    onClick={() => {
-                      toggleOrderStatus(showOrderDetails.id);
-                      setShowOrderDetails({...showOrderDetails, status: showOrderDetails.status === 'pending' ? 'completed' : 'pending'});
-                    }}
-                    className={`py-3 rounded-2xl font-semibold transition-transform ${
-                      showOrderDetails.status === 'completed'
-                        ? 'bg-yellow-500 text-white'
-                        : 'bg-green-500 text-white'
-                    } ${activeTouch === 'toggle-status' ? 'scale-95' : 'active:scale-95'}`}
-                  >
-                    {showOrderDetails.status === 'completed' ? (
-                      <>
-                        <Clock size={16} className="inline mr-2" />
-                        Mark Pending
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle size={16} className="inline mr-2" />
-                        Mark Complete
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onTouchStart={() => handleTouch('delete-order-detail')}
-                    onClick={() => {
-                      deleteOrder(showOrderDetails.id);
-                      setShowOrderDetails(null);
-                    }}
-                    className={`bg-red-500 text-white py-3 rounded-2xl font-semibold transition-transform ${
-                      activeTouch === 'delete-order-detail' ? 'scale-95' : 'active:scale-95'
-                    }`}
-                  >
-                    <Trash2 size={16} className="inline mr-2" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  );
-}
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Customers</div>
+                    <div class="stat-value" id="customers-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Products</div>
+                    <div class="stat-value" id="products-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Orders</div>
+                    <div class="stat-value" id="orders-count">0</div>
+                </div>
+            </div>
+
+            <!-- Performance Card -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="font-weight: 600;">Today's Sales</h3>
+                    <span style="font-size: 18px;">📈</span>
+                </div>
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 8px;" id="total-sales">RM 0.00</div>
+                <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                    <span>Pending: <span id="pending-count">0</span></span>
+                    <span>Done: <span id="completed-count">0</span></span>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h3 style="font-weight: 600; margin-bottom: 12px;">Quick Actions</h3>
+                <div class="actions-grid">
+                    <button class="action-btn purple" onclick="openOrderForm()">
+                        <span style="font-size: 24px;">➕</span>
+                        <span>New Order</span>
+                    </button>
+                    <button class="action-btn blue" onclick="showView('orders')">
+                        <span style="font-size: 24px;">🛒</span>
+                        <span>Orders</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="font-weight: 600;">Recent Orders</h3>
+                    <button style="background: none; border: none; color: rgba(255,255,255,0.8); font-size: 14px; cursor: pointer;" onclick="showView('orders')">View All</button>
+                </div>
+                <div id="recent-orders"></div>
+            </div>
+        </div>
+
+        <!-- Customers View -->
+        <div id="customers-view" class="view hidden">
+            <div class="section-header">
+                <h2 class="section-title">Customers</h2>
+                <button class="add-btn" onclick="openCustomerForm()">
+                    <span style="font-size: 20px;">➕</span>
+                </button>
+            </div>
+
+            <div class="search-input">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="input" placeholder="Search customers..." id="customer-search">
+            </div>
+
+            <div id="customers-list"></div>
+        </div>
+
+        <!-- Products View -->
+        <div id="products-view" class="view hidden">
+            <div class="section-header">
+                <h2 class="section-title">Products</h2>
+                <button class="add-btn btn-success" onclick="openProductForm()">
+                    <span style="font-size: 20px;">➕</span>
+                </button>
+            </div>
+
+            <div class="product-grid" id="products-list"></div>
+        </div>
+
+        <!-- Orders View -->
+        <div id="orders-view" class="view hidden">
+            <div class="section-header">
+                <h2 class="section-title">Orders</h2>
+                <button class="add-btn btn-purple" onclick="openOrderForm()">
+                    <span style="font-size: 20px;">➕</span>
+                </button>
+            </div>
+
+            <input type="date" class="input" id="order-date" style="margin-bottom: 12px;">
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+            </div>
+
+            <div id="orders-list"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-items">
+            <div class="nav-item active" onclick="showView('dashboard')">
+                <span style="font-size: 20px;">🏠</span>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="showView('customers')">
+                <span style="font-size: 20px;">👥</span>
+                <span>Customers</span>
+            </div>
+            <div class="nav-item" onclick="showView('products')">
+                <span style="font-size: 20px;">📦</span>
+                <span>Products</span>
+            </div>
+            <div class="nav-item" onclick="showView('orders')">
+                <span style="font-size: 20px;">🛒</span>
+                <span>Orders</span>
+            </div>
+        </div>
+        <div class="home-indicator"></div>
+    </div>
+
+    <!-- Customer Form Modal -->
+    <div id="customer-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="customer-modal-title">Add Customer</h3>
+                <button class="close-btn" onclick="closeCustomerForm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="customer-form">
+                    <input type="text" class="form-input" placeholder="Customer Name *" id="customer-name" required>
+                    <input type="tel" class="form-input" placeholder="Phone Number" id="customer-phone">
+                    <textarea class="form-input" placeholder="Address" id="customer-address" rows="3" style="resize: none;"></textarea>
+                    <input type="email" class="form-input" placeholder="Email" id="customer-email">
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="form-btn" style="background: #10b981;">Save</button>
+                        <button type="button" class="form-btn" style="background: #6b7280;" onclick="closeCustomerForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Form Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Add Product</h3>
+                <button class="close-btn" onclick="closeProductForm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <input type="text" class="form-input" placeholder="Product Name *" id="product-name" required>
+                    <input type="text" class="form-input" placeholder="Unit (kg, piece, head, etc.)" id="product-unit">
+                    <input type="number" class="form-input" placeholder="Price (RM) *" id="product-price" step="0.01" required>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="form-btn" style="background: #10b981;">Save</button>
+                        <button type="button" class="form-btn" style="background: #6b7280;" onclick="closeProductForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Form Modal -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Order</h3>
+                <button class="close-btn" onclick="closeOrderForm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="order-form">
+                    <label style="display: block; color: #374151; font-weight: 600; margin-bottom: 12px;">Select Customer *</label>
+                    <select class="form-input" id="order-customer" required style="color: #374151;">
+                        <option value="">Choose customer...</option>
+                    </select>
+                    
+                    <div id="order-items" class="hidden">
+                        <label style="display: block; color: #374151; font-weight: 600; margin-bottom: 12px;">Order Items</label>
+                        <div id="order-items-list" style="max-height: 256px; overflow-y: auto;"></div>
+                        
+                        <div class="order-summary">
+                            <div class="summary-total">
+                                <span class="summary-label">Total:</span>
+                                <span class="summary-amount" id="order-total">RM 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="form-btn" style="background: #8b5cf6;">Create Order</button>
+                        <button type="button" class="form-btn" style="background: #6b7280;" onclick="closeOrderForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <button class="close-btn" onclick="closeOrderDetails()">✕</button>
+            </div>
+            <div class="modal-body" id="order-details-content">
+                <!-- Content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let currentView = 'dashboard';
+        let customers = [];
+        let products = [];
+        let orders = [];
+        let selectedDate = new Date().toISOString().split('T')[0];
+        let orderFilter = 'all';
+        let editingCustomer = null;
+        let editingProduct = null;
+        let selectedOrderDetails = null;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialData();
+            setupEventListeners();
+            updateCurrentDate();
+            updateStats();
+            renderViews();
+        });
+
+        function loadInitialData() {
+            // Load sample customers
+            customers = [
+                { id: 1, name: 'Ahmad Restaurant', phone: '012-3456789', address: 'Jalan Sultan, KL', email: 'ahmad@restaurant.com' },
+                { id: 2, name: 'Siti Catering', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' },
+                { id: 3, name: 'Lee Kitchen', phone: '019-9876543', address: 'Chinatown, KL', email: 'lee@kitchen.com' },
+                { id: 4, name: 'Mama Warung', phone: '017-1234567', address: 'Petaling Jaya', email: 'mama@warung.my' },
+                { id: 5, name: 'Restoran Sedap', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' }
+            ];
+
+            // Load sample products
+            products = [
+                { id: 1, name: 'Spinach', unit: 'kg', price: 8.50 },
+                { id: 2, name: 'Tomatoes', unit: 'kg', price: 6.00 },
+                { id: 3, name: 'Onions', unit: 'kg', price: 4.50 },
+                { id: 4, name: 'Carrots', unit: 'kg', price: 5.20 },
+                { id: 5, name: 'Cabbage', unit: 'head', price: 3.00 },
+                { id: 6, name: 'Bell Peppers', unit: 'kg', price: 12.00 },
+                { id: 7, name: 'Cucumber', unit: 'kg', price: 3.80 },
+                { id: 8, name: 'Lettuce', unit: 'head', price: 2.50 },
+                { id: 9, name: 'Broccoli', unit: 'kg', price: 9.00 },
+                { id: 10, name: 'Cauliflower', unit: 'head', price: 4.80 },
+                { id: 11, name: 'Eggplant', unit: 'kg', price: 5.50 },
+                { id: 12, name: 'Green Beans', unit: 'kg', price: 7.20 }
+            ];
+
+            orders = [];
+        }
+
+        function setupEventListeners() {
+            // Customer search
+            document.getElementById('customer-search').addEventListener('input', function(e) {
+                renderCustomers(e.target.value);
+            });
+
+            // Order date
+            document.getElementById('order-date').value = selectedDate;
+            document.getElementById('order-date').addEventListener('change', function(e) {
+                selectedDate = e.target.value;
+                renderOrders();
+                updateStats();
+            });
+
+            // Order filters
+            document.querySelectorAll('.filter-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    orderFilter = this.dataset.filter;
+                    renderOrders();
+                });
+            });
+
+            // Forms
+            document.getElementById('customer-form').addEventListener('submit', handleCustomerSubmit);
+            document.getElementById('product-form').addEventListener('submit', handleProductSubmit);
+            document.getElementById('order-form').addEventListener('submit', handleOrderSubmit);
+
+            // Order customer selection
+            document.getElementById('order-customer').addEventListener('change', function() {
+                if (this.value) {
+                    initializeOrderItems();
+                } else {
+                    document.getElementById('order-items').classList.add('hidden');
+                }
+            });
+        }
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-MY', { 
+                weekday: 'short', 
+                day: 'numeric', 
+                month: 'short' 
+            });
+            document.getElementById('current-date').textContent = dateStr;
+        }
+
+        function updateStats() {
+            const todayOrders = orders.filter(order => order.date === selectedDate);
+            const totalSales = todayOrders.reduce((sum, order) => sum + order.total, 0);
+            const pendingCount = todayOrders.filter(order => order.status === 'pending').length;
+            const completedCount = todayOrders.filter(order => order.status === 'completed').length;
+
+            document.getElementById('customers-count').textContent = customers.length;
+            document.getElementById('products-count').textContent = products.length;
+            document.getElementById('orders-count').textContent = todayOrders.length;
+            document.getElementById('total-sales').textContent = `RM ${totalSales.toFixed(2)}`;
+            document.getElementById('daily-sales').textContent = `RM ${totalSales.toFixed(2)}`;
+            document.getElementById('pending-count').textContent = pendingCount;
+            document.getElementById('completed-count').textContent = completedCount;
+        }
+
+        function showView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+            
+            // Show selected view
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`[onclick="showView('${viewName}')"]`).classList.add('active');
+            
+            currentView = viewName;
+            renderViews();
+        }
+
+        function renderViews() {
+            switch(currentView) {
+                case 'dashboard':
+                    renderRecentOrders();
+                    break;
+                case 'customers':
+                    renderCustomers();
+                    break;
+                case 'products':
+                    renderProducts();
+                    break;
+                case 'orders':
+                    renderOrders();
+                    break;
+            }
+        }
+
+        function renderRecentOrders() {
+            const todayOrders = orders.filter(order => order.date === selectedDate);
+            const container = document.getElementById('recent-orders');
+            
+            if (todayOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">' +
+                    '<div class="empty-icon" style="font-size: 32px;">⏰</div>' +
+                    '<p>No orders today</p>' +
+                    '</div>';
+                return;
+            }
+
+            let ordersHTML = '';
+            todayOrders.slice(0, 3).forEach(order => {
+                const customer = customers.find(c => c.id === order.customerId);
+                const customerName = customer ? customer.name : 'Unknown';
+                ordersHTML += '<div class="order-card" onclick="showOrderDetails(' + order.id + ')">' +
+                    '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
+                    '<div style="flex: 1;">' +
+                    '<p style="font-weight: 600; font-size: 14px;">' + customerName + '</p>' +
+                    '<p style="font-size: 12px; color: rgba(255,255,255,0.8);">' + order.items.length + ' items</p>' +
+                    '</div>' +
+                    '<div style="text-align: right;">' +
+                    '<p style="font-weight: 600; font-size: 14px;">RM ' + order.total.toFixed(2) + '</p>' +
+                    '<span class="order-status status-' + order.status + '">' + order.status + '</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+            });
+            
+            container.innerHTML = ordersHTML;
+        }
+
+        function renderCustomers(searchTerm = '') {
+            const filteredCustomers = customers.filter(customer =>
+                customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                customer.phone.includes(searchTerm)
+            );
+
+            const container = document.getElementById('customers-list');
+            let customersHTML = '';
+            
+            filteredCustomers.forEach(customer => {
+                const customerOrders = orders.filter(order => order.customerId === customer.id);
+                const customerTotal = customerOrders.reduce((sum, order) => sum + order.total, 0);
+                
+                customersHTML += '<div class="customer-card">' +
+                    '<div class="customer-header">' +
+                    '<div class="customer-info">' +
+                    '<h3>' + customer.name + '</h3>' +
+                    '<div class="contact-info">' +
+                    '<span>📞</span>' +
+                    '<span>' + customer.phone + '</span>' +
+                    '</div>';
+                
+                if (customer.address) {
+                    customersHTML += '<div class="contact-info">' +
+                        '<span>📍</span>' +
+                        '<span>' + customer.address + '</span>' +
+                        '</div>';
+                }
+                
+                if (customer.email) {
+                    customersHTML += '<div class="contact-info">' +
+                        '<span>📧</span>' +
+                        '<span>' + customer.email + '</span>' +
+                        '</div>';
+                }
+                
+                customersHTML += '</div>' +
+                    '<div class="customer-actions">' +
+                    '<button class="icon-btn" onclick="editCustomer(' + customer.id + ')">✏️</button>' +
+                    '<button class="icon-btn" onclick="deleteCustomer(' + customer.id + ')">🗑️</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="customer-stats">' +
+                    '<span>' + customerOrders.length + ' orders</span>' +
+                    '<span style="font-weight: 600;">RM ' + customerTotal.toFixed(2) + '</span>' +
+                    '</div>' +
+                    '</div>';
+            });
+            
+            container.innerHTML = customersHTML;
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-list');
+            let productsHTML = '';
+            products.forEach(product => {
+                productsHTML += '<div class="product-card">' +
+                    '<div class="product-info">' +
+                    '<h3>' + product.name + '</h3>' +
+                    '<p>per ' + product.unit + '</p>' +
+                    '</div>' +
+                    '<div class="product-price">' +
+                    '<div class="price">RM ' + product.price.toFixed(2) + '</div>' +
+                    '<div class="product-actions">' +
+                    '<button class="icon-btn" onclick="editProduct(' + product.id + ')">✏️</button>' +
+                    '<button class="icon-btn" onclick="deleteProduct(' + product.id + ')">🗑️</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+            });
+            container.innerHTML = productsHTML;
+        }
+
+        function renderOrders() {
+            const todayOrders = orders.filter(order => order.date === selectedDate);
+            const filteredOrders = todayOrders.filter(order => {
+                if (orderFilter === 'pending') return order.status === 'pending';
+                if (orderFilter === 'completed') return order.status === 'completed';
+                return true;
+            });
+
+            const container = document.getElementById('orders-list');
+            
+            if (filteredOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">' +
+                    '<div class="empty-icon" style="font-size: 48px;">🛒</div>' +
+                    '<p>No orders found</p>' +
+                    '</div>';
+                return;
+            }
+
+            let ordersHTML = '';
+            filteredOrders.forEach(order => {
+                const customer = customers.find(c => c.id === order.customerId);
+                const customerName = customer ? customer.name : 'Unknown';
+                
+                let itemsHTML = '';
+                order.items.slice(0, 2).forEach(item => {
+                    itemsHTML += '<div>' + item.vegeName + ': ' + item.quantity + ' ' + item.unit + '</div>';
+                });
+                if (order.items.length > 2) {
+                    itemsHTML += '<div style="font-size: 12px;">+' + (order.items.length - 2) + ' more items</div>';
+                }
+                
+                ordersHTML += '<div class="order-card" onclick="showOrderDetails(' + order.id + ')">' +
+                    '<div class="order-header">' +
+                    '<div style="flex: 1;">' +
+                    '<h3 style="font-weight: 600;">' + customerName + '</h3>' +
+                    '<p style="font-size: 14px; color: rgba(255,255,255,0.8);">#' + order.id + '</p>' +
+                    '<p style="font-size: 12px; color: rgba(255,255,255,0.6);">' + new Date(order.createdAt).toLocaleString() + '</p>' +
+                    '</div>' +
+                    '<span class="order-status status-' + order.status + '">' + order.status + '</span>' +
+                    '</div>' +
+                    '<div class="order-items">' + itemsHTML + '</div>' +
+                    '<div class="order-total">' +
+                    '<span style="font-weight: 600;">Total:</span>' +
+                    '<span class="total-amount">RM ' + order.total.toFixed(2) + '</span>' +
+                    '</div>' +
+                    '</div>';
+            });
+
+            container.innerHTML = ordersHTML;
+        }
+
+        // Customer Functions
+        function openCustomerForm() {
+            editingCustomer = null;
+            document.getElementById('customer-modal-title').textContent = 'Add Customer';
+            document.getElementById('customer-form').reset();
+            document.getElementById('customer-modal').classList.add('show');
+        }
+
+        function closeCustomerForm() {
+            document.getElementById('customer-modal').classList.remove('show');
+            editingCustomer = null;
+        }
+
+        function editCustomer(id) {
+            const customer = customers.find(c => c.id === id);
+            if (!customer) return;
+
+            editingCustomer = customer;
+            document.getElementById('customer-modal-title').textContent = 'Edit Customer';
+            document.getElementById('customer-name').value = customer.name;
+            document.getElementById('customer-phone').value = customer.phone || '';
+            document.getElementById('customer-address').value = customer.address || '';
+            document.getElementById('customer-email').value = customer.email || '';
+            document.getElementById('customer-modal').classList.add('show');
+        }
+
+        function deleteCustomer(id) {
+            if (confirm('Delete this customer?')) {
+                customers = customers.filter(c => c.id !== id);
+                orders = orders.filter(o => o.customerId !== id);
+                updateStats();
+                renderViews();
+            }
+        }
+
+        function handleCustomerSubmit(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('customer-name').value.trim();
+            if (!name) return;
+
+            const customerData = {
+                name: name,
+                phone: document.getElementById('customer-phone').value.trim(),
+                address: document.getElementById('customer-address').value.trim(),
+                email: document.getElementById('customer-email').value.trim()
+            };
+
+            if (editingCustomer) {
+                const index = customers.findIndex(c => c.id === editingCustomer.id);
+                customers[index] = { ...editingCustomer, ...customerData };
+            } else {
+                customers.push({ id: Date.now(), ...customerData });
+            }
+
+            closeCustomerForm();
+            updateStats();
+            renderViews();
+            populateOrderCustomers();
+        }
+
+        // Product Functions
+        function openProductForm() {
+            editingProduct = null;
+            document.getElementById('product-modal-title').textContent = 'Add Product';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-modal').classList.add('show');
+        }
+
+        function closeProductForm() {
+            document.getElementById('product-modal').classList.remove('show');
+            editingProduct = null;
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            editingProduct = product;
+            document.getElementById('product-modal-title').textContent = 'Edit Product';
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-unit').value = product.unit || '';
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-modal').classList.add('show');
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Delete this product?')) {
+                products = products.filter(p => p.id !== id);
+                updateStats();
+                renderViews();
+            }
+        }
+
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('product-name').value.trim();
+            const price = parseFloat(document.getElementById('product-price').value);
+            if (!name || !price) return;
+
+            const productData = {
+                name: name,
+                unit: document.getElementById('product-unit').value.trim() || 'kg',
+                price: price
+            };
+
+            if (editingProduct) {
+                const index = products.findIndex(p => p.id === editingProduct.id);
+                products[index] = { ...editingProduct, ...productData };
+            } else {
+                products.push({ id: Date.now(), ...productData });
+            }
+
+            closeProductForm();
+            updateStats();
+            renderViews();
+        }
+
+        // Order Functions
+        function openOrderForm() {
+            document.getElementById('order-form').reset();
+            document.getElementById('order-items').classList.add('hidden');
+            populateOrderCustomers();
+            document.getElementById('order-modal').classList.add('show');
+        }
+
+        function closeOrderForm() {
+            document.getElementById('order-modal').classList.remove('show');
+        }
+
+        function populateOrderCustomers() {
+            const select = document.getElementById('order-customer');
+            let optionsHTML = '<option value="">Choose customer...</option>';
+            customers.forEach(customer => {
+                optionsHTML += '<option value="' + customer.id + '">' + customer.name + '</option>';
+            });
+            select.innerHTML = optionsHTML;
+        }
+
+        function initializeOrderItems() {
+            const container = document.getElementById('order-items-list');
+            let itemsHTML = '';
+            
+            products.forEach(product => {
+                itemsHTML += '<div class="order-item">' +
+                    '<div class="item-header">' +
+                    '<div>' +
+                    '<div class="item-name">' + product.name + '</div>' +
+                    '<div class="item-price">RM ' + product.price.toFixed(2) + ' per ' + product.unit + '</div>' +
+                    '</div>' +
+                    '<div class="item-total" id="item-total-' + product.id + '">RM 0.00</div>' +
+                    '</div>' +
+                    '<div class="quantity-input">' +
+                    '<input type="number" step="0.1" min="0" placeholder="0" ' +
+                    'onchange="updateOrderItemTotal(' + product.id + ', ' + product.price + ', this.value)" ' +
+                    'id="quantity-' + product.id + '">' +
+                    '<span class="unit-label">' + product.unit + '</span>' +
+                    '</div>' +
+                    '</div>';
+            });
+            
+            container.innerHTML = itemsHTML;
+            document.getElementById('order-items').classList.remove('hidden');
+            updateOrderTotal();
+        }
+
+        function updateOrderItemTotal(productId, price, quantity) {
+            const total = (parseFloat(quantity) || 0) * price;
+            document.getElementById('item-total-' + productId).textContent = 'RM ' + total.toFixed(2);
+            updateOrderTotal();
+        }
+
+        function updateOrderTotal() {
+            let total = 0;
+            products.forEach(function(product) {
+                const quantityInput = document.getElementById('quantity-' + product.id);
+                if (quantityInput) {
+                    const quantity = parseFloat(quantityInput.value) || 0;
+                    total += quantity * product.price;
+                }
+            });
+            document.getElementById('order-total').textContent = 'RM ' + total.toFixed(2);
+        }
+
+        function handleOrderSubmit(e) {
+            e.preventDefault();
+            
+            const customerId = parseInt(document.getElementById('order-customer').value);
+            if (!customerId) return;
+
+            const orderItems = [];
+            products.forEach(function(product) {
+                const quantityInput = document.getElementById('quantity-' + product.id);
+                if (quantityInput) {
+                    const quantity = parseFloat(quantityInput.value) || 0;
+                    if (quantity > 0) {
+                        orderItems.push({
+                            vegeId: product.id,
+                            vegeName: product.name,
+                            unit: product.unit,
+                            price: product.price,
+                            quantity: quantity
+                        });
+                    }
+                }
+            });
+
+            if (orderItems.length === 0) return;
+
+            let total = 0;
+            orderItems.forEach(function(item) {
+                total += item.quantity * item.price;
+            });
+            
+            const newOrder = {
+                id: Date.now(),
+                customerId: customerId,
+                date: selectedDate,
+                items: orderItems,
+                total: total,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+
+            orders.unshift(newOrder);
+            closeOrderForm();
+            updateStats();
+            renderViews();
+        }
+
+        function showOrderDetails(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            selectedOrderDetails = order;
+            const customer = customers.find(c => c.id === order.customerId);
+            
+            let itemsHTML = '';
+            order.items.forEach(item => {
+                itemsHTML += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">';
+                itemsHTML += '<div>';
+                itemsHTML += '<span style="font-weight: 600; color: #1f2937;">' + item.vegeName + '</span>';
+                itemsHTML += '<div style="font-size: 14px; color: #6b7280;">RM ' + item.price.toFixed(2) + ' per ' + item.unit + '</div>';
+                itemsHTML += '</div>';
+                itemsHTML += '<div style="text-align: right;">';
+                itemsHTML += '<div style="font-weight: 600; color: #1f2937;">' + item.quantity + ' ' + item.unit + '</div>';
+                itemsHTML += '<div style="font-size: 14px; color: #10b981;">RM ' + (item.quantity * item.price).toFixed(2) + '</div>';
+                itemsHTML += '</div>';
+                itemsHTML += '</div>';
+            });
+            
+            const statusText = order.status === 'completed' ? '⏰ Mark Pending' : '✅ Mark Complete';
+            const statusColor = order.status === 'completed' ? '#eab308' : '#10b981';
+            
+            const content = '<div style="background: #f9fafb; border-radius: 16px; padding: 16px; margin-bottom: 16px;">' +
+                '<h4 style="font-weight: 600; font-size: 18px; margin-bottom: 8px; color: #1f2937;">' + (customer ? customer.name : 'Unknown') + '</h4>' +
+                '<p style="color: #6b7280;">Order #' + order.id + '</p>' +
+                '<p style="color: #6b7280; font-size: 14px;">' + new Date(order.createdAt).toLocaleString() + '</p>' +
+                '</div>' +
+                '<div style="background: #f9fafb; border-radius: 16px; padding: 16px; margin-bottom: 16px;">' +
+                '<h4 style="font-weight: 600; margin-bottom: 12px; color: #1f2937;">Items Ordered</h4>' +
+                itemsHTML +
+                '</div>' +
+                '<div style="background: #ecfdf5; border-radius: 16px; padding: 16px;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">' +
+                '<span style="font-weight: 600; font-size: 18px; color: #1f2937;">Total Amount:</span>' +
+                '<span style="font-size: 24px; font-weight: bold; color: #10b981;">RM ' + order.total.toFixed(2) + '</span>' +
+                '</div>' +
+                '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">' +
+                '<button onclick="toggleOrderStatus(' + order.id + ')" class="form-btn" style="background: ' + statusColor + ';">' + statusText + '</button>' +
+                '<button onclick="deleteOrder(' + order.id + ')" class="form-btn" style="background: #ef4444;">🗑️ Delete</button>' +
+                '</div>' +
+                '</div>';
+
+            document.getElementById('order-details-content').innerHTML = content;
+            document.getElementById('order-details-modal').classList.add('show');
+        }
+
+        function closeOrderDetails() {
+            document.getElementById('order-details-modal').classList.remove('show');
+            selectedOrderDetails = null;
+        }
+
+        function toggleOrderStatus(orderId) {
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = orders[orderIndex].status === 'pending' ? 'completed' : 'pending';
+                updateStats();
+                renderViews();
+                closeOrderDetails();
+            }
+        }
+
+        function deleteOrder(orderId) {
+            if (confirm('Delete this order?')) {
+                orders = orders.filter(o => o.id !== orderId);
+                updateStats();
+                renderViews();
+                closeOrderDetails();
+            }
+        }
+
+        // Touch feedback for mobile
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.matches('button, .nav-item, .order-card, .customer-card, .action-btn')) {
+                e.target.style.transform = 'scale(0.95)';
+            }
+        });
+
+        document.addEventListener('touchend', function(e) {
+            if (e.target.matches('button, .nav-item, .order-card, .customer-card, .action-btn')) {
+                setTimeout(function() {
+                    e.target.style.transform = '';
+                }, 100);
+            }
+        });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
