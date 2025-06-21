@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#0891b2">
     <meta name="msapplication-navbutton-color" content="#0891b2">
     
-    <title>VegeOrder Pro - Enhanced Malaysian Vegetable Manager</title>
+    <title>VegeOrder Pro - Enhanced Malaysian Vegetable Manager with Quotations</title>
     
     <!-- Mobile App Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9IiMxMGI5ODEiLz4KPHN2ZyB4PSI0MCIgeT0iNDAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgZmlsbD0id2hpdGUiPgo8dGV4dCB4PSI1MCIgeT0iNjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+luTwvdGV4dD4KPC9zdmc+Cjwvc3ZnPg==">
@@ -440,6 +440,10 @@
             background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
         }
         
+        .action-btn.quotation {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        }
+        
         .action-btn .icon {
             font-size: 28px;
         }
@@ -595,6 +599,10 @@
             background: rgba(245, 158, 11, 0.8);
         }
         
+        .icon-btn.purple {
+            background: rgba(124, 58, 237, 0.8);
+        }
+        
         /* Navigation */
         .bottom-nav {
             position: fixed;
@@ -619,15 +627,15 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            padding: 12px 8px;
+            padding: 12px 6px;
             border-radius: 16px;
             color: rgba(255,255,255,0.7);
             text-decoration: none;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             transition: all 0.2s ease;
             cursor: pointer;
-            min-width: 60px;
+            min-width: 50px;
             position: relative;
         }
         
@@ -642,7 +650,7 @@
         }
         
         .nav-item .icon {
-            font-size: 22px;
+            font-size: 20px;
         }
         
         .nav-item .badge {
@@ -854,6 +862,170 @@
             animation: spin 1s linear infinite;
         }
         
+        /* Quotation Specific Styles */
+        .quotation-card {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .quotation-card:active {
+            transform: scale(0.98);
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .quotation-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: rgba(251, 191, 36, 0.8);
+            color: #92400e;
+        }
+        
+        .status-sent {
+            background: rgba(59, 130, 246, 0.8);
+            color: #1e40af;
+        }
+        
+        .status-accepted {
+            background: rgba(16, 185, 129, 0.8);
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.8);
+            color: #991b1b;
+        }
+        
+        .status-expired {
+            background: rgba(107, 114, 128, 0.8);
+            color: #374151;
+        }
+        
+        .quotation-summary {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .quotation-total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #22d3ee;
+        }
+        
+        .quotation-validity {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* Quotation Form Styles */
+        .quotation-item {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .quotation-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .quotation-item-name {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 16px;
+        }
+        
+        .quotation-item-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .quotation-item-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .quotation-item-total {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 16px;
+            text-align: right;
+            grid-column: span 3;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Share Buttons for Quotations */
+        .share-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .share-btn {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .share-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .share-btn.whatsapp {
+            background: linear-gradient(135deg, #25d366, #1db954);
+        }
+        
+        .share-btn.email {
+            background: linear-gradient(135deg, #ea4335, #d33b2c);
+        }
+        
+        .share-btn.pdf {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -894,6 +1066,15 @@
             .insights-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .nav-item {
+                font-size: 9px;
+                padding: 10px 4px;
+            }
+            
+            .nav-item .icon {
+                font-size: 18px;
+            }
         }
         
         /* Dark mode status bar for iOS */
@@ -904,7 +1085,7 @@
         }
         
         /* Performance optimizations */
-        .card, .item-card, .modal-content {
+        .card, .item-card, .modal-content, .quotation-card {
             will-change: transform;
             transform: translateZ(0);
         }
@@ -964,10 +1145,10 @@
                         <div class="stat-value" id="orders-count">0</div>
                         <div class="stat-trend trend-up" id="orders-trend">+8%</div>
                     </div>
-                    <div class="stat-card" onclick="showAnalytics()">
-                        <div class="stat-label">Revenue</div>
-                        <div class="stat-value" id="revenue-short">0</div>
-                        <div class="stat-trend trend-up" id="revenue-trend">+15%</div>
+                    <div class="stat-card" onclick="showView('quotations')">
+                        <div class="stat-label">Quotes</div>
+                        <div class="stat-value" id="quotations-count">0</div>
+                        <div class="stat-trend trend-up" id="quotations-trend">+5%</div>
                     </div>
                 </div>
 
@@ -1012,32 +1193,32 @@
                 <div class="card">
                     <h3 style="font-weight: 700; margin-bottom: 16px; font-size: 18px;">⚡ Quick Actions</h3>
                     <div class="actions-grid">
+                        <button class="action-btn quotation" onclick="openQuotationForm()">
+                            <span class="icon">📋</span>
+                            <span style="font-weight: 700;">New Quote</span>
+                        </button>
                         <button class="action-btn primary" onclick="openOrderForm()">
                             <span class="icon">➕</span>
                             <span style="font-weight: 700;">New Order</span>
                         </button>
-                        <button class="action-btn secondary" onclick="showView('orders')">
-                            <span class="icon">🛒</span>
-                            <span style="font-weight: 700;">View Orders</span>
+                        <button class="action-btn secondary" onclick="showView('quotations')">
+                            <span class="icon">📄</span>
+                            <span style="font-weight: 700;">View Quotes</span>
                         </button>
                         <button class="action-btn accent" onclick="openInventoryManager()">
                             <span class="icon">📦</span>
                             <span style="font-weight: 700;">Inventory</span>
                         </button>
-                        <button class="action-btn secondary" onclick="generateReport()">
-                            <span class="icon">📊</span>
-                            <span style="font-weight: 700;">Reports</span>
-                        </button>
                     </div>
                 </div>
 
-                <!-- Recent Orders -->
+                <!-- Recent Activity -->
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h3 style="font-weight: 700; font-size: 18px;">📋 Recent Orders</h3>
-                        <button style="background: none; border: none; color: rgba(255,255,255,0.8); font-size: 14px; cursor: pointer; font-weight: 600;" onclick="showView('orders')">View All</button>
+                        <h3 style="font-weight: 700; font-size: 18px;">📋 Recent Activity</h3>
+                        <button style="background: none; border: none; color: rgba(255,255,255,0.8); font-size: 14px; cursor: pointer; font-weight: 600;" onclick="showView('quotations')">View All</button>
                     </div>
-                    <div id="recent-orders"></div>
+                    <div id="recent-activity"></div>
                 </div>
             </div>
 
@@ -1099,6 +1280,25 @@
                 <div id="orders-list"></div>
             </div>
 
+            <!-- Quotations View -->
+            <div id="quotations-view" class="view hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 24px; font-weight: 700;">📋 Quotations</h2>
+                    <button class="icon-btn purple" onclick="openQuotationForm()">
+                        <span>➕</span>
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px;">
+                    <button class="category-btn active" data-filter="all" onclick="filterQuotations('all')">All</button>
+                    <button class="category-btn" data-filter="pending" onclick="filterQuotations('pending')">Pending</button>
+                    <button class="category-btn" data-filter="sent" onclick="filterQuotations('sent')">Sent</button>
+                    <button class="category-btn" data-filter="accepted" onclick="filterQuotations('accepted')">Accepted</button>
+                </div>
+
+                <div id="quotations-list"></div>
+            </div>
+
             <!-- Settings View -->
             <div id="settings-view" class="view hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -1108,7 +1308,6 @@
                     </button>
                 </div>
 
-                <!-- Settings cards remain the same as original but with enhanced styling -->
                 <div class="card">
                     <h3 style="font-weight: 700; margin-bottom: 16px;">🏢 Company Information</h3>
                     <form id="company-form">
@@ -1121,6 +1320,19 @@
                         
                         <button type="submit" class="btn btn-success" style="width: 100%;">
                             💾 Save Company Settings
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-weight: 700; margin-bottom: 16px;">📋 Quotation Settings</h3>
+                    <form id="quotation-settings-form">
+                        <input type="number" class="form-input" placeholder="Default Validity Days (e.g., 30)" id="default-validity" min="1" max="365">
+                        <textarea class="form-input" placeholder="Default Terms & Conditions" id="default-terms" rows="4" style="resize: none; min-height: 100px;"></textarea>
+                        <input type="text" class="form-input" placeholder="Quotation Prefix (e.g., QUO)" id="quotation-prefix">
+                        
+                        <button type="submit" class="btn btn-purple" style="width: 100%;">
+                            📋 Save Quotation Settings
                         </button>
                     </form>
                 </div>
@@ -1144,6 +1356,11 @@
                     <span>Products</span>
                     <span class="badge hidden" id="low-stock-badge">0</span>
                 </div>
+                <div class="nav-item" onclick="showView('quotations')">
+                    <span class="icon">📋</span>
+                    <span>Quotes</span>
+                    <span class="badge hidden" id="pending-quotes-badge">0</span>
+                </div>
                 <div class="nav-item" onclick="showView('orders')">
                     <span class="icon">🛒</span>
                     <span>Orders</span>
@@ -1164,6 +1381,7 @@
     </div>
 
     <!-- Enhanced Modals -->
+    <!-- Customer Modal -->
     <div id="customer-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1192,25 +1410,136 @@
         </div>
     </div>
 
-    <!-- Similar enhanced modals for products, orders, etc. -->
+    <!-- Quotation Form Modal -->
+    <div id="quotation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="quotation-modal-title">Create Quotation</h3>
+                <button class="close-btn" onclick="closeQuotationForm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="quotation-form">
+                    <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Select Customer *</label>
+                    <select class="form-input" id="quotation-customer" required style="color: #374151; font-weight: 600;">
+                        <option value="">Choose customer...</option>
+                    </select>
+                    
+                    <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Validity Period</label>
+                    <input type="number" class="form-input" placeholder="Valid for (days)" id="quotation-validity" min="1" max="365" value="30">
+                    
+                    <div id="quotation-items" class="hidden">
+                        <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Quotation Items</label>
+                        
+                        <div style="position: relative; margin-bottom: 16px;">
+                            <input type="text" placeholder="Search vegetables..." id="quotation-search" 
+                                   style="width: 100%; padding: 12px 16px 12px 40px; border-radius: 12px; border: 1px solid #d1d5db; font-size: 14px;"
+                                   oninput="filterQuotationItems(this.value)">
+                            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280;">🔍</span>
+                        </div>
+                        
+                        <div class="category-filters" id="quotation-category-filters" style="margin-bottom: 16px;">
+                            <!-- Categories populated by JavaScript -->
+                        </div>
+                        
+                        <div id="quotation-items-list" style="max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
+                        
+                        <div style="background: linear-gradient(135deg, #ecfeff, #cffafe); border-radius: 16px; padding: 20px; margin: 20px 0; border: 1px solid #67e8f9;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 18px; color: #1f2937;">Total Amount:</span>
+                                <span style="font-size: 28px; font-weight: 800; color: #0e7490;" id="quotation-total">RM 0.00</span>
+                            </div>
+                        </div>
+                        
+                        <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Terms & Conditions</label>
+                        <textarea class="form-input" placeholder="Terms and conditions..." id="quotation-terms" rows="4" style="resize: none; min-height: 100px;"></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px;">
+                        <button type="submit" class="btn btn-purple">Create Quote</button>
+                        <button type="button" class="btn btn-gray" onclick="closeQuotationForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotation Details Modal -->
+    <div id="quotation-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quotation Details</h3>
+                <button class="close-btn" onclick="closeQuotationDetails()">✕</button>
+            </div>
+            <div class="modal-body" id="quotation-details-content">
+                <!-- Content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotation Display Modal (Professional View) -->
+    <div id="quotation-display-modal" class="modal">
+        <div class="modal-content" style="max-height: 90vh;">
+            <div class="modal-header">
+                <h3>📋 Professional Quotation</h3>
+                <button class="close-btn" onclick="closeQuotationDisplay()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Share Buttons -->
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" onclick="shareQuotationWhatsApp()">
+                        <span>💬</span>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button class="share-btn email" onclick="shareQuotationEmail()">
+                        <span>📧</span>
+                        <span>Email</span>
+                    </button>
+                    <button class="share-btn pdf" onclick="generateQuotationPDF()">
+                        <span>📄</span>
+                        <span>PDF</span>
+                    </button>
+                </div>
+                
+                <!-- Quotation Content -->
+                <div id="quotation-display-content" style="background: white; border-radius: 16px; padding: 24px; color: #1f2937; font-family: 'Times New Roman', serif;">
+                    <!-- Content populated by JavaScript -->
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="convertQuotationToOrder()" id="convert-to-order-btn">
+                        ✅ Convert to Order
+                    </button>
+                    <button class="btn btn-warning" onclick="markQuotationSent()" id="mark-sent-btn">
+                        📤 Mark as Sent
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        // Enhanced App State and Classes
+        // Enhanced App State and Classes with Quotations
         class VegeOrderApp {
             constructor() {
                 this.currentView = 'dashboard';
                 this.customers = [];
                 this.products = [];
                 this.orders = [];
+                this.quotations = []; // New: Quotations array
                 this.selectedDate = new Date().toISOString().split('T')[0];
                 this.orderFilter = 'all';
+                this.quotationFilter = 'all'; // New: Quotation filter
                 this.editingCustomer = null;
                 this.editingProduct = null;
                 this.editingOrder = null;
+                this.editingQuotation = null; // New: Editing quotation
                 this.selectedCategory = 'all';
+                this.selectedQuotationCategory = 'all'; // New: Quotation category filter
                 this.isOnline = navigator.onLine;
                 this.syncQueue = [];
+                this.currentQuotationDetails = null; // New: Current quotation for display
                 
                 // Enhanced features
                 this.searchEngine = new SearchEngine();
@@ -1233,7 +1562,11 @@
                     ownerName: '',
                     ownerTitle: '',
                     ownerPhone: '',
-                    ownerEmail: ''
+                    ownerEmail: '',
+                    // New: Quotation settings
+                    quotationPrefix: 'QUO',
+                    defaultValidityDays: 30,
+                    defaultTerms: 'This quotation is valid for 30 days from the date of issue. Prices are subject to change without notice. Payment terms: Net 30 days.'
                 };
                 
                 this.init();
@@ -1256,7 +1589,7 @@
                 this.setupTouchFeedback();
                 this.setupPullToRefresh();
                 
-                console.log('🥬 VegeOrder Pro initialized!');
+                console.log('🥬 VegeOrder Pro with Quotations initialized!');
             }
             
             async loadDataFromStorage() {
@@ -1279,6 +1612,12 @@
                     const savedOrders = await this.storage.loadData('vegeorder_orders');
                     if (savedOrders) {
                         this.orders = savedOrders;
+                    }
+                    
+                    // New: Load quotations
+                    const savedQuotations = await this.storage.loadData('vegeorder_quotations');
+                    if (savedQuotations) {
+                        this.quotations = savedQuotations;
                     }
                 } catch (error) {
                     console.error('Error loading data:', error);
@@ -1340,6 +1679,27 @@
                 ];
                 
                 this.orders = [];
+                
+                // New: Sample quotations
+                this.quotations = [
+                    {
+                        id: 1,
+                        customerId: 1,
+                        quotationNumber: 'QUO-2025010-001',
+                        date: new Date().toISOString().split('T')[0],
+                        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        status: 'sent',
+                        items: [
+                            { vegeId: 1, vegeName: 'Kangkung 通菜 (Water Spinach)', unit: 'kg', price: 4.50, quantity: 10 },
+                            { vegeId: 2, vegeName: 'Sawi Hijau 芥菜 (Chinese Mustard Green)', unit: 'kg', price: 5.00, quantity: 5 }
+                        ],
+                        total: 70.00,
+                        terms: 'This quotation is valid for 30 days from the date of issue. Prices are subject to change without notice.',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+                
                 this.saveDataToStorage();
             }
             
@@ -1348,6 +1708,7 @@
                 this.storage.saveData('vegeorder_customers', this.customers);
                 this.storage.saveData('vegeorder_products', this.products);
                 this.storage.saveData('vegeorder_orders', this.orders);
+                this.storage.saveData('vegeorder_quotations', this.quotations); // New: Save quotations
             }
             
             setupEventListeners() {
@@ -1372,6 +1733,19 @@
                 // Forms
                 document.getElementById('customer-form').addEventListener('submit', (e) => this.handleCustomerSubmit(e));
                 document.getElementById('company-form').addEventListener('submit', (e) => this.handleCompanySubmit(e));
+                
+                // New: Quotation form and settings
+                document.getElementById('quotation-form').addEventListener('submit', (e) => this.handleQuotationSubmit(e));
+                document.getElementById('quotation-settings-form').addEventListener('submit', (e) => this.handleQuotationSettingsSubmit(e));
+                
+                // New: Quotation customer selection
+                document.getElementById('quotation-customer').addEventListener('change', () => {
+                    if (document.getElementById('quotation-customer').value) {
+                        this.initializeQuotationItems();
+                    } else {
+                        document.getElementById('quotation-items').classList.add('hidden');
+                    }
+                });
             }
             
             setupConnectionHandling() {
@@ -1417,10 +1791,14 @@
                 const pendingCount = todayOrders.filter(order => order.status === 'pending').length;
                 const completedCount = todayOrders.filter(order => order.status === 'completed').length;
                 
+                // New: Quotation stats
+                const pendingQuotations = this.quotations.filter(q => q.status === 'pending' || q.status === 'sent').length;
+                
                 // Update basic stats
                 document.getElementById('customers-count').textContent = this.customers.length;
                 document.getElementById('products-count').textContent = this.products.length;
                 document.getElementById('orders-count').textContent = todayOrders.length;
+                document.getElementById('quotations-count').textContent = this.quotations.length; // New
                 document.getElementById('daily-sales').textContent = 'RM ' + totalSales.toFixed(2);
                 
                 // Update revenue display
@@ -1436,15 +1814,17 @@
             updateNavigationBadges() {
                 const pendingOrders = this.orders.filter(order => order.status === 'pending').length;
                 const lowStockItems = this.inventoryManager ? this.inventoryManager.getLowStockItems().length : 0;
+                const pendingQuotations = this.quotations.filter(q => q.status === 'pending' || q.status === 'sent').length; // New
                 
-                const pendingBadge = document.getElementById('pending-orders-badge');
+                const pendingOrdersBadge = document.getElementById('pending-orders-badge');
                 const lowStockBadge = document.getElementById('low-stock-badge');
+                const pendingQuotesBadge = document.getElementById('pending-quotes-badge'); // New
                 
                 if (pendingOrders > 0) {
-                    pendingBadge.textContent = pendingOrders;
-                    pendingBadge.classList.remove('hidden');
+                    pendingOrdersBadge.textContent = pendingOrders;
+                    pendingOrdersBadge.classList.remove('hidden');
                 } else {
-                    pendingBadge.classList.add('hidden');
+                    pendingOrdersBadge.classList.add('hidden');
                 }
                 
                 if (lowStockItems > 0) {
@@ -1452,6 +1832,14 @@
                     lowStockBadge.classList.remove('hidden');
                 } else {
                     lowStockBadge.classList.add('hidden');
+                }
+                
+                // New: Pending quotations badge
+                if (pendingQuotations > 0) {
+                    pendingQuotesBadge.textContent = pendingQuotations;
+                    pendingQuotesBadge.classList.remove('hidden');
+                } else {
+                    pendingQuotesBadge.classList.add('hidden');
                 }
             }
             
@@ -1564,7 +1952,7 @@
             setupTouchFeedback() {
                 document.addEventListener('touchstart', (e) => {
                     const target = e.target;
-                    if (target.matches('button, .nav-item, .item-card, .action-btn, .icon-btn, .category-btn, .stat-card')) {
+                    if (target.matches('button, .nav-item, .item-card, .action-btn, .icon-btn, .category-btn, .stat-card, .quotation-card')) {
                         if (navigator.vibrate) {
                             navigator.vibrate(10);
                         }
@@ -1630,7 +2018,7 @@
             renderViews() {
                 switch (this.currentView) {
                     case 'dashboard':
-                        this.renderRecentOrders();
+                        this.renderRecentActivity(); // Updated to show both orders and quotations
                         break;
                     case 'customers':
                         this.renderCustomers();
@@ -1642,35 +2030,74 @@
                     case 'orders':
                         this.renderOrders();
                         break;
+                    case 'quotations': // New view
+                        this.renderQuotations();
+                        break;
                 }
             }
             
-            renderRecentOrders() {
+            // New: Render recent activity (orders and quotations)
+            renderRecentActivity() {
                 const todayOrders = this.orders.filter(order => order.date === this.selectedDate);
-                const container = document.getElementById('recent-orders');
+                const recentQuotations = this.quotations.slice(-3); // Last 3 quotations
+                const container = document.getElementById('recent-activity');
                 
-                if (todayOrders.length === 0) {
+                if (todayOrders.length === 0 && recentQuotations.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-icon">⏰</div>
-                            <p style="font-weight: 600;">No orders today</p>
-                            <p style="font-size: 14px; margin-top: 8px;">Create your first order to get started</p>
+                            <p style="font-weight: 600;">No recent activity</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Create your first order or quotation to get started</p>
                         </div>`;
                     return;
                 }
                 
-                const displayCount = Math.min(todayOrders.length, 3);
-                const ordersHTML = todayOrders.slice(0, displayCount).map(order => {
+                let activityHTML = '';
+                
+                // Add recent quotations
+                recentQuotations.forEach(quotation => {
+                    const customer = this.customers.find(c => c.id === quotation.customerId);
+                    const customerName = customer ? customer.name : 'Unknown';
+                    
+                    activityHTML += `
+                        <div class="item-card" onclick="showQuotationDetails(${quotation.id})">
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>📋 ${customerName}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">🆔</span>
+                                        <span>${quotation.quotationNumber}</span>
+                                    </div>
+                                    <div class="item-meta">
+                                        <span class="icon">🕐</span>
+                                        <span>${new Date(quotation.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: 700; color: #7c3aed; margin-bottom: 8px;">
+                                        RM ${quotation.total.toFixed(2)}
+                                    </div>
+                                    <span class="quotation-status status-${quotation.status}">
+                                        ${quotation.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                
+                // Add recent orders
+                const displayCount = Math.min(todayOrders.length, 2);
+                todayOrders.slice(0, displayCount).forEach(order => {
                     const customer = this.customers.find(c => c.id === order.customerId);
                     const customerName = customer ? customer.name : 'Unknown';
                     
-                    return `
+                    activityHTML += `
                         <div class="item-card" onclick="showOrderDetails(${order.id})">
                             <div class="item-header">
                                 <div class="item-info">
-                                    <h3>${customerName}</h3>
+                                    <h3>🛒 ${customerName}</h3>
                                     <div class="item-meta">
-                                        <span class="icon">🛒</span>
+                                        <span class="icon">📦</span>
                                         <span>${order.items.length} items</span>
                                     </div>
                                     <div class="item-meta">
@@ -1679,7 +2106,7 @@
                                     </div>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div style="font-size: 20px; font-weight: 700; color: #22d3ee; margin-bottom: 8px;">
+                                    <div style="font-size: 18px; font-weight: 700; color: #22d3ee; margin-bottom: 8px;">
                                         RM ${order.total.toFixed(2)}
                                     </div>
                                     <span class="category-btn ${order.status === 'completed' ? 'active' : ''}" style="font-size: 11px; padding: 4px 8px;">
@@ -1688,9 +2115,9 @@
                                 </div>
                             </div>
                         </div>`;
-                }).join('');
+                });
                 
-                container.innerHTML = ordersHTML;
+                container.innerHTML = activityHTML;
             }
             
             renderCustomers() {
@@ -1708,6 +2135,7 @@
                 
                 const customersHTML = this.customers.map(customer => {
                     const customerOrders = this.orders.filter(order => order.customerId === customer.id);
+                    const customerQuotations = this.quotations.filter(quotation => quotation.customerId === customer.id); // New
                     const customerTotal = customerOrders.reduce((sum, order) => sum + order.total, 0);
                     
                     return `
@@ -1738,7 +2166,7 @@
                                 </div>
                             </div>
                             <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; display: flex; justify-content: space-between; font-size: 14px;">
-                                <span style="color: rgba(255,255,255,0.8);">${customerOrders.length} orders</span>
+                                <span style="color: rgba(255,255,255,0.8);">${customerOrders.length} orders • ${customerQuotations.length} quotes</span>
                                 <span style="font-weight: 700; color: #22d3ee;">RM ${customerTotal.toFixed(2)}</span>
                             </div>
                         </div>`;
@@ -1857,6 +2285,76 @@
                 container.innerHTML = ordersHTML;
             }
             
+            // New: Render quotations
+            renderQuotations() {
+                const filteredQuotations = this.quotations.filter(quotation => {
+                    if (this.quotationFilter === 'pending') return quotation.status === 'pending';
+                    if (this.quotationFilter === 'sent') return quotation.status === 'sent';
+                    if (this.quotationFilter === 'accepted') return quotation.status === 'accepted';
+                    if (this.quotationFilter === 'rejected') return quotation.status === 'rejected';
+                    if (this.quotationFilter === 'expired') return quotation.status === 'expired';
+                    return true;
+                });
+                
+                const container = document.getElementById('quotations-list');
+                
+                if (filteredQuotations.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p style="font-weight: 600;">No quotations found</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Create your first quotation to get started</p>
+                        </div>`;
+                    return;
+                }
+                
+                const quotationsHTML = filteredQuotations.map(quotation => {
+                    const customer = this.customers.find(c => c.id === quotation.customerId);
+                    const customerName = customer ? customer.name : 'Unknown';
+                    
+                    const isExpired = new Date(quotation.validUntil) < new Date();
+                    const actualStatus = isExpired && quotation.status !== 'accepted' ? 'expired' : quotation.status;
+                    
+                    const itemsPreview = quotation.items.slice(0, 2).map(item => 
+                        `${item.vegeName}: ${item.quantity} ${item.unit}`
+                    ).join('<br>');
+                    
+                    const moreItems = quotation.items.length > 2 ? 
+                        `<br><small style="color: rgba(255,255,255,0.7);">+${quotation.items.length - 2} more items</small>` : '';
+                    
+                    return `
+                        <div class="quotation-card" onclick="showQuotationDetails(${quotation.id})">
+                            <span class="quotation-status status-${actualStatus}">
+                                ${actualStatus}
+                            </span>
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>${customerName}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">🆔</span>
+                                        <span>${quotation.quotationNumber}</span>
+                                    </div>
+                                    <div class="item-meta">
+                                        <span class="icon">📅</span>
+                                        <span>Valid until: ${new Date(quotation.validUntil).toLocaleDateString()}</span>
+                                    </div>
+                                    <div style="margin-top: 12px; font-size: 14px; line-height: 1.4;">
+                                        ${itemsPreview}${moreItems}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quotation-summary">
+                                <div class="quotation-validity">
+                                    Created: ${new Date(quotation.createdAt).toLocaleDateString()}
+                                </div>
+                                <div class="quotation-total">RM ${quotation.total.toFixed(2)}</div>
+                            </div>
+                        </div>`;
+                }).join('');
+                
+                container.innerHTML = quotationsHTML;
+            }
+            
             setupCategoryFilters() {
                 const categories = ['All', ...new Set(this.products.map(p => p.category).filter(Boolean))].sort();
                 const container = document.getElementById('category-filters');
@@ -1864,6 +2362,21 @@
                 const filtersHTML = categories.map((category, index) => `
                     <button class="category-btn ${index === 0 ? 'active' : ''}" 
                             onclick="filterByCategory('${category}')">
+                        ${category}
+                    </button>
+                `).join('');
+                
+                container.innerHTML = filtersHTML;
+            }
+            
+            // New: Setup quotation category filters
+            setupQuotationCategoryFilters() {
+                const categories = ['All', ...new Set(this.products.map(p => p.category).filter(Boolean))].sort();
+                const container = document.getElementById('quotation-category-filters');
+                
+                const filtersHTML = categories.map((category, index) => `
+                    <button class="category-btn ${index === 0 ? 'active' : ''}" 
+                            onclick="filterQuotationByCategory('${category}')">
                         ${category}
                     </button>
                 `).join('');
@@ -1902,6 +2415,106 @@
                 this.saveDataToStorage();
                 this.updateStats();
                 this.renderViews();
+                this.populateQuotationCustomers(); // New: Update quotation customer dropdown
+            }
+            
+            // New: Handle quotation submit
+            handleQuotationSubmit(e) {
+                e.preventDefault();
+                
+                const customerId = parseInt(document.getElementById('quotation-customer').value);
+                const validityDays = parseInt(document.getElementById('quotation-validity').value) || 30;
+                const terms = document.getElementById('quotation-terms').value.trim();
+                
+                if (!customerId) return;
+                
+                const quotationItems = [];
+                this.products.forEach(product => {
+                    const quantityInput = document.getElementById('quotation-quantity-' + product.id);
+                    const priceInput = document.getElementById('quotation-price-' + product.id);
+                    
+                    if (quantityInput && priceInput) {
+                        const quantity = parseFloat(quantityInput.value) || 0;
+                        const price = parseFloat(priceInput.value) || product.price;
+                        
+                        if (quantity > 0) {
+                            quotationItems.push({
+                                vegeId: product.id,
+                                vegeName: product.name,
+                                unit: product.unit,
+                                price: price,
+                                quantity: quantity
+                            });
+                        }
+                    }
+                });
+                
+                if (quotationItems.length === 0) {
+                    this.showNotification('❌ Please add at least one item to the quotation.', 'error');
+                    return;
+                }
+                
+                const total = quotationItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+                const now = new Date();
+                const validUntil = new Date(now.getTime() + (validityDays * 24 * 60 * 60 * 1000));
+                
+                const quotationNumber = this.generateQuotationNumber();
+                
+                const newQuotation = {
+                    id: Date.now(),
+                    customerId: customerId,
+                    quotationNumber: quotationNumber,
+                    date: now.toISOString().split('T')[0],
+                    validUntil: validUntil.toISOString().split('T')[0],
+                    status: 'pending',
+                    items: quotationItems,
+                    total: total,
+                    terms: terms || this.companySettings.defaultTerms,
+                    createdAt: now.toISOString(),
+                    updatedAt: now.toISOString()
+                };
+                
+                if (this.editingQuotation) {
+                    const index = this.quotations.findIndex(q => q.id === this.editingQuotation.id);
+                    this.quotations[index] = { ...this.editingQuotation, ...newQuotation, id: this.editingQuotation.id };
+                    this.showNotification('✅ Quotation updated successfully!', 'success');
+                } else {
+                    this.quotations.unshift(newQuotation);
+                    this.showNotification('✅ Quotation created successfully!', 'success');
+                }
+                
+                this.closeQuotationForm();
+                this.saveDataToStorage();
+                this.updateStats();
+                this.renderViews();
+            }
+            
+            // New: Handle quotation settings submit
+            handleQuotationSettingsSubmit(e) {
+                e.preventDefault();
+                
+                this.companySettings.defaultValidityDays = parseInt(document.getElementById('default-validity').value) || 30;
+                this.companySettings.defaultTerms = document.getElementById('default-terms').value.trim();
+                this.companySettings.quotationPrefix = document.getElementById('quotation-prefix').value.trim() || 'QUO';
+                
+                this.saveDataToStorage();
+                this.showNotification('📋 Quotation settings saved!', 'success');
+            }
+            
+            // New: Generate quotation number
+            generateQuotationNumber() {
+                const prefix = this.companySettings.quotationPrefix || 'QUO';
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                
+                // Find the next sequence number for today
+                const today = now.toISOString().split('T')[0];
+                const todayQuotations = this.quotations.filter(q => q.date === today);
+                const sequence = String(todayQuotations.length + 1).padStart(3, '0');
+                
+                return `${prefix}-${year}${month}${day}-${sequence}`;
             }
             
             validateCustomerForm(formData) {
@@ -1986,6 +2599,96 @@
                 this.clearFormErrors();
             }
             
+            // New: Quotation form functions
+            openQuotationForm() {
+                this.editingQuotation = null;
+                document.getElementById('quotation-modal-title').textContent = 'Create Quotation';
+                document.getElementById('quotation-form').reset();
+                document.getElementById('quotation-items').classList.add('hidden');
+                
+                // Set default values
+                document.getElementById('quotation-validity').value = this.companySettings.defaultValidityDays || 30;
+                document.getElementById('quotation-terms').value = this.companySettings.defaultTerms || '';
+                
+                this.populateQuotationCustomers();
+                this.setupQuotationCategoryFilters();
+                document.getElementById('quotation-modal').classList.add('show');
+            }
+            
+            closeQuotationForm() {
+                document.getElementById('quotation-modal').classList.remove('show');
+                this.editingQuotation = null;
+                this.clearQuotationQuantities();
+            }
+            
+            // New: Populate quotation customers dropdown
+            populateQuotationCustomers() {
+                const select = document.getElementById('quotation-customer');
+                const optionsHTML = '<option value="">Choose customer...</option>' +
+                    this.customers.map(customer => 
+                        `<option value="${customer.id}">${customer.name}</option>`
+                    ).join('');
+                select.innerHTML = optionsHTML;
+            }
+            
+            // New: Initialize quotation items
+            initializeQuotationItems() {
+                this.renderQuotationItems('', 'all');
+                document.getElementById('quotation-items').classList.remove('hidden');
+                this.updateQuotationTotal();
+            }
+            
+            // New: Render quotation items
+            renderQuotationItems(searchTerm, category) {
+                if (!category) category = this.selectedQuotationCategory;
+                
+                const container = document.getElementById('quotation-items-list');
+                let itemsHTML = '';
+                
+                const filteredProducts = this.products.filter(product => {
+                    const matchesSearch = !searchTerm || product.name.toLowerCase().includes(searchTerm.toLowerCase());
+                    const matchesCategory = category === 'all' || (product.category && product.category.toLowerCase() === category);
+                    return matchesSearch && matchesCategory;
+                });
+                
+                filteredProducts.forEach(product => {
+                    itemsHTML += `
+                        <div class="quotation-item" id="quotation-item-${product.id}">
+                            <div class="quotation-item-header">
+                                <div class="quotation-item-name">${product.name}</div>
+                                <button type="button" class="quotation-item-remove" onclick="removeQuotationItem(${product.id})">Remove</button>
+                            </div>
+                            <div class="quotation-item-details">
+                                <div>
+                                    <label style="font-size: 12px; color: #6b7280; margin-bottom: 4px; display: block;">Quantity</label>
+                                    <input type="number" step="0.1" min="0" placeholder="0" 
+                                           style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px;"
+                                           onchange="updateQuotationItemTotal(${product.id})" 
+                                           oninput="updateQuotationItemTotal(${product.id})" 
+                                           id="quotation-quantity-${product.id}">
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #6b7280; margin-bottom: 4px; display: block;">Price/Unit (RM)</label>
+                                    <input type="number" step="0.01" min="0" placeholder="${product.price}" value="${product.price}"
+                                           style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px;"
+                                           onchange="updateQuotationItemTotal(${product.id})" 
+                                           oninput="updateQuotationItemTotal(${product.id})" 
+                                           id="quotation-price-${product.id}">
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #6b7280; margin-bottom: 4px; display: block;">Unit</label>
+                                    <div style="padding: 8px; background: #f3f4f6; border-radius: 8px; font-size: 14px; text-align: center; color: #374151;">
+                                        ${product.unit}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quotation-item-total" id="quotation-item-total-${product.id}">RM 0.00</div>
+                        </div>`;
+                });
+                
+                container.innerHTML = itemsHTML;
+            }
+            
             clearFormErrors() {
                 document.querySelectorAll('.form-error').forEach(el => {
                     el.classList.add('hidden');
@@ -1994,6 +2697,17 @@
                 
                 document.querySelectorAll('.form-input').forEach(el => {
                     el.classList.remove('error');
+                });
+            }
+            
+            // New: Clear quotation quantities
+            clearQuotationQuantities() {
+                this.products.forEach(product => {
+                    const quantityInput = document.getElementById('quotation-quantity-' + product.id);
+                    const priceInput = document.getElementById('quotation-price-' + product.id);
+                    
+                    if (quantityInput) quantityInput.value = '';
+                    if (priceInput) priceInput.value = product.price;
                 });
             }
             
@@ -2050,7 +2764,7 @@
             }
         }
         
-        // Enhanced utility classes
+        // Enhanced utility classes (same as before)
         class SearchEngine {
             constructor() {
                 this.searchIndex = new Map();
@@ -2283,9 +2997,10 @@
         }
         
         function deleteCustomer(id) {
-            if (confirm('Delete this customer? This will also delete all their orders.')) {
+            if (confirm('Delete this customer? This will also delete all their orders and quotations.')) {
                 app.customers = app.customers.filter(c => c.id !== id);
                 app.orders = app.orders.filter(o => o.customerId !== id);
+                app.quotations = app.quotations.filter(q => q.customerId !== id); // New
                 app.saveDataToStorage();
                 app.updateStats();
                 app.renderViews();
@@ -2304,7 +3019,7 @@
         function filterByCategory(category) {
             app.selectedCategory = category.toLowerCase();
             
-            document.querySelectorAll('.category-btn').forEach(btn => {
+            document.querySelectorAll('#category-filters .category-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.textContent === category) {
                     btn.classList.add('active');
@@ -2314,6 +3029,459 @@
             app.renderProducts();
         }
         
+        // New: Quotation functions
+        function openQuotationForm() {
+            app.openQuotationForm();
+        }
+        
+        function closeQuotationForm() {
+            app.closeQuotationForm();
+        }
+        
+        function filterQuotations(status) {
+            app.quotationFilter = status;
+            
+            document.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === status) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            app.renderQuotations();
+        }
+        
+        function filterQuotationItems(searchTerm) {
+            app.renderQuotationItems(searchTerm, app.selectedQuotationCategory);
+        }
+        
+        function filterQuotationByCategory(category) {
+            app.selectedQuotationCategory = category.toLowerCase();
+            
+            document.querySelectorAll('#quotation-category-filters .category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === category) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const searchTerm = document.getElementById('quotation-search').value;
+            app.renderQuotationItems(searchTerm, app.selectedQuotationCategory);
+        }
+        
+        function updateQuotationItemTotal(productId) {
+            const quantityInput = document.getElementById('quotation-quantity-' + productId);
+            const priceInput = document.getElementById('quotation-price-' + productId);
+            const totalElement = document.getElementById('quotation-item-total-' + productId);
+            
+            if (quantityInput && priceInput && totalElement) {
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
+                const total = quantity * price;
+                
+                totalElement.textContent = 'RM ' + total.toFixed(2);
+            }
+            
+            updateQuotationTotal();
+        }
+        
+        function updateQuotationTotal() {
+            let total = 0;
+            
+            app.products.forEach(product => {
+                const quantityInput = document.getElementById('quotation-quantity-' + product.id);
+                const priceInput = document.getElementById('quotation-price-' + product.id);
+                
+                if (quantityInput && priceInput) {
+                    const quantity = parseFloat(quantityInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    total += quantity * price;
+                }
+            });
+            
+            document.getElementById('quotation-total').textContent = 'RM ' + total.toFixed(2);
+        }
+        
+        function removeQuotationItem(productId) {
+            const quantityInput = document.getElementById('quotation-quantity-' + productId);
+            const priceInput = document.getElementById('quotation-price-' + productId);
+            
+            if (quantityInput) quantityInput.value = '';
+            if (priceInput) {
+                const product = app.products.find(p => p.id === productId);
+                if (product) priceInput.value = product.price;
+            }
+            
+            updateQuotationItemTotal(productId);
+        }
+        
+        function showQuotationDetails(quotationId) {
+            const quotation = app.quotations.find(q => q.id === quotationId);
+            if (!quotation) return;
+            
+            app.currentQuotationDetails = quotation;
+            const customer = app.customers.find(c => c.id === quotation.customerId);
+            const customerName = customer ? customer.name : 'Unknown Customer';
+            
+            const isExpired = new Date(quotation.validUntil) < new Date();
+            const actualStatus = isExpired && quotation.status !== 'accepted' ? 'expired' : quotation.status;
+            
+            let itemsHTML = '';
+            quotation.items.forEach(item => {
+                const itemTotal = item.quantity * item.price;
+                itemsHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #1f2937; font-size: 16px;">${item.vegeName}</div>
+                            <div style="font-size: 14px; color: #6b7280;">RM ${item.price.toFixed(2)} per ${item.unit}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; color: #1f2937; font-size: 16px;">${item.quantity} ${item.unit}</div>
+                            <div style="font-size: 14px; color: #7c3aed; font-weight: 600;">RM ${itemTotal.toFixed(2)}</div>
+                        </div>
+                    </div>`;
+            });
+            
+            const content = `
+                <div style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #d1d5db;">
+                    <h4 style="font-weight: 700; font-size: 20px; margin-bottom: 8px; color: #1f2937;">${customerName}</h4>
+                    <p style="color: #6b7280; font-weight: 600;">${quotation.quotationNumber}</p>
+                    <p style="color: #6b7280; font-size: 14px;">Created: ${new Date(quotation.createdAt).toLocaleDateString()}</p>
+                    <p style="color: #6b7280; font-size: 14px;">Valid until: ${new Date(quotation.validUntil).toLocaleDateString()}</p>
+                    <span class="quotation-status status-${actualStatus}" style="margin-top: 12px; display: inline-block;">
+                        ${actualStatus}
+                    </span>
+                </div>
+                
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" onclick="shareQuotationWhatsApp(${quotationId})">
+                        <span>💬</span>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button class="share-btn email" onclick="shareQuotationEmail(${quotationId})">
+                        <span>📧</span>
+                        <span>Email</span>
+                    </button>
+                    <button class="share-btn pdf" onclick="showQuotationDisplay(${quotationId})">
+                        <span>📄</span>
+                        <span>View/PDF</span>
+                    </button>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #d1d5db;">
+                    <h4 style="font-weight: 700; margin-bottom: 16px; color: #1f2937; font-size: 18px;">Quoted Items</h4>
+                    ${itemsHTML}
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-radius: 20px; padding: 20px; border: 2px solid #c084fc; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <span style="font-weight: 700; font-size: 20px; color: #1f2937;">Total Amount:</span>
+                        <span style="font-size: 28px; font-weight: 800; color: #7c3aed;">RM ${quotation.total.toFixed(2)}</span>
+                    </div>
+                    ${quotation.terms ? `
+                        <div style="background: rgba(255,255,255,0.8); padding: 16px; border-radius: 12px; margin-top: 16px;">
+                            <h5 style="font-weight: 700; margin-bottom: 8px; color: #1f2937;">Terms & Conditions:</h5>
+                            <p style="color: #374151; font-size: 14px; line-height: 1.4;">${quotation.terms}</p>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    ${quotation.status === 'pending' || quotation.status === 'sent' ? `
+                        <button onclick="convertQuotationToOrder(${quotationId})" class="btn btn-success" style="font-weight: 700;">
+                            ✅ Convert to Order
+                        </button>
+                        <button onclick="markQuotationSent(${quotationId})" class="btn btn-primary" style="font-weight: 700;">
+                            📤 Mark as Sent
+                        </button>
+                    ` : ''}
+                    <button onclick="editQuotation(${quotationId})" class="btn btn-warning" style="font-weight: 700;">
+                        ✏️ Edit Quotation
+                    </button>
+                    <button onclick="deleteQuotation(${quotationId})" class="btn btn-danger" style="font-weight: 700;">
+                        🗑️ Delete
+                    </button>
+                </div>`;
+            
+            document.getElementById('quotation-details-content').innerHTML = content;
+            document.getElementById('quotation-details-modal').classList.add('show');
+        }
+        
+        function closeQuotationDetails() {
+            document.getElementById('quotation-details-modal').classList.remove('show');
+            app.currentQuotationDetails = null;
+        }
+        
+        function showQuotationDisplay(quotationId) {
+            const quotation = app.quotations.find(q => q.id === quotationId);
+            if (!quotation) return;
+            
+            app.currentQuotationDetails = quotation;
+            const customer = app.customers.find(c => c.id === quotation.customerId);
+            
+            // Generate professional quotation display
+            const businessName = app.companySettings.name || 'VegeOrder Pro';
+            const businessTagline = app.companySettings.tagline || 'Professional Vegetable Supply & Order Management';
+            const businessPhone = app.companySettings.phone || '+60 12-345-6789';
+            const businessEmail = app.companySettings.email || 'info@vegeorder.my';
+            const businessAddress = app.companySettings.address || '123 Jalan Pasar, Taman Sayur, 40000 Shah Alam, Selangor';
+            
+            let itemsHTML = '';
+            quotation.items.forEach((item, index) => {
+                const itemTotal = item.quantity * item.price;
+                itemsHTML += `
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px; font-weight: 600; color: #1f2937;">${index + 1}.</td>
+                        <td style="padding: 12px; color: #1f2937;">${item.vegeName}</td>
+                        <td style="padding: 12px; text-align: center; color: #1f2937;">${item.quantity}</td>
+                        <td style="padding: 12px; text-align: center; color: #1f2937;">${item.unit}</td>
+                        <td style="padding: 12px; text-align: right; color: #1f2937;">RM ${item.price.toFixed(2)}</td>
+                        <td style="padding: 12px; text-align: right; font-weight: 700; color: #1f2937;">RM ${itemTotal.toFixed(2)}</td>
+                    </tr>`;
+            });
+            
+            const quotationHTML = `
+                <div style="text-align: center; margin-bottom: 40px; border-bottom: 3px solid #7c3aed; padding-bottom: 20px;">
+                    <h1 style="font-size: 28px; font-weight: 800; color: #7c3aed; margin-bottom: 8px;">${businessName}</h1>
+                    <div style="font-size: 16px; margin-bottom: 12px; color: #6b7280;">${businessTagline}</div>
+                    <div style="font-size: 14px; color: #374151; line-height: 1.4;">
+                        Phone: ${businessPhone} | Email: ${businessEmail}<br>
+                        Address: ${businessAddress}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h2 style="font-size: 24px; font-weight: 800; color: #1f2937; margin-bottom: 20px; text-align: center;">QUOTATION</h2>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px;">
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 12px; border-left: 4px solid #7c3aed;">
+                        <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 12px;">QUOTATION DETAILS</h3>
+                        <div style="margin-bottom: 6px;"><strong>Quotation No:</strong> ${quotation.quotationNumber}</div>
+                        <div style="margin-bottom: 6px;"><strong>Date:</strong> ${new Date(quotation.date).toLocaleDateString()}</div>
+                        <div style="margin-bottom: 6px;"><strong>Valid Until:</strong> ${new Date(quotation.validUntil).toLocaleDateString()}</div>
+                        <div><strong>Status:</strong> <span style="text-transform: uppercase; font-weight: 700; color: #7c3aed;">${quotation.status}</span></div>
+                    </div>
+                    
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 12px; border-left: 4px solid #7c3aed;">
+                        <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 12px;">QUOTE TO</h3>
+                        <div style="margin-bottom: 6px;"><strong>Customer:</strong> ${customer ? customer.name : 'Unknown'}</div>
+                        <div style="margin-bottom: 6px;"><strong>Phone:</strong> ${customer ? customer.phone : 'N/A'}</div>
+                        <div style="margin-bottom: 6px;"><strong>Email:</strong> ${customer ? customer.email : 'N/A'}</div>
+                        <div><strong>Address:</strong> ${customer ? customer.address : 'N/A'}</div>
+                    </div>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: #7c3aed; color: white;">
+                            <th style="padding: 16px; text-align: left; font-weight: 700;">No.</th>
+                            <th style="padding: 16px; text-align: left; font-weight: 700;">Item Description</th>
+                            <th style="padding: 16px; text-align: center; font-weight: 700;">Qty</th>
+                            <th style="padding: 16px; text-align: center; font-weight: 700;">Unit</th>
+                            <th style="padding: 16px; text-align: right; font-weight: 700;">Unit Price</th>
+                            <th style="padding: 16px; text-align: right; font-weight: 700;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHTML}
+                    </tbody>
+                </table>
+                
+                <div style="background: #faf5ff; padding: 24px; border-radius: 12px; border: 2px solid #c084fc; margin-bottom: 30px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: #7c3aed;">
+                        <span>TOTAL QUOTED AMOUNT:</span>
+                        <span>RM ${quotation.total.toFixed(2)}</span>
+                    </div>
+                </div>
+                
+                ${quotation.terms ? `
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                        <h4 style="font-weight: 700; margin-bottom: 12px; color: #1f2937;">Terms & Conditions:</h4>
+                        <p style="color: #374151; line-height: 1.6; white-space: pre-line;">${quotation.terms}</p>
+                    </div>
+                ` : ''}
+                
+                <div style="text-align: center; padding: 20px; background: #f9fafb; border-radius: 12px; border-top: 3px solid #7c3aed; font-size: 12px; color: #6b7280;">
+                    <div style="margin-bottom: 8px; font-weight: 600;">Thank you for considering our quotation!</div>
+                    <div>This quotation is valid until ${new Date(quotation.validUntil).toLocaleDateString()} | All prices are in Malaysian Ringgit (RM)</div>
+                    <div style="margin-top: 8px;">Generated on ${new Date().toLocaleString()} by ${businessName}</div>
+                </div>`;
+            
+            document.getElementById('quotation-display-content').innerHTML = quotationHTML;
+            document.getElementById('quotation-display-modal').classList.add('show');
+            
+            // Update action buttons based on status
+            const convertBtn = document.getElementById('convert-to-order-btn');
+            const markSentBtn = document.getElementById('mark-sent-btn');
+            
+            if (quotation.status === 'accepted') {
+                convertBtn.style.display = 'block';
+                markSentBtn.style.display = 'none';
+            } else if (quotation.status === 'sent') {
+                convertBtn.style.display = 'none';
+                markSentBtn.textContent = '✅ Mark as Accepted';
+                markSentBtn.style.display = 'block';
+            } else {
+                convertBtn.style.display = 'none';
+                markSentBtn.style.display = 'block';
+            }
+        }
+        
+        function closeQuotationDisplay() {
+            document.getElementById('quotation-display-modal').classList.remove('show');
+            app.currentQuotationDetails = null;
+        }
+        
+        function shareQuotationWhatsApp(quotationId) {
+            const quotation = quotationId ? app.quotations.find(q => q.id === quotationId) : app.currentQuotationDetails;
+            if (!quotation) return;
+            
+            const customer = app.customers.find(c => c.id === quotation.customerId);
+            const customerName = customer ? customer.name : 'Unknown Customer';
+            
+            const businessName = app.companySettings.name || 'VegeOrder Pro';
+            const businessPhone = app.companySettings.phone || '+60 12-345-6789';
+            const businessEmail = app.companySettings.email || 'info@vegeorder.my';
+            
+            let itemsList = '';
+            quotation.items.forEach((item, index) => {
+                const itemTotal = item.quantity * item.price;
+                itemsList += `${index + 1}. ${item.vegeName}\n`;
+                itemsList += `   ${item.quantity} ${item.unit} × RM${item.price.toFixed(2)} = RM${itemTotal.toFixed(2)}\n`;
+            });
+            
+            const message = `📋 *${businessName} - QUOTATION*\n\n` +
+                `🆔 *${quotation.quotationNumber}*\n` +
+                `👤 Customer: ${customerName}\n` +
+                `📅 Date: ${new Date(quotation.date).toLocaleDateString()}\n` +
+                `⏰ Valid Until: ${new Date(quotation.validUntil).toLocaleDateString()}\n\n` +
+                `📦 *QUOTED ITEMS:*\n` +
+                `${itemsList}\n` +
+                `💰 *TOTAL QUOTED AMOUNT: RM${quotation.total.toFixed(2)}*\n\n` +
+                `${quotation.terms ? `📝 Terms & Conditions:\n${quotation.terms}\n\n` : ''}` +
+                `🏪 ${businessName}\n` +
+                `📞 ${businessPhone}\n` +
+                `📧 ${businessEmail}\n` +
+                `📱 Professional Vegetable Supply Management`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            try {
+                if (window.innerWidth <= 768) {
+                    window.location.href = whatsappUrl;
+                } else {
+                    window.open(whatsappUrl, '_blank');
+                }
+            } catch (error) {
+                navigator.clipboard.writeText(message).then(() => {
+                    app.showNotification('📋 Quotation copied to clipboard!', 'success');
+                });
+            }
+        }
+        
+        function shareQuotationEmail(quotationId) {
+            const quotation = quotationId ? app.quotations.find(q => q.id === quotationId) : app.currentQuotationDetails;
+            if (!quotation) return;
+            
+            const customer = app.customers.find(c => c.id === quotation.customerId);
+            const customerName = customer ? customer.name : 'Unknown Customer';
+            const businessName = app.companySettings.name || 'VegeOrder Pro';
+            
+            const subject = `${businessName} - Quotation ${quotation.quotationNumber} for ${customerName}`;
+            const body = `Dear ${customerName},\n\nPlease find our quotation ${quotation.quotationNumber} for your vegetable requirements.\n\nQuotation Total: RM${quotation.total.toFixed(2)}\nValid Until: ${new Date(quotation.validUntil).toLocaleDateString()}\n\nThank you for your business.\n\nBest regards,\n${businessName}`;
+            
+            const mailtoUrl = `mailto:${customer ? customer.email : ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            try {
+                window.location.href = mailtoUrl;
+            } catch (error) {
+                navigator.clipboard.writeText(body).then(() => {
+                    app.showNotification('📧 Email content copied to clipboard!', 'success');
+                });
+            }
+        }
+        
+        function generateQuotationPDF() {
+            if (!app.currentQuotationDetails) return;
+            
+            app.showNotification('📄 PDF generation coming soon!', 'info');
+        }
+        
+        function convertQuotationToOrder(quotationId) {
+            const quotation = quotationId ? app.quotations.find(q => q.id === quotationId) : app.currentQuotationDetails;
+            if (!quotation) return;
+            
+            if (confirm('Convert this quotation to an order?')) {
+                const newOrder = {
+                    id: Date.now(),
+                    customerId: quotation.customerId,
+                    date: new Date().toISOString().split('T')[0],
+                    items: quotation.items.map(item => ({ ...item })),
+                    total: quotation.total,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    quotationId: quotation.id
+                };
+                
+                app.orders.unshift(newOrder);
+                
+                // Update quotation status
+                const quotationIndex = app.quotations.findIndex(q => q.id === quotation.id);
+                if (quotationIndex !== -1) {
+                    app.quotations[quotationIndex].status = 'accepted';
+                    app.quotations[quotationIndex].updatedAt = new Date().toISOString();
+                }
+                
+                app.saveDataToStorage();
+                app.updateStats();
+                app.showNotification('✅ Quotation converted to order successfully!', 'success');
+                
+                closeQuotationDetails();
+                closeQuotationDisplay();
+            }
+        }
+        
+        function markQuotationSent(quotationId) {
+            const quotation = quotationId ? app.quotations.find(q => q.id === quotationId) : app.currentQuotationDetails;
+            if (!quotation) return;
+            
+            const quotationIndex = app.quotations.findIndex(q => q.id === quotation.id);
+            if (quotationIndex !== -1) {
+                const newStatus = quotation.status === 'sent' ? 'accepted' : 'sent';
+                app.quotations[quotationIndex].status = newStatus;
+                app.quotations[quotationIndex].updatedAt = new Date().toISOString();
+                
+                app.saveDataToStorage();
+                app.updateStats();
+                app.renderViews();
+                
+                const statusText = newStatus === 'sent' ? 'sent' : 'accepted';
+                app.showNotification(`📤 Quotation marked as ${statusText}!`, 'success');
+                
+                closeQuotationDetails();
+                closeQuotationDisplay();
+            }
+        }
+        
+        function editQuotation(quotationId) {
+            app.showNotification('✏️ Edit quotation coming soon!', 'info');
+        }
+        
+        function deleteQuotation(quotationId) {
+            if (confirm('Delete this quotation permanently?')) {
+                app.quotations = app.quotations.filter(q => q.id !== quotationId);
+                app.saveDataToStorage();
+                app.updateStats();
+                app.renderViews();
+                app.showNotification('🗑️ Quotation deleted', 'success');
+                
+                closeQuotationDetails();
+            }
+        }
+        
+        // Existing functions remain the same
         function openOrderForm() {
             app.showNotification('🚀 Order form coming soon!', 'info');
         }
@@ -2369,6 +3537,23 @@
                     });
                 }
             });
+            
+            // Load settings values
+            setTimeout(() => {
+                if (app.companySettings.name) {
+                    document.getElementById('company-name').value = app.companySettings.name;
+                    document.getElementById('company-tagline').value = app.companySettings.tagline || '';
+                    document.getElementById('company-phone').value = app.companySettings.phone || '';
+                    document.getElementById('company-email').value = app.companySettings.email || '';
+                    document.getElementById('company-website').value = app.companySettings.website || '';
+                    document.getElementById('company-address').value = app.companySettings.address || '';
+                }
+                
+                // Load quotation settings
+                document.getElementById('default-validity').value = app.companySettings.defaultValidityDays || 30;
+                document.getElementById('default-terms').value = app.companySettings.defaultTerms || '';
+                document.getElementById('quotation-prefix').value = app.companySettings.quotationPrefix || 'QUO';
+            }, 100);
         });
     </script>
 </body>
