@@ -1044,6 +1044,11 @@
                     </button>
                 </div>
 
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="input" placeholder="Search vegetables..." id="product-search">
+                </div>
+
                 <div class="product-grid" id="products-list"></div>
             </div>
 
@@ -1153,6 +1158,14 @@
                     
                     <div id="order-items" class="hidden">
                         <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Order Items</label>
+                        
+                        <div style="position: relative; margin-bottom: 16px;">
+                            <input type="text" placeholder="Search vegetables..." id="order-search" 
+                                   style="width: 100%; padding: 12px 16px 12px 40px; border-radius: 12px; border: 1px solid #d1d5db; font-size: 14px;"
+                                   oninput="filterOrderItems(this.value)">
+                            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280;">🔍</span>
+                        </div>
+                        
                         <div id="order-items-list" style="max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
                         
                         <div class="order-summary">
@@ -1222,30 +1235,145 @@
         function loadInitialData() {
             // Load sample customers
             customers = [
-                { id: 1, name: 'Ahmad Restaurant', phone: '012-3456789', address: 'Jalan Sultan, KL', email: 'ahmad@restaurant.com' },
-                { id: 2, name: 'Siti Catering', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' },
-                { id: 3, name: 'Lee Kitchen', phone: '019-9876543', address: 'Chinatown, KL', email: 'lee@kitchen.com' },
-                { id: 4, name: 'Mama Warung', phone: '017-1234567', address: 'Petaling Jaya', email: 'mama@warung.my' },
-                { id: 5, name: 'Restoran Sedap', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' },
-                { id: 6, name: 'Warung Pak Ali', phone: '011-5555666', address: 'Subang Jaya', email: 'pakmali@warung.com' }
+                { id: 1, name: 'Restoran Ahmad Nasi Kandar', phone: '012-3456789', address: 'Jalan Sultan, KL', email: 'ahmad@nasikandar.com' },
+                { id: 2, name: 'Siti Catering & Events', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' },
+                { id: 3, name: 'Lee Kitchen Chinese Restaurant', phone: '019-9876543', address: 'Chinatown, KL', email: 'lee@kitchen.com' },
+                { id: 4, name: 'Warung Mak Cik Kiah', phone: '017-1234567', address: 'Kampung Baru, KL', email: 'kiah@warung.my' },
+                { id: 5, name: 'Restoran Sedap Rasa', phone: '016-2345678', address: 'Shah Alam', email: 'sedap@restaurant.my' },
+                { id: 6, name: 'Pak Ali Nasi Lemak', phone: '011-5555666', address: 'Subang Jaya', email: 'pakmali@nasilemak.com' },
+                { id: 7, name: 'Mamak Salam 24 Jam', phone: '014-8889999', address: 'Wangsa Maju, KL', email: 'salam@mamak.my' },
+                { id: 8, name: 'Restoran Yuen Kee Seafood', phone: '012-1111222', address: 'Kepong, KL', email: 'yuenkee@seafood.com' },
+                { id: 9, name: 'Dapur Kampung Catering', phone: '013-3334444', address: 'Kajang, Selangor', email: 'kampung@catering.my' },
+                { id: 10, name: 'Restoran Minang Sari Rasa', phone: '019-5556666', address: 'Ampang, Selangor', email: 'minang@restaurant.my' },
+                { id: 11, name: 'Kedai Makan Uncle Lim', phone: '017-7778888', address: 'Cheras, KL', email: 'unclelim@kedai.com' },
+                { id: 12, name: 'Kak Yah Nasi Dagang', phone: '016-9990000', address: 'Setapak, KL', email: 'kakyah@nasidagang.my' }
             ];
 
-            // Load sample products with more variety
+            // Comprehensive Malaysian vegetable selection with categories
             products = [
-                { id: 1, name: 'Spinach', unit: 'kg', price: 8.50 },
-                { id: 2, name: 'Tomatoes', unit: 'kg', price: 6.00 },
-                { id: 3, name: 'Onions', unit: 'kg', price: 4.50 },
-                { id: 4, name: 'Carrots', unit: 'kg', price: 5.20 },
-                { id: 5, name: 'Cabbage', unit: 'head', price: 3.00 },
-                { id: 6, name: 'Bell Peppers', unit: 'kg', price: 12.00 },
-                { id: 7, name: 'Cucumber', unit: 'kg', price: 3.80 },
-                { id: 8, name: 'Lettuce', unit: 'head', price: 2.50 },
-                { id: 9, name: 'Broccoli', unit: 'kg', price: 9.00 },
-                { id: 10, name: 'Cauliflower', unit: 'head', price: 4.80 },
-                { id: 11, name: 'Eggplant', unit: 'kg', price: 5.50 },
-                { id: 12, name: 'Green Beans', unit: 'kg', price: 7.20 },
-                { id: 13, name: 'Corn', unit: 'piece', price: 2.00 },
-                { id: 14, name: 'Potatoes', unit: 'kg', price: 3.50 }
+                // === LEAFY GREENS & SALADS ===
+                { id: 1, name: 'Kangkung (Water Spinach)', unit: 'kg', price: 4.50, category: 'Leafy Greens' },
+                { id: 2, name: 'Sawi Hijau (Chinese Mustard Green)', unit: 'kg', price: 5.00, category: 'Leafy Greens' },
+                { id: 3, name: 'Sawi Putih (Chinese Cabbage)', unit: 'kg', price: 4.80, category: 'Leafy Greens' },
+                { id: 4, name: 'Spinach (Bayam Pasir)', unit: 'kg', price: 8.50, category: 'Leafy Greens' },
+                { id: 5, name: 'Lettuce Iceberg', unit: 'head', price: 4.50, category: 'Leafy Greens' },
+                { id: 6, name: 'Lettuce Butter Head', unit: 'head', price: 3.80, category: 'Leafy Greens' },
+                { id: 7, name: 'Cai Xin (Choy Sum)', unit: 'kg', price: 6.00, category: 'Leafy Greens' },
+                { id: 8, name: 'Pak Choy (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
+                { id: 9, name: 'Pak Choy Baby', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
+                { id: 10, name: 'Kailan (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens' },
+                { id: 11, name: 'Bayam Merah (Red Amaranth)', unit: 'kg', price: 5.50, category: 'Leafy Greens' },
+                { id: 12, name: 'Bayam Hijau (Green Amaranth)', unit: 'kg', price: 5.00, category: 'Leafy Greens' },
+                { id: 13, name: 'Pucuk Paku (Fern Tips)', unit: 'kg', price: 12.00, category: 'Leafy Greens' },
+                
+                // === MALAYSIAN SPECIALTY VEGETABLES ===
+                { id: 14, name: 'Petai (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty' },
+                { id: 15, name: 'Jering', unit: 'kg', price: 15.00, category: 'Malaysian Specialty' },
+                { id: 16, name: 'Rebung (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty' },
+                { id: 17, name: 'Jantung Pisang (Banana Blossom)', unit: 'piece', price: 4.00, category: 'Malaysian Specialty' },
+                { id: 18, name: 'Daun Ubi Kayu (Cassava Leaves)', unit: 'kg', price: 5.00, category: 'Malaysian Specialty' },
+                { id: 19, name: 'Pucuk Manis (Sweet Potato Leaves)', unit: 'kg', price: 4.50, category: 'Malaysian Specialty' },
+                { id: 20, name: 'Kacang Botol (Winged Bean)', unit: 'kg', price: 9.00, category: 'Malaysian Specialty' },
+                { id: 21, name: 'Ulam Raja', unit: 'kg', price: 8.00, category: 'Malaysian Specialty' },
+                { id: 22, name: 'Pegaga (Centella)', unit: 'kg', price: 12.00, category: 'Malaysian Specialty' },
+                { id: 23, name: 'Kesum (Vietnamese Mint)', unit: 'bunch', price: 2.50, category: 'Malaysian Specialty' },
+                
+                // === GOURDS & SQUASH ===
+                { id: 24, name: 'Labu Kuning (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash' },
+                { id: 25, name: 'Labu Air (Bottle Gourd)', unit: 'kg', price: 2.80, category: 'Gourds & Squash' },
+                { id: 26, name: 'Petola (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash' },
+                { id: 27, name: 'Peria (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                { id: 28, name: 'Ketola (Angled Gourd)', unit: 'kg', price: 5.50, category: 'Gourds & Squash' },
+                { id: 29, name: 'Timun (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash' },
+                { id: 30, name: 'Timun Jepun (Japanese Cucumber)', unit: 'kg', price: 6.50, category: 'Gourds & Squash' },
+                { id: 31, name: 'Zucchini', unit: 'kg', price: 8.00, category: 'Gourds & Squash' },
+                
+                // === EGGPLANTS & TOMATOES ===
+                { id: 32, name: 'Terung Ungu (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes' },
+                { id: 33, name: 'Terung Hijau (Green Eggplant)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
+                { id: 34, name: 'Terung Bulat (Round Eggplant)', unit: 'kg', price: 7.00, category: 'Eggplants & Tomatoes' },
+                { id: 35, name: 'Terung Pipit (Thai Eggplant)', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
+                { id: 36, name: 'Tomato Biasa (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes' },
+                { id: 37, name: 'Tomato Cherry', unit: 'kg', price: 12.00, category: 'Eggplants & Tomatoes' },
+                { id: 38, name: 'Tomato Roma', unit: 'kg', price: 8.50, category: 'Eggplants & Tomatoes' },
+                
+                // === BEANS & PODS ===
+                { id: 39, name: 'Bendi (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods' },
+                { id: 40, name: 'Kacang Panjang (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods' },
+                { id: 41, name: 'Kacang Buncis (French Beans)', unit: 'kg', price: 8.00, category: 'Beans & Pods' },
+                { id: 42, name: 'Kacang Hijau Segar (Fresh Mung Bean)', unit: 'kg', price: 5.50, category: 'Beans & Pods' },
+                { id: 43, name: 'Taugeh (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods' },
+                { id: 44, name: 'Snap Peas', unit: 'kg', price: 12.00, category: 'Beans & Pods' },
+                { id: 45, name: 'Snow Peas', unit: 'kg', price: 15.00, category: 'Beans & Pods' },
+                
+                // === ONIONS & AROMATICS ===
+                { id: 46, name: 'Bawang Merah (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
+                { id: 47, name: 'Bawang Putih (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics' },
+                { id: 48, name: 'Bawang Besar Merah (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics' },
+                { id: 49, name: 'Bawang Besar Putih (White Onions)', unit: 'kg', price: 4.50, category: 'Onions & Aromatics' },
+                { id: 50, name: 'Daun Bawang (Spring Onions)', unit: 'bunch', price: 2.00, category: 'Onions & Aromatics' },
+                { id: 51, name: 'Bawang Daun (Leeks)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics' },
+                
+                // === PEPPERS & CHILIES ===
+                { id: 52, name: 'Cili Merah (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies' },
+                { id: 53, name: 'Cili Hijau (Green Chili)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
+                { id: 54, name: 'Cili Padi (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies' },
+                { id: 55, name: 'Cili Bangi', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
+                { id: 56, name: 'Capsicum Merah (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies' },
+                { id: 57, name: 'Capsicum Hijau (Green Bell Pepper)', unit: 'kg', price: 12.00, category: 'Peppers & Chilies' },
+                { id: 58, name: 'Capsicum Kuning (Yellow Bell Pepper)', unit: 'kg', price: 16.00, category: 'Peppers & Chilies' },
+                { id: 59, name: 'Capsicum Oren (Orange Bell Pepper)', unit: 'kg', price: 18.00, category: 'Peppers & Chilies' },
+                
+                // === ROOT VEGETABLES ===
+                { id: 60, name: 'Lobak Merah (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables' },
+                { id: 61, name: 'Lobak Putih (White Radish)', unit: 'kg', price: 4.80, category: 'Root Vegetables' },
+                { id: 62, name: 'Kentang (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables' },
+                { id: 63, name: 'Ubi Kentang Merah (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables' },
+                { id: 64, name: 'Ubi Kentang Oren (Orange Sweet Potato)', unit: 'kg', price: 4.50, category: 'Root Vegetables' },
+                { id: 65, name: 'Ubi Kayu (Cassava)', unit: 'kg', price: 3.50, category: 'Root Vegetables' },
+                { id: 66, name: 'Keladi (Taro)', unit: 'kg', price: 6.50, category: 'Root Vegetables' },
+                { id: 67, name: 'Yam', unit: 'kg', price: 7.00, category: 'Root Vegetables' },
+                { id: 68, name: 'Bit (Beetroot)', unit: 'kg', price: 8.00, category: 'Root Vegetables' },
+                
+                // === CABBAGE FAMILY ===
+                { id: 69, name: 'Kobis Bulat (Round Cabbage)', unit: 'head', price: 4.50, category: 'Cabbage Family' },
+                { id: 70, name: 'Kobis Panjang (Long Cabbage)', unit: 'head', price: 5.00, category: 'Cabbage Family' },
+                { id: 71, name: 'Kobis Merah (Red Cabbage)', unit: 'head', price: 6.50, category: 'Cabbage Family' },
+                { id: 72, name: 'Bunga Kobis (Cauliflower)', unit: 'head', price: 6.80, category: 'Cabbage Family' },
+                { id: 73, name: 'Broccoli', unit: 'kg', price: 12.00, category: 'Cabbage Family' },
+                { id: 74, name: 'Broccoli Baby', unit: 'kg', price: 15.00, category: 'Cabbage Family' },
+                
+                // === CORN & MUSHROOMS ===
+                { id: 75, name: 'Jagung Kuning (Yellow Corn)', unit: 'piece', price: 2.50, category: 'Corn & Mushrooms' },
+                { id: 76, name: 'Jagung Manis (Sweet Corn)', unit: 'piece', price: 3.00, category: 'Corn & Mushrooms' },
+                { id: 77, name: 'Baby Corn', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
+                { id: 78, name: 'Cendawan Butang (Button Mushroom)', unit: 'kg', price: 12.00, category: 'Corn & Mushrooms' },
+                { id: 79, name: 'Cendawan Tiram (Oyster Mushroom)', unit: 'kg', price: 8.00, category: 'Corn & Mushrooms' },
+                { id: 80, name: 'Cendawan Shiitake', unit: 'kg', price: 25.00, category: 'Corn & Mushrooms' },
+                
+                // === HERBS & SPICES ===
+                { id: 81, name: 'Halia (Ginger)', unit: 'kg', price: 12.00, category: 'Herbs & Spices' },
+                { id: 82, name: 'Halia Muda (Young Ginger)', unit: 'kg', price: 15.00, category: 'Herbs & Spices' },
+                { id: 83, name: 'Kunyit (Turmeric)', unit: 'kg', price: 8.00, category: 'Herbs & Spices' },
+                { id: 84, name: 'Lengkuas (Galangal)', unit: 'kg', price: 10.00, category: 'Herbs & Spices' },
+                { id: 85, name: 'Serai (Lemongrass)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
+                { id: 86, name: 'Daun Limau Purut (Kaffir Lime Leaves)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
+                { id: 87, name: 'Daun Ketumbar (Coriander Leaves)', unit: 'bunch', price: 2.00, category: 'Herbs & Spices' },
+                { id: 88, name: 'Pudina (Mint Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
+                { id: 89, name: 'Selasih (Thai Basil)', unit: 'bunch', price: 3.00, category: 'Herbs & Spices' },
+                { id: 90, name: 'Daun Sup (Celery Leaves)', unit: 'bunch', price: 2.50, category: 'Herbs & Spices' },
+                { id: 91, name: 'Parsley', unit: 'bunch', price: 4.00, category: 'Herbs & Spices' },
+                { id: 92, name: 'Rosemary', unit: 'bunch', price: 6.00, category: 'Herbs & Spices' },
+                { id: 93, name: 'Thyme', unit: 'bunch', price: 5.00, category: 'Herbs & Spices' },
+                
+                // === PREMIUM & IMPORTED ===
+                { id: 94, name: 'Asparagus', unit: 'kg', price: 25.00, category: 'Premium & Imported' },
+                { id: 95, name: 'Artichoke', unit: 'piece', price: 8.00, category: 'Premium & Imported' },
+                { id: 96, name: 'Avocado', unit: 'piece', price: 4.50, category: 'Premium & Imported' },
+                { id: 97, name: 'Cherry Tomato Kuning', unit: 'kg', price: 15.00, category: 'Premium & Imported' },
+                { id: 98, name: 'Baby Spinach', unit: 'kg', price: 12.00, category: 'Premium & Imported' },
+                { id: 99, name: 'Rocket/Arugula', unit: 'kg', price: 18.00, category: 'Premium & Imported' },
+                { id: 100, name: 'Radicchio', unit: 'head', price: 12.00, category: 'Premium & Imported' }
             ];
 
             orders = [];
@@ -1255,6 +1383,11 @@
             // Customer search
             document.getElementById('customer-search').addEventListener('input', function(e) {
                 renderCustomers(e.target.value);
+            });
+
+            // Product search
+            document.getElementById('product-search').addEventListener('input', function(e) {
+                renderProducts(e.target.value);
             });
 
             // Order date
@@ -1508,27 +1641,47 @@
             container.innerHTML = customersHTML;
         }
 
-        function renderProducts() {
-            var container = document.getElementById('products-list');
-            var productsHTML = '';
+        function renderProducts(searchTerm) {
+            if (!searchTerm) searchTerm = '';
+            
+            var filteredProducts = [];
             for (var i = 0; i < products.length; i++) {
                 var product = products[i];
-                productsHTML += '<div class="product-card">' +
-                    '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                    '<div class="product-info" style="flex: 1;">' +
-                    '<h3>' + product.name + '</h3>' +
-                    '<p>per ' + product.unit + '</p>' +
-                    '</div>' +
-                    '<div class="product-price">' +
-                    '<div class="price">RM ' + product.price.toFixed(2) + '</div>' +
-                    '<div class="product-actions">' +
-                    '<button class="icon-btn" onclick="editProduct(' + product.id + ')">✏️</button>' +
-                    '<button class="icon-btn" onclick="deleteProduct(' + product.id + ')">🗑️</button>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>';
+                if (product.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+                    filteredProducts.push(product);
+                }
             }
+
+            var container = document.getElementById('products-list');
+            var productsHTML = '';
+            
+            if (filteredProducts.length === 0) {
+                productsHTML = '<div class="empty-state">' +
+                    '<div class="empty-icon" style="font-size: 48px;">🔍</div>' +
+                    '<p style="font-weight: 600;">No vegetables found</p>' +
+                    '<p style="font-size: 14px; margin-top: 8px;">Try searching with different keywords</p>' +
+                    '</div>';
+            } else {
+                for (var i = 0; i < filteredProducts.length; i++) {
+                    var product = filteredProducts[i];
+                    productsHTML += '<div class="product-card">' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                        '<div class="product-info" style="flex: 1;">' +
+                        '<h3>' + product.name + '</h3>' +
+                        '<p>per ' + product.unit + '</p>' +
+                        '</div>' +
+                        '<div class="product-price">' +
+                        '<div class="price">RM ' + product.price.toFixed(2) + '</div>' +
+                        '<div class="product-actions">' +
+                        '<button class="icon-btn" onclick="editProduct(' + product.id + ')">✏️</button>' +
+                        '<button class="icon-btn" onclick="deleteProduct(' + product.id + ')">🗑️</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+                }
+            }
+            
             container.innerHTML = productsHTML;
         }
 
@@ -1776,12 +1929,27 @@
         function openOrderForm() {
             document.getElementById('order-form').reset();
             document.getElementById('order-items').classList.add('hidden');
+            
+            // Clear the search field and quantities
+            var orderSearch = document.getElementById('order-search');
+            if (orderSearch) {
+                orderSearch.value = '';
+            }
+            clearOrderQuantities();
+            
             populateOrderCustomers();
             document.getElementById('order-modal').classList.add('show');
         }
 
         function closeOrderForm() {
             document.getElementById('order-modal').classList.remove('show');
+            
+            // Clear the search field and quantities
+            var orderSearch = document.getElementById('order-search');
+            if (orderSearch) {
+                orderSearch.value = '';
+            }
+            clearOrderQuantities();
         }
 
         function populateOrderCustomers() {
@@ -1796,11 +1964,26 @@
 
         function initializeOrderItems() {
             var container = document.getElementById('order-items-list');
+            renderOrderItems('');
+            document.getElementById('order-items').classList.remove('hidden');
+            updateOrderTotal();
+        }
+
+        function renderOrderItems(searchTerm) {
+            var container = document.getElementById('order-items-list');
             var itemsHTML = '';
             
+            var filteredProducts = [];
             for (var i = 0; i < products.length; i++) {
                 var product = products[i];
-                itemsHTML += '<div class="order-item">' +
+                if (!searchTerm || product.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+                    filteredProducts.push(product);
+                }
+            }
+            
+            for (var i = 0; i < filteredProducts.length; i++) {
+                var product = filteredProducts[i];
+                itemsHTML += '<div class="order-item" id="order-item-' + product.id + '">' +
                     '<div class="item-header">' +
                     '<div style="flex: 1;">' +
                     '<div class="item-name">' + product.name + '</div>' +
@@ -1819,8 +2002,44 @@
             }
             
             container.innerHTML = itemsHTML;
-            document.getElementById('order-items').classList.remove('hidden');
-            updateOrderTotal();
+        }
+
+        // Store current order quantities
+        var currentOrderQuantities = {};
+
+        function filterOrderItems(searchTerm) {
+            // Save current quantities before re-rendering
+            for (var i = 0; i < products.length; i++) {
+                var product = products[i];
+                var quantityInput = document.getElementById('quantity-' + product.id);
+                if (quantityInput && quantityInput.value) {
+                    currentOrderQuantities[product.id] = quantityInput.value;
+                }
+            }
+            
+            renderOrderItems(searchTerm);
+            
+            // Restore quantities after re-rendering
+            for (var productId in currentOrderQuantities) {
+                var quantityInput = document.getElementById('quantity-' + productId);
+                if (quantityInput) {
+                    quantityInput.value = currentOrderQuantities[productId];
+                    var product = null;
+                    for (var i = 0; i < products.length; i++) {
+                        if (products[i].id == productId) {
+                            product = products[i];
+                            break;
+                        }
+                    }
+                    if (product) {
+                        updateOrderItemTotal(product.id, product.price, currentOrderQuantities[productId]);
+                    }
+                }
+            }
+        }
+
+        function clearOrderQuantities() {
+            currentOrderQuantities = {};
         }
 
         function updateOrderItemTotal(productId, price, quantity) {
@@ -1887,6 +2106,9 @@
             };
 
             orders.unshift(newOrder);
+            
+            // Clear form and quantities
+            clearOrderQuantities();
             closeOrderForm();
             updateStats();
             renderViews();
