@@ -505,19 +505,19 @@
             font-size: 16px;
         }
         
-        /* Invoice Styles */
+        /* Invoice Styles - Mobile First */
         .invoice-modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             display: none;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
             z-index: 300;
-            padding: 20px;
+            padding: 0;
         }
         
         .invoice-modal.show {
@@ -526,130 +526,137 @@
         
         .invoice-container {
             background: white;
-            border-radius: 16px;
+            border-radius: 24px 24px 0 0;
             width: 100%;
-            max-width: 800px;
-            max-height: 90vh;
+            max-width: 100%;
+            height: 100vh;
             overflow-y: auto;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
             -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
         }
         
         .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 24px;
-            border-bottom: 1px solid #e5e7eb;
-            background: #f9fafb;
-            border-radius: 16px 16px 0 0;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 24px 24px 0 0;
+            z-index: 10;
+            backdrop-filter: blur(20px);
         }
         
         .invoice-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1f2937;
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .invoice-actions {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
+            margin-bottom: 12px;
         }
         
         .invoice-btn {
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 16px 12px;
+            border-radius: 16px;
             border: none;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
-            white-space: nowrap;
+            justify-content: center;
+            gap: 8px;
+            min-height: 56px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .invoice-btn:active {
             transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
         
         .invoice-btn.back {
-            background: #6b7280;
+            background: linear-gradient(135deg, #64748b, #475569);
             color: white;
-        }
-        
-        .invoice-btn.back:hover {
-            background: #4b5563;
+            grid-column: span 2;
         }
         
         .invoice-btn.whatsapp {
-            background: #25d366;
+            background: linear-gradient(135deg, #25d366, #1db954);
             color: white;
-        }
-        
-        .invoice-btn.whatsapp:hover {
-            background: #1db954;
         }
         
         .invoice-btn.email {
-            background: #ea4335;
+            background: linear-gradient(135deg, #ea4335, #d33b2c);
             color: white;
-        }
-        
-        .invoice-btn.email:hover {
-            background: #d33b2c;
-        }
-        
-        .invoice-btn.share {
-            background: #8b5cf6;
-            color: white;
-        }
-        
-        .invoice-btn.share:hover {
-            background: #7c3aed;
         }
         
         .invoice-btn.print {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
         }
-
-        .invoice-btn.print:hover {
-            background: #059669;
+        
+        .invoice-btn.share {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
         }
         
         .invoice-btn.excel {
-            background: #059669;
+            background: linear-gradient(135deg, #059669, #047857);
             color: white;
-        }
-
-        .invoice-btn.excel:hover {
-            background: #047857;
         }
         
         .invoice-btn.pdf {
-            background: #dc2626;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
             color: white;
-        }
-
-        .invoice-btn.pdf:hover {
-            background: #b91c1c;
         }
         
         .invoice-btn.close {
-            background: #6b7280;
+            background: linear-gradient(135deg, #64748b, #475569);
             color: white;
         }
         
+        .mobile-action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .keyboard-shortcuts {
+            text-align: center;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+        }
+        
+        .keyboard-shortcuts small {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
         .invoice-content {
-            padding: 40px;
+            padding: 20px;
             background: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #1f2937;
+            flex: 1;
         }
         
         .invoice-business-header {
@@ -846,59 +853,90 @@
             }
         }
         
-        /* Mobile Invoice Responsive */
+        /* Mobile-First Invoice Responsive */
         @media (max-width: 768px) {
             .invoice-container {
-                margin: 10px;
-                border-radius: 12px;
+                height: 100vh;
+                border-radius: 20px 20px 0 0;
+                max-width: 100%;
             }
             
             .invoice-content {
-                padding: 20px;
+                padding: 16px;
             }
             
             .business-name {
-                font-size: 24px;
+                font-size: 22px;
             }
             
             .invoice-meta {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 16px;
             }
             
             .invoice-table {
-                font-size: 12px;
+                font-size: 13px;
             }
             
             .invoice-table th,
             .invoice-table td {
-                padding: 12px 8px;
+                padding: 10px 6px;
             }
             
             .invoice-actions {
-                display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
+                gap: 10px;
             }
             
             .invoice-btn {
-                width: 100%;
-                justify-content: center;
-                padding: 12px 8px;
-                font-size: 13px;
+                padding: 14px 10px;
+                font-size: 14px;
+                min-height: 52px;
             }
             
             .invoice-header {
-                padding: 16px 20px;
+                padding: 16px;
+            }
+            
+            .invoice-title {
+                font-size: 18px;
+            }
+            
+            .keyboard-shortcuts {
+                display: none;
+            }
+        }
+        
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .invoice-container {
+                height: 100vh;
+                border-radius: 16px 16px 0 0;
+            }
+            
+            .invoice-header {
+                padding: 12px;
             }
             
             .invoice-title {
                 font-size: 16px;
+                margin-bottom: 12px;
             }
-        }
-        
-        /* Small mobile devices */
-        @media (max-width: 480px) {
+            
+            .invoice-actions {
+                gap: 8px;
+            }
+            
+            .invoice-btn {
+                padding: 12px 8px;
+                font-size: 13px;
+                min-height: 48px;
+            }
+            
+            .invoice-btn span:last-child {
+                font-size: 12px;
+            }
+            
             .invoice-table th,
             .invoice-table td {
                 padding: 8px 4px;
@@ -910,25 +948,47 @@
             }
             
             .business-name {
-                font-size: 20px;
+                font-size: 18px;
+            }
+            
+            .invoice-content {
+                padding: 12px;
+            }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            .invoice-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .invoice-header {
+                padding: 8px 16px;
+            }
+            
+            .invoice-title {
+                font-size: 16px;
+                margin-bottom: 8px;
             }
             
             .invoice-actions {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(4, 1fr);
                 gap: 6px;
             }
             
             .invoice-btn {
                 padding: 10px 6px;
                 font-size: 12px;
+                min-height: 44px;
             }
             
-            .invoice-btn span:last-child {
+            .invoice-btn.back {
+                grid-column: span 4;
+            }
+            
+            .keyboard-shortcuts {
                 display: none;
-            }
-            
-            .invoice-btn span:first-child {
-                font-size: 16px;
             }
         }
         
@@ -2012,17 +2072,18 @@
     <div id="invoice-modal" class="invoice-modal">
         <div class="invoice-container">
             <div class="invoice-header">
-                <div class="invoice-title">📄 Professional Invoice</div>
+                <div class="invoice-title">
+                    <span>📄</span>
+                    <span>Professional Invoice</span>
+                </div>
+                
+                <!-- Primary Actions Row -->
                 <div class="invoice-actions">
-                    <button class="invoice-btn back" onclick="closeInvoice()" style="background: #6b7280;">
-                        <span>←</span>
-                        <span>Back</span>
-                    </button>
-                    <button class="invoice-btn whatsapp" onclick="shareInvoiceWhatsApp()" style="background: #25d366;">
+                    <button class="invoice-btn whatsapp" onclick="shareInvoiceWhatsApp()">
                         <span>💬</span>
                         <span>WhatsApp</span>
                     </button>
-                    <button class="invoice-btn email" onclick="shareInvoiceEmail()" style="background: #ea4335;">
+                    <button class="invoice-btn email" onclick="shareInvoiceEmail()">
                         <span>📧</span>
                         <span>Email</span>
                     </button>
@@ -2030,10 +2091,14 @@
                         <span>🖨️</span>
                         <span>Print</span>
                     </button>
-                    <button class="invoice-btn share" onclick="showInvoiceShareMenu()" style="background: #8b5cf6;">
+                    <button class="invoice-btn share" onclick="showInvoiceShareMenu()">
                         <span>📤</span>
-                        <span>Share</span>
+                        <span>More</span>
                     </button>
+                </div>
+                
+                <!-- Secondary Actions Row -->
+                <div class="mobile-action-grid">
                     <button class="invoice-btn excel" onclick="exportToExcel()">
                         <span>📊</span>
                         <span>Excel</span>
@@ -2042,15 +2107,22 @@
                         <span>📄</span>
                         <span>PDF</span>
                     </button>
+                </div>
+                
+                <!-- Navigation Row -->
+                <div class="mobile-action-grid" style="margin-top: 12px;">
+                    <button class="invoice-btn back" onclick="closeInvoice()">
+                        <span>←</span>
+                        <span>Back</span>
+                    </button>
                     <button class="invoice-btn close" onclick="closeInvoice()">
                         <span>✕</span>
                         <span>Close</span>
                     </button>
                 </div>
-                <div style="margin-top: 8px; text-align: center;">
-                    <small style="color: #6b7280; font-size: 11px;">
-                        💡 Shortcuts: P=Print, S=Share, W=WhatsApp, E=Email, C=Copy, Esc=Close
-                    </small>
+                
+                <div class="keyboard-shortcuts">
+                    <small>💡 Shortcuts: P=Print, S=Share, W=WhatsApp, E=Email, C=Copy, Esc=Close</small>
                 </div>
             </div>
             <div class="invoice-content" id="invoice-content">
@@ -2059,62 +2131,71 @@
         </div>
     </div>
 
-    <!-- Invoice Share Menu Modal -->
+    <!-- Invoice Share Menu Modal - Mobile Optimized -->
     <div id="invoice-share-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Share Invoice</h3>
+                <h3>📤 Share Invoice</h3>
                 <button class="close-btn" onclick="closeInvoiceShareMenu()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 12px; color: #1f2937; font-weight: 700;">Quick Share Options</h4>
-                    <div class="share-buttons" style="grid-template-columns: repeat(2, 1fr);">
-                        <button class="share-btn whatsapp" onclick="shareInvoiceWhatsApp(); closeInvoiceShareMenu();">
-                            <span class="share-icon">💬</span>
-                            <span>WhatsApp</span>
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: #1f2937; font-weight: 700; font-size: 16px;">🚀 Quick Share</h4>
+                    <div class="share-buttons" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <button class="share-btn whatsapp" onclick="shareInvoiceWhatsApp(); closeInvoiceShareMenu();" style="padding: 18px; border-radius: 16px;">
+                            <span class="share-icon" style="font-size: 20px;">💬</span>
+                            <span style="font-weight: 700;">WhatsApp</span>
                         </button>
-                        <button class="share-btn email" onclick="shareInvoiceEmail(); closeInvoiceShareMenu();">
-                            <span class="share-icon">📧</span>
-                            <span>Email</span>
+                        <button class="share-btn email" onclick="shareInvoiceEmail(); closeInvoiceShareMenu();" style="padding: 18px; border-radius: 16px;">
+                            <span class="share-icon" style="font-size: 20px;">📧</span>
+                            <span style="font-weight: 700;">Email</span>
                         </button>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 12px; color: #1f2937; font-weight: 700;">Export & Print</h4>
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: #1f2937; font-weight: 700; font-size: 16px;">📄 Export & Print</h4>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                        <button class="invoice-btn print" onclick="printInvoice(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center;">
-                            <span>🖨️</span>
-                            <span>Print</span>
+                        <button class="invoice-btn print" onclick="printInvoice(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center; flex-direction: column; padding: 16px 8px; min-height: 64px;">
+                            <span style="font-size: 20px; margin-bottom: 4px;">🖨️</span>
+                            <span style="font-size: 12px;">Print</span>
                         </button>
-                        <button class="invoice-btn pdf" onclick="exportToPDF(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center;">
-                            <span>📄</span>
-                            <span>PDF</span>
+                        <button class="invoice-btn pdf" onclick="exportToPDF(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center; flex-direction: column; padding: 16px 8px; min-height: 64px;">
+                            <span style="font-size: 20px; margin-bottom: 4px;">📄</span>
+                            <span style="font-size: 12px;">PDF</span>
                         </button>
-                        <button class="invoice-btn excel" onclick="exportToExcel(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center;">
-                            <span>📊</span>
-                            <span>Excel</span>
+                        <button class="invoice-btn excel" onclick="exportToExcel(); closeInvoiceShareMenu();" style="width: 100%; justify-content: center; flex-direction: column; padding: 16px 8px; min-height: 64px;">
+                            <span style="font-size: 20px; margin-bottom: 4px;">📊</span>
+                            <span style="font-size: 12px;">Excel</span>
                         </button>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 12px; color: #1f2937; font-weight: 700;">Copy & Share Text</h4>
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: #1f2937; font-weight: 700; font-size: 16px;">📋 Copy & Share</h4>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                        <button class="btn btn-gray" onclick="copyInvoiceText()" style="width: 100%; font-size: 14px;">
-                            📋 Copy Invoice Text
+                        <button class="btn btn-gray" onclick="copyInvoiceText(); closeInvoiceShareMenu();" style="width: 100%; font-size: 14px; padding: 16px 12px; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>📋</span>
+                            <span>Copy Text</span>
                         </button>
-                        <button class="btn btn-purple" onclick="copyInvoiceLink()" style="width: 100%; font-size: 14px;">
-                            🔗 Copy Invoice Link
+                        <button class="btn btn-purple" onclick="copyInvoiceLink(); closeInvoiceShareMenu();" style="width: 100%; font-size: 14px; padding: 16px 12px; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>🔗</span>
+                            <span>Copy Link</span>
                         </button>
                     </div>
                 </div>
 
-                <div style="background: #f9fafb; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb;">
-                    <p style="color: #6b7280; font-size: 14px; margin: 0; text-align: center;">
-                        💡 <strong>Tip:</strong> Use WhatsApp or Email for instant delivery to customers
+                <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); padding: 20px; border-radius: 16px; border: 1px solid #7dd3fc; text-align: center;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">💡</div>
+                    <p style="color: #0c4a6e; font-size: 14px; margin: 0; font-weight: 600; line-height: 1.4;">
+                        <strong>Pro Tip:</strong> WhatsApp and Email are the fastest ways to send invoices directly to your customers!
                     </p>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-gray" onclick="closeInvoiceShareMenu()" style="width: 100%; padding: 16px; border-radius: 16px; font-weight: 700;">
+                        ← Back to Invoice
+                    </button>
                 </div>
             </div>
         </div>
@@ -3959,16 +4040,99 @@
         }
 
         // Export Functions
+        // Mobile Swipe Gestures for Invoice
+        function setupInvoiceSwipeGestures() {
+            var invoiceContainer = document.querySelector('.invoice-container');
+            if (!invoiceContainer) return;
+            
+            var startY = 0;
+            var currentY = 0;
+            var isDragging = false;
+            var threshold = 100; // Minimum swipe distance
+            
+            invoiceContainer.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+                isDragging = true;
+                invoiceContainer.style.transition = 'none';
+            }, {passive: true});
+            
+            invoiceContainer.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                
+                currentY = e.touches[0].clientY;
+                var deltaY = currentY - startY;
+                
+                // Only allow downward swipe to close
+                if (deltaY > 0 && invoiceContainer.scrollTop === 0) {
+                    e.preventDefault();
+                    var progress = Math.min(deltaY / threshold, 1);
+                    var opacity = 1 - (progress * 0.5);
+                    var scale = 1 - (progress * 0.1);
+                    
+                    invoiceContainer.style.transform = `translateY(${deltaY}px) scale(${scale})`;
+                    invoiceContainer.style.opacity = opacity;
+                }
+            }, {passive: false});
+            
+            invoiceContainer.addEventListener('touchend', function(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                var deltaY = currentY - startY;
+                invoiceContainer.style.transition = 'all 0.3s ease';
+                
+                if (deltaY > threshold) {
+                    // Close invoice
+                    closeInvoice();
+                } else {
+                    // Snap back
+                    invoiceContainer.style.transform = 'translateY(0) scale(1)';
+                    invoiceContainer.style.opacity = '1';
+                }
+            }, {passive: true});
+        }
+
+        // Enhanced mobile app initialization
+        function initializeMobileInvoice() {
+            // Setup swipe gestures when invoice opens
+            var invoiceModal = document.getElementById('invoice-modal');
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        if (invoiceModal.classList.contains('show')) {
+                            setTimeout(setupInvoiceSwipeGestures, 100);
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(invoiceModal, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+
+        // Call mobile initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMobileInvoice();
+        });
+
+        // Mobile-optimized export functions
         function exportToExcel() {
             if (!currentInvoiceOrder) {
                 alert('No invoice data available for export');
                 return;
             }
 
+            hapticFeedback();
+            
             if (typeof XLSX === 'undefined') {
                 alert('Excel export library not loaded. Please refresh the page and try again.');
                 return;
             }
+
+            // Show mobile-friendly progress
+            showSuccessMessage('📊 Generating Excel file...');
 
             try {
                 var order = currentInvoiceOrder;
@@ -4065,7 +4229,7 @@
                 XLSX.writeFile(wb, filename);
 
                 setTimeout(function() {
-                    alert('Excel file downloaded successfully!');
+                    showSuccessMessage('📊 Excel file downloaded successfully!');
                 }, 500);
 
             } catch (error) {
@@ -4080,6 +4244,21 @@
                 return;
             }
 
+            hapticFeedback();
+            showSuccessMessage('📄 Preparing PDF export...');
+
+            // On mobile, provide better guidance
+            if (window.innerWidth <= 768) {
+                setTimeout(function() {
+                    alert('📱 Mobile PDF Export:\n\n1. A new window will open\n2. Tap the share button (📤)\n3. Select "Save to Files" or "Print"\n4. Choose "Save as PDF"\n\nContinue?');
+                    proceedWithPDFExport();
+                }, 500);
+            } else {
+                proceedWithPDFExport();
+            }
+        }
+
+        function proceedWithPDFExport() {
             try {
                 var printWindow = window.open('', '_blank');
                 if (!printWindow) {
@@ -4149,6 +4328,7 @@
 
                 var pdfHTML = '<!DOCTYPE html>' +
                 '<html><head>' +
+                '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
                 '<title>Invoice_' + invoiceNumber + '_' + customerName.replace(/[^a-zA-Z0-9]/g, '_') + '</title>' +
                 '<style>' +
                     'body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #333; line-height: 1.4; }' +
@@ -4170,6 +4350,7 @@
                     '.total-final { font-size: 18px; font-weight: bold; color: #10b981; padding-top: 12px; border-top: 2px solid #10b981; }' +
                     '.footer { text-align: center; font-size: 12px; color: #666; background: #f9f9f9; padding: 15px; }' +
                     '@media print { body { margin: 0; } }' +
+                    '@media (max-width: 600px) { .invoice-info { display: block; } .info-section { display: block; width: 100%; margin-bottom: 20px; } }' +
                 '</style>' +
                 '</head><body>' +
                 
@@ -4237,14 +4418,16 @@
                 printWindow.document.close();
                 
                 printWindow.onload = function() {
-                    printWindow.print();
-                    printWindow.onafterprint = function() {
-                        printWindow.close();
-                    };
+                    setTimeout(function() {
+                        printWindow.print();
+                        printWindow.onafterprint = function() {
+                            printWindow.close();
+                        };
+                    }, 500);
                 };
 
                 setTimeout(function() {
-                    alert('PDF export initiated! Use your browser\'s print dialog to save as PDF.');
+                    showSuccessMessage('📄 PDF export ready! Use browser print to save as PDF.');
                 }, 1000);
 
             } catch (error) {
