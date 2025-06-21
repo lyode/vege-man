@@ -1,704 +1,2777 @@
-// ========================================
-// VEGEORDER PRO - COMPLETE CUSTOMER SLOT INTEGRATION
-// Add this script to your main VegeOrder Pro index.html
-// ========================================
-
-// Global variables for slot management
-let selectedAddonQuantity = 0;
-let selectedAddonPrice = 0;
-let currentSlotSelection = null;
-
-// Enhanced Customer Slot Methods - Add to VegeOrderApp class
-function enhanceVegeOrderWithSlots() {
-    if (typeof app === 'undefined') {
-        console.log('Waiting for app to initialize...');
-        setTimeout(enhanceVegeOrderWithSlots, 100);
-        return;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VegeOrder Pro">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0891b2">
+    <meta name="msapplication-navbutton-color" content="#0891b2">
     
-    // Enhanced calculateSlotPrice with volume discounts
-    app.calculateSlotPrice = function(quantity, plan) {
-        const basePrices = {
-            addon: 2.00,
-            premium: 99.00,
-            enterprise: 1.00
-        };
-        
-        if (plan === 'premium') {
-            return basePrices.premium;
+    <title>VegeOrder Pro - Enhanced Malaysian Vegetable Manager with Quotations</title>
+    
+    <!-- Mobile App Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9IiMxMGI5ODEiLz4KPHN2ZyB4PSI0MCIgeT0iNDAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgZmlsbD0id2hpdGUiPgo8dGV4dCB4PSI1MCIgeT0iNjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+luTwvdGV4dD4KPC9zdmc+Cjwvc3ZnPg==">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzEwYjk4MSIvPgo8dGV4dCB4PSIxNiIgeT0iMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiPvCfpbk8L3RleHQ+Cjwvc3ZnPg==">
+    
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
         }
         
-        // Volume discount tiers
-        let pricePerSlot = basePrices[plan] || basePrices.addon;
-        
-        if (quantity >= 1000) {
-            pricePerSlot = 1.25; // Best rate for 1000+ slots
-        } else if (quantity >= 500) {
-            pricePerSlot = 1.50; // Better rate for 500+ slots  
-        } else if (quantity >= 200) {
-            pricePerSlot = 1.75; // Good rate for 200+ slots
-        } else if (quantity >= 100) {
-            pricePerSlot = 1.90; // Small discount for 100+ slots
+        body {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #164e63 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-size: 16px;
+            line-height: 1.5;
         }
         
-        return quantity * pricePerSlot;
-    };
-    
-    // Enhanced addCustomerSlots with better feedback
-    const originalAddSlots = app.addCustomerSlots;
-    app.addCustomerSlots = function(quantity, plan = 'addon') {
-        const price = this.calculateSlotPrice(quantity, plan);
-        
-        const upgrade = {
-            id: Date.now(),
-            date: new Date().toISOString(),
-            plan: plan,
-            slotsAdded: quantity,
-            price: price,
-            paymentMethod: 'simulated'
-        };
-        
-        this.customerSlots.total += quantity;
-        if (plan === 'addon') {
-            this.customerSlots.addonSlots += quantity;
-        } else if (plan === 'premium') {
-            this.customerSlots.plan = 'premium';
+        /* Mobile Container */
+        .app-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #164e63 100%);
         }
         
-        this.customerSlots.remaining = this.customerSlots.total - this.customerSlots.used;
-        this.customerSlots.lastUpgrade = new Date().toISOString();
-        this.customerSlots.upgradeHistory.push(upgrade);
+        /* Status Bar */
+        .status-bar {
+            height: env(safe-area-inset-top, 44px);
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            padding-top: env(safe-area-inset-top, 0);
+            min-height: 44px;
+        }
         
-        this.updateCustomerSlotUsage();
-        this.saveDataToStorage();
-        this.updateStats();
+        .status-bar .time {
+            color: white;
+        }
         
-        // Enhanced notification
-        this.showSlotAllocationSuccess(quantity, price, plan);
+        .status-bar .indicators {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: white;
+        }
         
-        // Update UI
-        setTimeout(() => {
-            this.updateStats();
-            this.renderViews();
-        }, 500);
+        /* Header */
+        .app-header {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(30px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: env(safe-area-inset-top, 44px);
+            left: 0;
+            right: 0;
+            z-index: 90;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
         
-        return true;
-    };
-    
-    // New method: Show slot allocation success
-    app.showSlotAllocationSuccess = function(quantity, price, plan) {
-        // Create enhanced notification
-        const notification = document.createElement('div');
-        notification.className = 'notification success show';
-        notification.style.cssText = `
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #22d3ee, #06b6d4);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .app-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+        
+        .app-title p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .connection-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            margin-right: 8px;
+        }
+        
+        .connection-status.offline {
+            background: #ef4444;
+        }
+        
+        .header-stats {
+            text-align: right;
+            font-size: 12px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: calc(env(safe-area-inset-top, 44px) + 80px) 20px calc(env(safe-area-inset-bottom, 20px) + 100px);
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom Scrollbar */
+        .main-content::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .main-content::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+        
+        .main-content::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+        }
+        
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 16px 0;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Enhanced Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 16px 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .stat-card:active {
+            transform: scale(0.95);
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        
+        .trend-up { color: #22c55e; }
+        .trend-down { color: #ef4444; }
+        .trend-neutral { color: rgba(255,255,255,0.7); }
+        
+        /* Enhanced Analytics Card */
+        .analytics-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+            backdrop-filter: blur(30px);
+            border-radius: 24px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .analytics-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+        }
+        
+        .analytics-period {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 12px;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            margin: 16px 0;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .chart-placeholder {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        /* Insights Grid */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .insight-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .insight-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        
+        .insight-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Enhanced Search */
+        .enhanced-search {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 18px 20px 18px 56px;
+            border-radius: 16px;
+            border: none;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.35);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: rgba(255,255,255,0.7);
+            pointer-events: none;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            margin-top: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        
+        .search-result-item {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            cursor: pointer;
+            color: #1f2937;
+        }
+        
+        .search-result-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-highlight {
+            background: #fbbf24;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        
+        /* Action Buttons */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .action-btn {
+            padding: 20px;
+            border-radius: 20px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-height: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        }
+        
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #0891b2 0%, #164e63 100%);
+        }
+        
+        .action-btn.accent {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        }
+        
+        .action-btn.quotation {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        }
+        
+        .action-btn .icon {
+            font-size: 28px;
+        }
+        
+        /* Enhanced Forms */
+        .form-input {
+            width: 100%;
+            padding: 18px 20px;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.95);
+            color: #1f2937;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input::placeholder {
+            color: #6b7280;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0891b2;
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: #ef4444;
+            background: rgba(254, 242, 242, 0.95);
+        }
+        
+        .form-error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: -12px;
+            margin-bottom: 16px;
+            padding-left: 20px;
+            font-weight: 600;
+        }
+        
+        /* Enhanced Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 52px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:active {
+            transform: scale(0.96);
+        }
+        
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .btn-gray { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        
+        /* Enhanced Item Cards */
+        .item-card {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .item-card:active {
+            transform: scale(0.98);
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .item-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        
+        .item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .item-meta .icon {
+            font-size: 14px;
+            width: 16px;
+        }
+        
+        /* Icon Buttons */
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .icon-btn.primary {
+            background: rgba(59, 130, 246, 0.8);
+        }
+        
+        .icon-btn.danger {
+            background: rgba(239, 68, 68, 0.8);
+        }
+        
+        .icon-btn.success {
+            background: rgba(16, 185, 129, 0.8);
+        }
+        
+        .icon-btn.warning {
+            background: rgba(245, 158, 11, 0.8);
+        }
+        
+        .icon-btn.purple {
+            background: rgba(124, 58, 237, 0.8);
+        }
+        
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(30px);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 20px calc(env(safe-area-inset-bottom, 20px) + 12px);
+            z-index: 100;
+        }
+        
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 6px;
+            border-radius: 16px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-width: 50px;
+            position: relative;
+        }
+        
+        .nav-item.active {
+            color: white;
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+        
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-item .icon {
+            font-size: 20px;
+        }
+        
+        .nav-item .badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 16px;
+            text-align: center;
+        }
+        
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: flex-end;
+            z-index: 200;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(30px);
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            color: #1f2937;
+            animation: slideUp 0.3s ease;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(30px);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .close-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            border: none;
+            background: #f3f4f6;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 18px;
+        }
+        
+        .close-btn:active {
+            transform: scale(0.9);
+            background: #e5e7eb;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        /* Notifications */
+        .notification {
             position: fixed;
             top: calc(env(safe-area-inset-top, 44px) + 80px);
             left: 20px;
             right: 20px;
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
-            padding: 20px;
+            padding: 16px 20px;
             border-radius: 16px;
             font-weight: 600;
             box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
             z-index: 250;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 12px;
-            animation: slideDown 0.3s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .notification.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        /* Low Stock Alert */
+        .low-stock-alert {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .low-stock-alert .icon {
+            font-size: 24px;
+        }
+        
+        .low-stock-content h4 {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .low-stock-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* Category Filters */
+        .category-filters {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .category-btn {
+            padding: 10px 16px;
+            border-radius: 20px;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.15);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+        
+        .category-btn.active {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .category-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+        
+        /* Loading States */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Quotation Specific Styles */
+        .quotation-card {
+            background: rgba(255,255,255,0.18);
             backdrop-filter: blur(20px);
-        `;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            position: relative;
+        }
         
-        const planIcon = plan === 'premium' ? '💎' : '📦';
-        const planText = plan === 'premium' ? 'Premium Upgrade' : 'Slots Added';
+        .quotation-card:active {
+            transform: scale(0.98);
+            background: rgba(255,255,255,0.25);
+        }
         
-        notification.innerHTML = `
-            <span style="font-size: 28px;">${planIcon}</span>
-            <div style="flex: 1;">
-                <div style="font-weight: 800; margin-bottom: 4px; font-size: 16px;">
-                    +${quantity.toLocaleString()} ${planText}!
-                </div>
-                <div style="font-size: 14px; opacity: 0.9;">
-                    Total: ${this.customerSlots.total.toLocaleString()} slots • Cost: RM ${price.toFixed(2)}
+        .quotation-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: rgba(251, 191, 36, 0.8);
+            color: #92400e;
+        }
+        
+        .status-sent {
+            background: rgba(59, 130, 246, 0.8);
+            color: #1e40af;
+        }
+        
+        .status-accepted {
+            background: rgba(16, 185, 129, 0.8);
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.8);
+            color: #991b1b;
+        }
+        
+        .status-expired {
+            background: rgba(107, 114, 128, 0.8);
+            color: #374151;
+        }
+        
+        .quotation-summary {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .quotation-total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #22d3ee;
+        }
+        
+        .quotation-validity {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* Quotation Form Styles */
+        .quotation-item {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .quotation-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .quotation-item-name {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 16px;
+        }
+        
+        .quotation-item-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .quotation-item-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .quotation-item-total {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 16px;
+            text-align: right;
+            grid-column: span 3;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Share Buttons for Quotations */
+        .share-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .share-btn {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .share-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .share-btn.whatsapp {
+            background: linear-gradient(135deg, #25d366, #1db954);
+        }
+        
+        .share-btn.email {
+            background: linear-gradient(135deg, #ea4335, #d33b2c);
+        }
+        
+        .share-btn.pdf {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .view { padding-top: 20px; }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stat-card {
+                padding: 12px 8px;
+            }
+            
+            .stat-value {
+                font-size: 18px;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-item {
+                font-size: 9px;
+                padding: 10px 4px;
+            }
+            
+            .nav-item .icon {
+                font-size: 18px;
+            }
+        }
+        
+        /* Dark mode status bar for iOS */
+        @media (prefers-color-scheme: dark) {
+            .status-bar {
+                background: rgba(0,0,0,0.5);
+            }
+        }
+        
+        /* Performance optimizations */
+        .card, .item-card, .modal-content, .quotation-card {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="time" id="status-time">9:41</div>
+            <div class="indicators">
+                <span>📶</span>
+                <span>📱</span>
+                <span>🔋</span>
+            </div>
+        </div>
+        
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-left">
+                <div class="app-icon">🥬</div>
+                <div class="app-title">
+                    <h1>VegeOrder Pro</h1>
+                    <p>Enhanced Malaysian Vegetable Manager</p>
                 </div>
             </div>
-            <button onclick="this.parentElement.remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 16px; cursor: pointer; font-size: 16px;">✕</button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Haptic feedback
-        if (navigator.vibrate) {
-            navigator.vibrate([100, 50, 100]);
-        }
-        
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (document.body.contains(notification)) {
-                notification.remove();
-            }
-        }, 5000);
-    };
-    
-    // Enhanced customer slot validation
-    app.canAddCustomerEnhanced = function() {
-        if (this.customerSlots.remaining > 0) {
-            return { canAdd: true, reason: null };
-        }
-        
-        const suggestions = [];
-        if (this.customerSlots.plan === 'free') {
-            suggestions.push('Upgrade to Premium (100 slots) for RM 99');
-        }
-        suggestions.push(`Add 200 slots for RM ${this.calculateSlotPrice(200, 'addon').toFixed(2)}`);
-        suggestions.push('Add custom quantity at RM 2.00 per slot');
-        
-        return {
-            canAdd: false,
-            reason: 'Customer slot limit reached',
-            suggestions: suggestions
-        };
-    };
-    
-    console.log('✅ VegeOrder Pro enhanced with advanced slot management');
-}
+            <div class="header-right">
+                <div class="connection-status" id="connection-status"></div>
+                <div class="header-stats">
+                    <p id="current-date">Today</p>
+                    <p id="daily-sales">RM 0.00</p>
+                </div>
+                <button class="icon-btn" onclick="showView('settings')" title="Settings">
+                    ⚙️
+                </button>
+            </div>
+        </div>
 
-// Enhanced Upgrade Dialog with Mobile Design
-function showEnhancedUpgradeDialog() {
-    const upgradeModal = document.createElement('div');
-    upgradeModal.className = 'modal show';
-    upgradeModal.id = 'upgrade-modal';
-    upgradeModal.innerHTML = `
-        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view">
+                <!-- Enhanced Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="showView('customers')">
+                        <div class="stat-label">Customers</div>
+                        <div class="stat-value" id="customers-count">0</div>
+                        <div class="stat-trend trend-up" id="customers-trend">+12%</div>
+                    </div>
+                    <div class="stat-card" onclick="showView('products')">
+                        <div class="stat-label">Products</div>
+                        <div class="stat-value" id="products-count">0</div>
+                        <div class="stat-trend trend-neutral" id="products-trend">28 types</div>
+                    </div>
+                    <div class="stat-card" onclick="showView('orders')">
+                        <div class="stat-label">Orders</div>
+                        <div class="stat-value" id="orders-count">0</div>
+                        <div class="stat-trend trend-up" id="orders-trend">+8%</div>
+                    </div>
+                    <div class="stat-card" onclick="showView('quotations')">
+                        <div class="stat-label">Quotes</div>
+                        <div class="stat-value" id="quotations-count">0</div>
+                        <div class="stat-trend trend-up" id="quotations-trend">+5%</div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Alerts -->
+                <div id="low-stock-alerts"></div>
+
+                <!-- Analytics Card -->
+                <div class="analytics-card">
+                    <div class="analytics-header">
+                        <div class="analytics-title">📊 Sales Analytics</div>
+                        <div class="analytics-period">Last 7 Days</div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-placeholder">
+                            📈 Sales trend visualization<br>
+                            <small>Tap to view detailed analytics</small>
+                        </div>
+                    </div>
+                    
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <div class="insight-value" id="avg-order-value">RM 0</div>
+                            <div class="insight-label">Avg Order</div>
+                        </div>
+                        <div class="insight-card">
+                            <div class="insight-value" id="top-product">-</div>
+                            <div class="insight-label">Top Product</div>
+                        </div>
+                        <div class="insight-card">
+                            <div class="insight-value" id="growth-rate">0%</div>
+                            <div class="insight-label">Growth</div>
+                        </div>
+                        <div class="insight-card">
+                            <div class="insight-value" id="total-customers">0</div>
+                            <div class="insight-label">Active Customers</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h3 style="font-weight: 700; margin-bottom: 16px; font-size: 18px;">⚡ Quick Actions</h3>
+                    <div class="actions-grid">
+                        <button class="action-btn quotation" onclick="openQuotationForm()">
+                            <span class="icon">📋</span>
+                            <span style="font-weight: 700;">New Quote</span>
+                        </button>
+                        <button class="action-btn primary" onclick="openOrderForm()">
+                            <span class="icon">➕</span>
+                            <span style="font-weight: 700;">New Order</span>
+                        </button>
+                        <button class="action-btn secondary" onclick="showView('quotations')">
+                            <span class="icon">📄</span>
+                            <span style="font-weight: 700;">View Quotes</span>
+                        </button>
+                        <button class="action-btn accent" onclick="openInventoryManager()">
+                            <span class="icon">📦</span>
+                            <span style="font-weight: 700;">Inventory</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="font-weight: 700; font-size: 18px;">📋 Recent Activity</h3>
+                        <button style="background: none; border: none; color: rgba(255,255,255,0.8); font-size: 14px; cursor: pointer; font-weight: 600;" onclick="showView('quotations')">View All</button>
+                    </div>
+                    <div id="recent-activity"></div>
+                </div>
+            </div>
+
+            <!-- Customers View -->
+            <div id="customers-view" class="view hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 24px; font-weight: 700;">👥 Customers</h2>
+                    <button class="icon-btn success" onclick="openCustomerForm()">
+                        <span>➕</span>
+                    </button>
+                </div>
+
+                <div class="enhanced-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search customers..." id="customer-search" oninput="handleCustomerSearch(this.value)">
+                    <div class="search-results hidden" id="customer-search-results"></div>
+                </div>
+
+                <div id="customers-list"></div>
+            </div>
+
+            <!-- Products View -->
+            <div id="products-view" class="view hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 24px; font-weight: 700;">🥬 Vegetables</h2>
+                    <button class="icon-btn success" onclick="openProductForm()">
+                        <span>➕</span>
+                    </button>
+                </div>
+
+                <div class="enhanced-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search vegetables..." id="product-search" oninput="handleProductSearch(this.value)">
+                    <div class="search-results hidden" id="product-search-results"></div>
+                </div>
+
+                <div class="category-filters" id="category-filters"></div>
+
+                <div id="products-list"></div>
+            </div>
+
+            <!-- Orders View -->
+            <div id="orders-view" class="view hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 24px; font-weight: 700;">🛒 Orders</h2>
+                    <button class="icon-btn primary" onclick="openOrderForm()">
+                        <span>➕</span>
+                    </button>
+                </div>
+
+                <input type="date" class="form-input" id="order-date" style="margin-bottom: 16px; color: #1f2937;">
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px;">
+                    <button class="category-btn active" data-filter="all">All</button>
+                    <button class="category-btn" data-filter="pending">Pending</button>
+                    <button class="category-btn" data-filter="completed">Completed</button>
+                </div>
+
+                <div id="orders-list"></div>
+            </div>
+
+            <!-- Quotations View -->
+            <div id="quotations-view" class="view hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 24px; font-weight: 700;">📋 Quotations</h2>
+                    <button class="icon-btn purple" onclick="openQuotationForm()">
+                        <span>➕</span>
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px;">
+                    <button class="category-btn active" data-filter="all" onclick="filterQuotations('all')">All</button>
+                    <button class="category-btn" data-filter="pending" onclick="filterQuotations('pending')">Pending</button>
+                    <button class="category-btn" data-filter="sent" onclick="filterQuotations('sent')">Sent</button>
+                    <button class="category-btn" data-filter="accepted" onclick="filterQuotations('accepted')">Accepted</button>
+                </div>
+
+                <div id="quotations-list"></div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" class="view hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 24px; font-weight: 700;">⚙️ Settings</h2>
+                    <button class="icon-btn" onclick="showView('dashboard')">
+                        <span>←</span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-weight: 700; margin-bottom: 16px;">🏢 Company Information</h3>
+                    <form id="company-form">
+                        <input type="text" class="form-input" placeholder="Company Name *" id="company-name" required>
+                        <input type="text" class="form-input" placeholder="Business Tagline" id="company-tagline">
+                        <input type="tel" class="form-input" placeholder="Phone Number *" id="company-phone" required>
+                        <input type="email" class="form-input" placeholder="Email Address *" id="company-email" required>
+                        <input type="text" class="form-input" placeholder="Website (optional)" id="company-website">
+                        <textarea class="form-input" placeholder="Business Address *" id="company-address" rows="3" style="resize: none; min-height: 80px;" required></textarea>
+                        
+                        <button type="submit" class="btn btn-success" style="width: 100%;">
+                            💾 Save Company Settings
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-weight: 700; margin-bottom: 16px;">📋 Quotation Settings</h3>
+                    <form id="quotation-settings-form">
+                        <input type="number" class="form-input" placeholder="Default Validity Days (e.g., 30)" id="default-validity" min="1" max="365">
+                        <textarea class="form-input" placeholder="Default Terms & Conditions" id="default-terms" rows="4" style="resize: none; min-height: 100px;"></textarea>
+                        <input type="text" class="form-input" placeholder="Quotation Prefix (e.g., QUO)" id="quotation-prefix">
+                        
+                        <button type="submit" class="btn btn-purple" style="width: 100%;">
+                            📋 Save Quotation Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-items">
+                <div class="nav-item active" onclick="showView('dashboard')">
+                    <span class="icon">🏠</span>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="showView('customers')">
+                    <span class="icon">👥</span>
+                    <span>Customers</span>
+                    <span class="badge hidden" id="customers-badge">0</span>
+                </div>
+                <div class="nav-item" onclick="showView('products')">
+                    <span class="icon">🥬</span>
+                    <span>Products</span>
+                    <span class="badge hidden" id="low-stock-badge">0</span>
+                </div>
+                <div class="nav-item" onclick="showView('quotations')">
+                    <span class="icon">📋</span>
+                    <span>Quotes</span>
+                    <span class="badge hidden" id="pending-quotes-badge">0</span>
+                </div>
+                <div class="nav-item" onclick="showView('orders')">
+                    <span class="icon">🛒</span>
+                    <span>Orders</span>
+                    <span class="badge hidden" id="pending-orders-badge">0</span>
+                </div>
+                <div class="nav-item" onclick="showView('settings')">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification" class="notification">
+        <span id="notification-icon">✅</span>
+        <span id="notification-text">Success!</span>
+    </div>
+
+    <!-- Enhanced Modals -->
+    <!-- Customer Modal -->
+    <div id="customer-modal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h3 style="display: flex; align-items: center; gap: 8px;">🚀 Upgrade Customer Capacity</h3>
-                <button class="close-btn" onclick="closeUpgradeDialog()">✕</button>
+                <h3 id="customer-modal-title">Add Customer</h3>
+                <button class="close-btn" onclick="closeCustomerForm()">✕</button>
             </div>
             <div class="modal-body">
-                <!-- Current Status -->
-                <div style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 2px solid #d1d5db;">
-                    <h4 style="color: #1f2937; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                        📊 Current Status
-                    </h4>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
-                        <div>
-                            <div style="font-size: 24px; font-weight: 800; color: #ef4444;">${app.customerSlots.used}</div>
-                            <div style="font-size: 12px; color: #6b7280;">USED</div>
+                <form id="customer-form">
+                    <input type="text" class="form-input" placeholder="Customer Name *" id="customer-name" required>
+                    <div class="form-error hidden" id="customer-name-error"></div>
+                    
+                    <input type="tel" class="form-input" placeholder="Phone Number" id="customer-phone">
+                    <div class="form-error hidden" id="customer-phone-error"></div>
+                    
+                    <textarea class="form-input" placeholder="Address" id="customer-address" rows="3" style="resize: none; min-height: 80px;"></textarea>
+                    
+                    <input type="email" class="form-input" placeholder="Email" id="customer-email">
+                    <div class="form-error hidden" id="customer-email-error"></div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px;">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-gray" onclick="closeCustomerForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotation Form Modal -->
+    <div id="quotation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="quotation-modal-title">Create Quotation</h3>
+                <button class="close-btn" onclick="closeQuotationForm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="quotation-form">
+                    <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Select Customer *</label>
+                    <select class="form-input" id="quotation-customer" required style="color: #374151; font-weight: 600;">
+                        <option value="">Choose customer...</option>
+                    </select>
+                    
+                    <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Validity Period</label>
+                    <input type="number" class="form-input" placeholder="Valid for (days)" id="quotation-validity" min="1" max="365" value="30">
+                    
+                    <div id="quotation-items" class="hidden">
+                        <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Quotation Items</label>
+                        
+                        <div style="position: relative; margin-bottom: 16px;">
+                            <input type="text" placeholder="Search vegetables..." id="quotation-search" 
+                                   style="width: 100%; padding: 12px 16px 12px 40px; border-radius: 12px; border: 1px solid #d1d5db; font-size: 14px;"
+                                   oninput="filterQuotationItems(this.value)">
+                            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280;">🔍</span>
                         </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: 800; color: #f59e0b;">${app.customerSlots.remaining}</div>
-                            <div style="font-size: 12px; color: #6b7280;">REMAINING</div>
+                        
+                        <div class="category-filters" id="quotation-category-filters" style="margin-bottom: 16px;">
+                            <!-- Categories populated by JavaScript -->
                         </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: 800; color: #3b82f6;">${app.customerSlots.total}</div>
-                            <div style="font-size: 12px; color: #6b7280;">TOTAL</div>
+                        
+                        <div id="quotation-items-list" style="max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
+                        
+                        <div style="background: linear-gradient(135deg, #ecfeff, #cffafe); border-radius: 16px; padding: 20px; margin: 20px 0; border: 1px solid #67e8f9;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; font-size: 18px; color: #1f2937;">Total Amount:</span>
+                                <span style="font-size: 28px; font-weight: 800; color: #0e7490;" id="quotation-total">RM 0.00</span>
+                            </div>
                         </div>
+                        
+                        <label style="display: block; color: #374151; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Terms & Conditions</label>
+                        <textarea class="form-input" placeholder="Terms and conditions..." id="quotation-terms" rows="4" style="resize: none; min-height: 100px;"></textarea>
                     </div>
-                    <div style="margin-top: 12px; text-align: center;">
-                        <span style="background: ${app.customerSlots.plan === 'premium' ? '#7c3aed' : '#6b7280'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
-                            ${app.customerSlots.plan} Plan
-                        </span>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px;">
+                        <button type="submit" class="btn btn-purple">Create Quote</button>
+                        <button type="button" class="btn btn-gray" onclick="closeQuotationForm()">Cancel</button>
                     </div>
-                </div>
-                
-                <!-- Quick Action: 200 Slots -->
-                <div style="background: linear-gradient(135deg, #ecfeff, #cffafe); border: 2px solid #22d3ee; border-radius: 16px; padding: 20px; margin-bottom: 20px; position: relative;">
-                    <div style="position: absolute; top: -8px; right: 12px; background: #f59e0b; color: white; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 8px;">
-                        ⭐ RECOMMENDED
-                    </div>
-                    <h4 style="color: #0c4a6e; margin-bottom: 12px; font-size: 18px;">🎯 Quick Allocation</h4>
-                    <div style="text-align: center; margin-bottom: 16px;">
-                        <div style="font-size: 36px; font-weight: 800; color: #0891b2; margin-bottom: 8px;">200 Slots</div>
-                        <div style="font-size: 24px; font-weight: 700; color: #0c4a6e; margin-bottom: 4px;">RM ${app.calculateSlotPrice(200, 'addon').toFixed(2)}</div>
-                        <div style="color: #0369a1; font-size: 14px;">RM ${(app.calculateSlotPrice(200, 'addon') / 200).toFixed(2)} per slot</div>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; font-size: 16px; font-weight: 700;" onclick="purchaseQuick200Slots()">
-                        🚀 Allocate 200 Slots Now
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotation Details Modal -->
+    <div id="quotation-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quotation Details</h3>
+                <button class="close-btn" onclick="closeQuotationDetails()">✕</button>
+            </div>
+            <div class="modal-body" id="quotation-details-content">
+                <!-- Content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotation Display Modal (Professional View) -->
+    <div id="quotation-display-modal" class="modal">
+        <div class="modal-content" style="max-height: 90vh;">
+            <div class="modal-header">
+                <h3>📋 Professional Quotation</h3>
+                <button class="close-btn" onclick="closeQuotationDisplay()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Share Buttons -->
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" onclick="shareQuotationWhatsApp()">
+                        <span>💬</span>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button class="share-btn email" onclick="shareQuotationEmail()">
+                        <span>📧</span>
+                        <span>Email</span>
+                    </button>
+                    <button class="share-btn pdf" onclick="generateQuotationPDF()">
+                        <span>📄</span>
+                        <span>PDF</span>
                     </button>
                 </div>
                 
-                <!-- Premium Plan -->
-                ${app.customerSlots.plan !== 'premium' ? `
-                <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); border: 2px solid #8b5cf6; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                    <h4 style="color: #581c87; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                        💎 Premium Plan Upgrade
-                    </h4>
-                    <div style="color: #581c87; font-size: 28px; font-weight: 800; margin-bottom: 8px;">RM 99.00</div>
-                    <div style="color: #7c3aed; margin-bottom: 16px; font-weight: 600;">100 Customer Slots + Premium Features</div>
-                    <ul style="color: #7c3aed; font-size: 14px; margin-bottom: 16px; padding-left: 20px; line-height: 1.6;">
-                        <li>Advanced analytics dashboard</li>
-                        <li>Priority customer support</li>
-                        <li>Data export features</li>
-                        <li>Bulk operations</li>
-                        <li>Custom branding options</li>
-                    </ul>
-                    <button class="btn btn-purple" style="width: 100%; font-weight: 700;" onclick="purchasePremiumPlan()">
-                        💎 Upgrade to Premium
+                <!-- Quotation Content -->
+                <div id="quotation-display-content" style="background: white; border-radius: 16px; padding: 24px; color: #1f2937; font-family: 'Times New Roman', serif;">
+                    <!-- Content populated by JavaScript -->
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="convertQuotationToOrder()" id="convert-to-order-btn">
+                        ✅ Convert to Order
                     </button>
-                </div>
-                ` : ''}
-                
-                <!-- Add-on Packages -->
-                <div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #d1d5db;">
-                    <h4 style="color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                        📦 Add-on Packages
-                    </h4>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
-                        <div class="addon-package" onclick="selectAddonPackage(50)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
-                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">50</div>
-                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
-                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 100</div>
-                        </div>
-                        <div class="addon-package" onclick="selectAddonPackage(100)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
-                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">100</div>
-                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
-                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 200</div>
-                        </div>
-                        <div class="addon-package" onclick="selectAddonPackage(500)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
-                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">500</div>
-                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
-                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 750</div>
-                            <div style="font-size: 10px; color: #f59e0b; font-weight: 700; margin-top: 4px;">SAVE 25%</div>
-                        </div>
-                        <div class="addon-package" onclick="selectAddonPackage(1000)" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
-                            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">1000</div>
-                            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">slots</div>
-                            <div style="font-size: 16px; font-weight: 600; color: #059669;">RM 1250</div>
-                            <div style="font-size: 10px; color: #f59e0b; font-weight: 700; margin-top: 4px;">SAVE 37%</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Custom Quantity -->
-                    <div style="border-top: 1px solid #e5e7eb; padding-top: 16px;">
-                        <h5 style="color: #374151; margin-bottom: 12px; font-weight: 600;">Custom Quantity</h5>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="number" placeholder="Enter quantity" id="custom-slots-input" 
-                                   style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px;"
-                                   min="1" max="10000">
-                            <button class="btn btn-gray" onclick="selectCustomSlots()" style="padding: 12px 16px; font-size: 14px; min-height: auto;">
-                                Calculate
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Selection Summary -->
-                <div id="addon-selection-summary" style="display: none; background: linear-gradient(135deg, #ecfeff, #cffafe); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 2px solid #22d3ee;">
-                    <h4 style="color: #0c4a6e; margin-bottom: 12px;">📋 Purchase Summary</h4>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: #0369a1; font-weight: 600;">Selected Quantity:</span>
-                        <span id="summary-quantity" style="color: #0c4a6e; font-weight: 800;">0 slots</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
-                        <span style="color: #0369a1; font-weight: 600;">Total Price:</span>
-                        <span id="summary-price" style="color: #0c4a6e; font-weight: 800; font-size: 18px;">RM 0.00</span>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                        <button class="btn btn-success" onclick="purchaseSelectedAddon()" style="font-weight: 700;">
-                            💳 Purchase Now
-                        </button>
-                        <button class="btn btn-gray" onclick="clearAddonSelection()" style="font-weight: 700;">
-                            ❌ Clear
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Security Notice -->
-                <div style="text-align: center; padding: 16px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
-                    <div style="font-size: 20px; margin-bottom: 8px;">🔒</div>
-                    <div style="color: #6b7280; font-size: 14px; margin: 0; font-weight: 500;">
-                        <strong>Secure Payment:</strong> All transactions are processed securely. 
-                        Instant activation upon payment confirmation.
-                    </div>
+                    <button class="btn btn-warning" onclick="markQuotationSent()" id="mark-sent-btn">
+                        📤 Mark as Sent
+                    </button>
                 </div>
             </div>
         </div>
-    `;
-    
-    document.body.appendChild(upgradeModal);
-    
-    // Add click handlers for addon packages
-    document.querySelectorAll('.addon-package').forEach(el => {
-        el.addEventListener('mouseenter', function() {
-            this.style.borderColor = '#22d3ee';
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 8px 24px rgba(34, 211, 238, 0.2)';
-        });
-        
-        el.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('selected')) {
-                this.style.borderColor = '#e5e7eb';
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Enhanced App State and Classes with Quotations
+        class VegeOrderApp {
+            constructor() {
+                this.currentView = 'dashboard';
+                this.customers = [];
+                this.products = [];
+                this.orders = [];
+                this.quotations = []; // New: Quotations array
+                this.selectedDate = new Date().toISOString().split('T')[0];
+                this.orderFilter = 'all';
+                this.quotationFilter = 'all'; // New: Quotation filter
+                this.editingCustomer = null;
+                this.editingProduct = null;
+                this.editingOrder = null;
+                this.editingQuotation = null; // New: Editing quotation
+                this.selectedCategory = 'all';
+                this.selectedQuotationCategory = 'all'; // New: Quotation category filter
+                this.isOnline = navigator.onLine;
+                this.syncQueue = [];
+                this.currentQuotationDetails = null; // New: Current quotation for display
+                
+                // Enhanced features
+                this.searchEngine = new SearchEngine();
+                this.analytics = new BusinessAnalytics();
+                this.notificationManager = new NotificationManager();
+                this.inventoryManager = new InventoryManager();
+                this.storage = new VegeOrderStorage();
+                
+                this.companySettings = {
+                    name: '',
+                    tagline: '',
+                    phone: '',
+                    email: '',
+                    website: '',
+                    address: '',
+                    invoicePrefix: 'INV',
+                    paymentTerms: 7,
+                    taxRate: 0,
+                    invoiceNotes: '',
+                    ownerName: '',
+                    ownerTitle: '',
+                    ownerPhone: '',
+                    ownerEmail: '',
+                    // New: Quotation settings
+                    quotationPrefix: 'QUO',
+                    defaultValidityDays: 30,
+                    defaultTerms: 'This quotation is valid for 30 days from the date of issue. Prices are subject to change without notice. Payment terms: Net 30 days.'
+                };
+                
+                this.init();
             }
-        });
-    });
-}
-
-// Addon package selection
-function selectAddonPackage(quantity) {
-    // Clear previous selections
-    document.querySelectorAll('.addon-package').forEach(el => {
-        el.classList.remove('selected');
-        el.style.borderColor = '#e5e7eb';
-        el.style.backgroundColor = 'white';
-    });
-    
-    // Select current package
-    event.target.closest('.addon-package').classList.add('selected');
-    event.target.closest('.addon-package').style.borderColor = '#22d3ee';
-    event.target.closest('.addon-package').style.backgroundColor = '#f0f9ff';
-    
-    selectedAddonQuantity = quantity;
-    selectedAddonPrice = app.calculateSlotPrice(quantity, 'addon');
-    
-    updateAddonSelectionSummary();
-    
-    // Haptic feedback
-    if (navigator.vibrate) {
-        navigator.vibrate(10);
-    }
-}
-
-// Custom slots selection
-function selectCustomSlots() {
-    const input = document.getElementById('custom-slots-input');
-    const quantity = parseInt(input.value);
-    
-    if (!quantity || quantity < 1) {
-        app.showNotification('❌ Please enter a valid quantity (minimum 1)', 'error');
-        return;
-    }
-    
-    if (quantity > 10000) {
-        app.showNotification('❌ Maximum 10,000 slots per purchase', 'error');
-        return;
-    }
-    
-    // Clear package selections
-    document.querySelectorAll('.addon-package').forEach(el => {
-        el.classList.remove('selected');
-        el.style.borderColor = '#e5e7eb';
-        el.style.backgroundColor = 'white';
-    });
-    
-    selectedAddonQuantity = quantity;
-    selectedAddonPrice = app.calculateSlotPrice(quantity, 'addon');
-    
-    updateAddonSelectionSummary();
-    
-    app.showNotification(`💡 Selected ${quantity.toLocaleString()} custom slots`, 'info');
-}
-
-// Update addon selection summary
-function updateAddonSelectionSummary() {
-    const summaryDiv = document.getElementById('addon-selection-summary');
-    
-    if (selectedAddonQuantity > 0) {
-        summaryDiv.style.display = 'block';
-        document.getElementById('summary-quantity').textContent = `${selectedAddonQuantity.toLocaleString()} slots`;
-        document.getElementById('summary-price').textContent = `RM ${selectedAddonPrice.toFixed(2)}`;
-    } else {
-        summaryDiv.style.display = 'none';
-    }
-}
-
-// Clear addon selection
-function clearAddonSelection() {
-    selectedAddonQuantity = 0;
-    selectedAddonPrice = 0;
-    
-    document.querySelectorAll('.addon-package').forEach(el => {
-        el.classList.remove('selected');
-        el.style.borderColor = '#e5e7eb';
-        el.style.backgroundColor = 'white';
-    });
-    
-    document.getElementById('custom-slots-input').value = '';
-    updateAddonSelectionSummary();
-    
-    app.showNotification('🗑️ Selection cleared', 'info');
-}
-
-// Purchase functions
-function purchaseQuick200Slots() {
-    const price = app.calculateSlotPrice(200, 'addon');
-    const confirmMessage = `🎯 ALLOCATE 200 CUSTOMER SLOTS
-
-💰 Purchase Details:
-• Quantity: 200 slots
-• Price: RM ${price.toFixed(2)}
-• Rate: RM ${(price / 200).toFixed(2)} per slot
-
-✅ After Purchase:
-• New Total: ${app.customerSlots.total + 200} customers
-• Available: ${app.customerSlots.remaining + 200} new slots
-
-Proceed with allocation?`;
-    
-    if (confirm(confirmMessage)) {
-        closeUpgradeDialog();
-        simulatePurchaseProcess(200, 'addon');
-    }
-}
-
-function purchasePremiumPlan() {
-    const confirmMessage = `💎 UPGRADE TO PREMIUM PLAN
-
-💰 Investment: RM 99.00
-📦 Includes: 100 customer slots + Premium features
-
-✨ Premium Features:
-• Advanced analytics dashboard
-• Priority customer support  
-• Data export capabilities
-• Bulk operations
-• Custom branding options
-
-Your current add-on slots will be preserved.
-
-Proceed with Premium upgrade?`;
-    
-    if (confirm(confirmMessage)) {
-        closeUpgradeDialog();
-        simulatePurchaseProcess(100, 'premium');
-    }
-}
-
-function purchaseSelectedAddon() {
-    if (selectedAddonQuantity <= 0) {
-        app.showNotification('❌ No slots selected for purchase', 'error');
-        return;
-    }
-    
-    const confirmMessage = `Purchase ${selectedAddonQuantity.toLocaleString()} add-on slots for RM ${selectedAddonPrice.toFixed(2)}?`;
-    
-    if (confirm(confirmMessage)) {
-        closeUpgradeDialog();
-        simulatePurchaseProcess(selectedAddonQuantity, 'addon');
-        clearAddonSelection();
-    }
-}
-
-// Simulate purchase process with realistic timing
-function simulatePurchaseProcess(quantity, plan) {
-    const planText = plan === 'premium' ? 'Premium upgrade' : `${quantity.toLocaleString()} slots`;
-    
-    app.showNotification('💳 Processing payment...', 'info');
-    
-    setTimeout(() => {
-        app.showNotification('🔐 Verifying transaction...', 'info');
-        
-        setTimeout(() => {
-            app.showNotification('✅ Payment confirmed!', 'success');
             
-            setTimeout(() => {
-                app.showNotification(`📦 Allocating ${planText}...`, 'info');
+            async init() {
+                await this.loadDataFromStorage();
+                this.setupEventListeners();
+                this.setupConnectionHandling();
+                this.updateStatusBar();
+                this.updateCurrentDate();
+                this.updateStats();
+                this.updateAnalytics();
+                this.renderViews();
+                this.checkLowStock();
+                this.setupNotifications();
+                
+                // Enhanced mobile features
+                this.preventZoom();
+                this.setupTouchFeedback();
+                this.setupPullToRefresh();
+                
+                console.log('🥬 VegeOrder Pro with Quotations initialized!');
+            }
+            
+            async loadDataFromStorage() {
+                try {
+                    const savedSettings = await this.storage.loadData('vegeorder_company_settings');
+                    if (savedSettings) {
+                        this.companySettings = { ...this.companySettings, ...savedSettings };
+                    }
+                    
+                    const savedCustomers = await this.storage.loadData('vegeorder_customers');
+                    if (savedCustomers) {
+                        this.customers = savedCustomers;
+                    }
+                    
+                    const savedProducts = await this.storage.loadData('vegeorder_products');
+                    if (savedProducts) {
+                        this.products = savedProducts;
+                    }
+                    
+                    const savedOrders = await this.storage.loadData('vegeorder_orders');
+                    if (savedOrders) {
+                        this.orders = savedOrders;
+                    }
+                    
+                    // New: Load quotations
+                    const savedQuotations = await this.storage.loadData('vegeorder_quotations');
+                    if (savedQuotations) {
+                        this.quotations = savedQuotations;
+                    }
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                }
+                
+                if (this.customers.length === 0) {
+                    this.loadInitialData();
+                }
+            }
+            
+            loadInitialData() {
+                // Enhanced sample data with more realistic Malaysian customers
+                this.customers = [
+                    { id: 1, name: 'Restoran Ahmad Nasi Kandar', phone: '012-3456789', address: 'Jalan Sultan, KL', email: 'ahmad@nasikandar.com' },
+                    { id: 2, name: 'Siti Catering & Events', phone: '013-7654321', address: 'Taman Desa, PJ', email: 'siti@catering.my' },
+                    { id: 3, name: 'Lee Kitchen Chinese Restaurant', phone: '019-9876543', address: 'Chinatown, KL', email: 'lee@kitchen.com' },
+                    { id: 4, name: 'Warung Mak Cik Kiah', phone: '017-1234567', address: 'Kampung Baru, KL', email: 'kiah@warung.my' },
+                    { id: 5, name: 'Mamak Rashid 24 Jam', phone: '016-2345678', address: 'Shah Alam', email: 'rashid@mamak.my' },
+                    { id: 6, name: 'Restoran Sedap Rasa', phone: '014-3456789', address: 'Subang Jaya', email: 'sedap@restaurant.my' }
+                ];
+                
+                // Comprehensive Malaysian vegetable catalog
+                this.products = [
+                    // Leafy Greens
+                    { id: 1, name: 'Kangkung 通菜 (Water Spinach)', unit: 'kg', price: 4.50, category: 'Leafy Greens', stock: 50 },
+                    { id: 2, name: 'Sawi Hijau 芥菜 (Chinese Mustard Green)', unit: 'kg', price: 5.00, category: 'Leafy Greens', stock: 30 },
+                    { id: 3, name: 'Sawi Putih 白菜 (Chinese Cabbage)', unit: 'kg', price: 4.80, category: 'Leafy Greens', stock: 25 },
+                    { id: 4, name: 'Spinach 菠菜 (Bayam Pasir)', unit: 'kg', price: 8.50, category: 'Leafy Greens', stock: 15 },
+                    { id: 5, name: 'Lettuce Iceberg 冰山生菜', unit: 'head', price: 4.50, category: 'Leafy Greens', stock: 20 },
+                    { id: 6, name: 'Pak Choy 白菜 (Bok Choy)', unit: 'kg', price: 5.50, category: 'Leafy Greens', stock: 35 },
+                    { id: 7, name: 'Kailan 芥兰 (Chinese Broccoli)', unit: 'kg', price: 7.00, category: 'Leafy Greens', stock: 28 },
+                    
+                    // Malaysian Specialties
+                    { id: 8, name: 'Petai 臭豆 (Stink Bean)', unit: 'kg', price: 18.00, category: 'Malaysian Specialty', stock: 12 },
+                    { id: 9, name: 'Jering 臭鳞豆', unit: 'kg', price: 15.00, category: 'Malaysian Specialty', stock: 8 },
+                    { id: 10, name: 'Rebung 竹笋 (Bamboo Shoots)', unit: 'kg', price: 8.50, category: 'Malaysian Specialty', stock: 22 },
+                    
+                    // Gourds & Squash
+                    { id: 11, name: 'Labu Kuning 南瓜 (Pumpkin)', unit: 'kg', price: 3.20, category: 'Gourds & Squash', stock: 40 },
+                    { id: 12, name: 'Petola 丝瓜 (Luffa/Sponge Gourd)', unit: 'kg', price: 4.50, category: 'Gourds & Squash', stock: 18 },
+                    { id: 13, name: 'Peria 苦瓜 (Bitter Gourd)', unit: 'kg', price: 8.00, category: 'Gourds & Squash', stock: 16 },
+                    { id: 14, name: 'Timun 黄瓜 (Cucumber)', unit: 'kg', price: 3.80, category: 'Gourds & Squash', stock: 45 },
+                    
+                    // More categories...
+                    { id: 15, name: 'Terung Ungu 紫茄子 (Purple Eggplant)', unit: 'kg', price: 5.50, category: 'Eggplants & Tomatoes', stock: 24 },
+                    { id: 16, name: 'Tomato Biasa 番茄 (Regular Tomato)', unit: 'kg', price: 6.00, category: 'Eggplants & Tomatoes', stock: 32 },
+                    { id: 17, name: 'Bendi 秋葵 (Okra/Ladies Finger)', unit: 'kg', price: 7.20, category: 'Beans & Pods', stock: 19 },
+                    { id: 18, name: 'Kacang Panjang 长豆 (Long Beans)', unit: 'kg', price: 6.50, category: 'Beans & Pods', stock: 38 },
+                    { id: 19, name: 'Taugeh 豆芽菜 (Bean Sprouts)', unit: 'kg', price: 3.50, category: 'Beans & Pods', stock: 60 },
+                    { id: 20, name: 'Bawang Merah 红葱头 (Shallots)', unit: 'kg', price: 8.00, category: 'Onions & Aromatics', stock: 25 },
+                    { id: 21, name: 'Bawang Putih 蒜头 (Garlic)', unit: 'kg', price: 18.00, category: 'Onions & Aromatics', stock: 15 },
+                    { id: 22, name: 'Bawang Besar Merah 红洋葱 (Red Onions)', unit: 'kg', price: 5.00, category: 'Onions & Aromatics', stock: 30 },
+                    { id: 23, name: 'Cili Merah 红辣椒 (Red Chili)', unit: 'kg', price: 15.00, category: 'Peppers & Chilies', stock: 12 },
+                    { id: 24, name: 'Cili Padi 小辣椒 (Bird Eye Chili)', unit: 'kg', price: 25.00, category: 'Peppers & Chilies', stock: 6 },
+                    { id: 25, name: 'Capsicum Merah 红甜椒 (Red Bell Pepper)', unit: 'kg', price: 14.00, category: 'Peppers & Chilies', stock: 14 },
+                    { id: 26, name: 'Lobak Merah 胡萝卜 (Carrots)', unit: 'kg', price: 5.20, category: 'Root Vegetables', stock: 42 },
+                    { id: 27, name: 'Kentang 马铃薯 (Potato)', unit: 'kg', price: 4.00, category: 'Root Vegetables', stock: 55 },
+                    { id: 28, name: 'Ubi Kentang Merah 红薯 (Red Sweet Potato)', unit: 'kg', price: 4.20, category: 'Root Vegetables', stock: 33 }
+                ];
+                
+                this.orders = [];
+                
+                // New: Sample quotations
+                this.quotations = [
+                    {
+                        id: 1,
+                        customerId: 1,
+                        quotationNumber: 'QUO-2025010-001',
+                        date: new Date().toISOString().split('T')[0],
+                        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        status: 'sent',
+                        items: [
+                            { vegeId: 1, vegeName: 'Kangkung 通菜 (Water Spinach)', unit: 'kg', price: 4.50, quantity: 10 },
+                            { vegeId: 2, vegeName: 'Sawi Hijau 芥菜 (Chinese Mustard Green)', unit: 'kg', price: 5.00, quantity: 5 }
+                        ],
+                        total: 70.00,
+                        terms: 'This quotation is valid for 30 days from the date of issue. Prices are subject to change without notice.',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+                
+                this.saveDataToStorage();
+            }
+            
+            saveDataToStorage() {
+                this.storage.saveData('vegeorder_company_settings', this.companySettings);
+                this.storage.saveData('vegeorder_customers', this.customers);
+                this.storage.saveData('vegeorder_products', this.products);
+                this.storage.saveData('vegeorder_orders', this.orders);
+                this.storage.saveData('vegeorder_quotations', this.quotations); // New: Save quotations
+            }
+            
+            setupEventListeners() {
+                // Enhanced event listeners with better error handling
+                document.getElementById('order-date').value = this.selectedDate;
+                document.getElementById('order-date').addEventListener('change', (e) => {
+                    this.selectedDate = e.target.value;
+                    this.renderOrders();
+                    this.updateStats();
+                });
+                
+                // Order filters
+                document.querySelectorAll('[data-filter]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.orderFilter = btn.dataset.filter;
+                        this.renderOrders();
+                    });
+                });
+                
+                // Forms
+                document.getElementById('customer-form').addEventListener('submit', (e) => this.handleCustomerSubmit(e));
+                document.getElementById('company-form').addEventListener('submit', (e) => this.handleCompanySubmit(e));
+                
+                // New: Quotation form and settings
+                document.getElementById('quotation-form').addEventListener('submit', (e) => this.handleQuotationSubmit(e));
+                document.getElementById('quotation-settings-form').addEventListener('submit', (e) => this.handleQuotationSettingsSubmit(e));
+                
+                // New: Quotation customer selection
+                document.getElementById('quotation-customer').addEventListener('change', () => {
+                    if (document.getElementById('quotation-customer').value) {
+                        this.initializeQuotationItems();
+                    } else {
+                        document.getElementById('quotation-items').classList.add('hidden');
+                    }
+                });
+            }
+            
+            setupConnectionHandling() {
+                const statusIndicator = document.getElementById('connection-status');
+                
+                const updateConnectionStatus = () => {
+                    this.isOnline = navigator.onLine;
+                    statusIndicator.className = `connection-status ${this.isOnline ? '' : 'offline'}`;
+                    
+                    if (this.isOnline) {
+                        this.syncPendingData();
+                        this.showNotification('🌐 Back online!', 'success');
+                    } else {
+                        this.showNotification('📴 Offline mode', 'warning');
+                    }
+                };
+                
+                window.addEventListener('online', updateConnectionStatus);
+                window.addEventListener('offline', updateConnectionStatus);
+                
+                updateConnectionStatus();
+            }
+            
+            updateStatusBar() {
+                const now = new Date();
+                const timeStr = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+                document.getElementById('status-time').textContent = timeStr;
+            }
+            
+            updateCurrentDate() {
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-MY', { 
+                    weekday: 'short', 
+                    day: 'numeric', 
+                    month: 'short' 
+                });
+                document.getElementById('current-date').textContent = dateStr;
+            }
+            
+            updateStats() {
+                const todayOrders = this.orders.filter(order => order.date === this.selectedDate);
+                const totalSales = todayOrders.reduce((sum, order) => sum + order.total, 0);
+                const pendingCount = todayOrders.filter(order => order.status === 'pending').length;
+                const completedCount = todayOrders.filter(order => order.status === 'completed').length;
+                
+                // New: Quotation stats
+                const pendingQuotations = this.quotations.filter(q => q.status === 'pending' || q.status === 'sent').length;
+                
+                // Update basic stats
+                document.getElementById('customers-count').textContent = this.customers.length;
+                document.getElementById('products-count').textContent = this.products.length;
+                document.getElementById('orders-count').textContent = todayOrders.length;
+                document.getElementById('quotations-count').textContent = this.quotations.length; // New
+                document.getElementById('daily-sales').textContent = 'RM ' + totalSales.toFixed(2);
+                
+                // Update revenue display
+                const revenueShort = totalSales >= 1000 ? 
+                    (totalSales / 1000).toFixed(1) + 'K' : 
+                    totalSales.toFixed(0);
+                document.getElementById('revenue-short').textContent = revenueShort;
+                
+                // Update navigation badges
+                this.updateNavigationBadges();
+            }
+            
+            updateNavigationBadges() {
+                const pendingOrders = this.orders.filter(order => order.status === 'pending').length;
+                const lowStockItems = this.inventoryManager ? this.inventoryManager.getLowStockItems().length : 0;
+                const pendingQuotations = this.quotations.filter(q => q.status === 'pending' || q.status === 'sent').length; // New
+                
+                const pendingOrdersBadge = document.getElementById('pending-orders-badge');
+                const lowStockBadge = document.getElementById('low-stock-badge');
+                const pendingQuotesBadge = document.getElementById('pending-quotes-badge'); // New
+                
+                if (pendingOrders > 0) {
+                    pendingOrdersBadge.textContent = pendingOrders;
+                    pendingOrdersBadge.classList.remove('hidden');
+                } else {
+                    pendingOrdersBadge.classList.add('hidden');
+                }
+                
+                if (lowStockItems > 0) {
+                    lowStockBadge.textContent = lowStockItems;
+                    lowStockBadge.classList.remove('hidden');
+                } else {
+                    lowStockBadge.classList.add('hidden');
+                }
+                
+                // New: Pending quotations badge
+                if (pendingQuotations > 0) {
+                    pendingQuotesBadge.textContent = pendingQuotations;
+                    pendingQuotesBadge.classList.remove('hidden');
+                } else {
+                    pendingQuotesBadge.classList.add('hidden');
+                }
+            }
+            
+            updateAnalytics() {
+                const analytics = this.analytics.generateDashboardData(7);
+                const avgOrderValue = analytics.salesTrend.length > 0 ? 
+                    analytics.salesTrend.reduce((sum, day) => sum + day.sales, 0) / analytics.salesTrend.length : 0;
+                
+                document.getElementById('avg-order-value').textContent = 'RM ' + avgOrderValue.toFixed(0);
+                
+                if (analytics.topProducts.length > 0) {
+                    const topProduct = analytics.topProducts[0];
+                    const productName = topProduct.name.split(' ')[0]; // First word only
+                    document.getElementById('top-product').textContent = productName;
+                }
+                
+                // Calculate growth rate
+                const currentWeekSales = analytics.salesTrend.slice(-7).reduce((sum, day) => sum + day.sales, 0);
+                const previousWeekSales = analytics.salesTrend.slice(-14, -7).reduce((sum, day) => sum + day.sales, 0);
+                const growthRate = previousWeekSales > 0 ? 
+                    ((currentWeekSales - previousWeekSales) / previousWeekSales * 100).toFixed(1) : 0;
+                
+                document.getElementById('growth-rate').textContent = growthRate + '%';
+                document.getElementById('total-customers').textContent = this.customers.length;
+            }
+            
+            checkLowStock() {
+                if (!this.inventoryManager) return;
+                
+                const lowStockItems = this.inventoryManager.getLowStockItems();
+                const alertsContainer = document.getElementById('low-stock-alerts');
+                
+                if (lowStockItems.length > 0) {
+                    const alertsHTML = lowStockItems.map(item => `
+                        <div class="low-stock-alert">
+                            <div class="icon">⚠️</div>
+                            <div class="low-stock-content">
+                                <h4>Low Stock Alert</h4>
+                                <p>${item.name} - Only ${item.currentStock} ${item.unit} remaining</p>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    alertsContainer.innerHTML = alertsHTML;
+                } else {
+                    alertsContainer.innerHTML = '';
+                }
+            }
+            
+            setupNotifications() {
+                if ('Notification' in window && 'serviceWorker' in navigator) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            console.log('✅ Notifications enabled');
+                        }
+                    });
+                }
+            }
+            
+            showNotification(text, type = 'success', icon = '✅') {
+                const notification = document.getElementById('notification');
+                const notificationIcon = document.getElementById('notification-icon');
+                const notificationText = document.getElementById('notification-text');
+                
+                notification.className = `notification ${type}`;
+                
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+                
+                notificationIcon.textContent = icons[type] || icon;
+                notificationText.textContent = text;
+                
+                notification.classList.add('show');
                 
                 setTimeout(() => {
-                    const success = app.addCustomerSlots(quantity, plan);
-                    
-                    if (success) {
-                        showCelebrationModal(quantity, plan);
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            syncPendingData() {
+                if (this.syncQueue.length > 0 && this.isOnline) {
+                    console.log(`🔄 Syncing ${this.syncQueue.length} pending changes...`);
+                    // Process sync queue here
+                    this.syncQueue = [];
+                }
+            }
+            
+            preventZoom() {
+                const inputs = document.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', () => {
+                        input.style.fontSize = '16px';
+                    });
+                });
+                
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', (event) => {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        event.preventDefault();
                     }
-                }, 1000);
-            }, 1000);
-        }, 1500);
-    }, 1000);
-}
-
-// Enhanced celebration modal
-function showCelebrationModal(quantity, plan) {
-    const isPlans = plan === 'premium';
-    const icon = isPremium ? '💎' : '🎉';
-    const title = isPremium ? 'Premium Activated!' : 'Slots Allocated!';
-    const message = isPremium ? 'Welcome to Premium!' : `+${quantity.toLocaleString()} Customer Slots`;
-    
-    const modal = document.createElement('div');
-    modal.className = 'modal show';
-    modal.style.background = 'rgba(0,0,0,0.8)';
-    modal.innerHTML = `
-        <div class="modal-content" style="text-align: center; max-width: 400px; margin: auto; background: linear-gradient(135deg, #f9fafb, #f3f4f6); color: #1f2937;">
-            <div style="font-size: 80px; margin: 20px 0; animation: bounce 1s ease-in-out infinite;">${icon}</div>
-            <h2 style="color: #22c55e; margin-bottom: 16px; font-weight: 800;">${title}</h2>
-            <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">
-                ${message}
-            </div>
-            <div style="color: #6b7280; margin-bottom: 24px;">
-                Your business can now grow without limits!
-            </div>
+                    lastTouchEnd = now;
+                }, false);
+            }
             
-            <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 16px; padding: 20px; margin: 20px 0; border: 2px solid #0891b2;">
-                <div style="color: #0c4a6e; font-weight: 600; margin-bottom: 8px;">New Total Capacity:</div>
-                <div style="font-size: 36px; font-weight: 800; color: #0891b2; margin-bottom: 4px;">
-                    ${app.customerSlots.total.toLocaleString()}
-                </div>
-                <div style="color: #0c4a6e; font-size: 14px;">Customer Slots Available</div>
-            </div>
+            setupTouchFeedback() {
+                document.addEventListener('touchstart', (e) => {
+                    const target = e.target;
+                    if (target.matches('button, .nav-item, .item-card, .action-btn, .icon-btn, .category-btn, .stat-card, .quotation-card')) {
+                        if (navigator.vibrate) {
+                            navigator.vibrate(10);
+                        }
+                    }
+                }, {passive: true});
+            }
             
-            ${isPremium ? `
-            <div style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-radius: 16px; padding: 16px; margin: 16px 0; border: 2px solid #8b5cf6;">
-                <div style="color: #581c87; font-weight: 600; margin-bottom: 8px;">🎁 Premium Features Unlocked:</div>
-                <div style="color: #7c3aed; font-size: 13px; line-height: 1.5;">
-                    Advanced Analytics • Priority Support • Export Tools • Bulk Operations • Custom Branding
-                </div>
-            </div>
-            ` : ''}
+            setupPullToRefresh() {
+                const mainContent = document.getElementById('main-content');
+                let startY = 0;
+                let isPulling = false;
+                
+                mainContent.addEventListener('touchstart', (e) => {
+                    if (mainContent.scrollTop === 0) {
+                        startY = e.touches[0].clientY;
+                        isPulling = true;
+                    }
+                }, {passive: true});
+                
+                mainContent.addEventListener('touchend', () => {
+                    if (isPulling) {
+                        // Refresh data
+                        this.updateStats();
+                        this.updateAnalytics();
+                        this.renderViews();
+                        this.showNotification('🔄 Data refreshed', 'success');
+                        isPulling = false;
+                    }
+                }, {passive: true});
+            }
             
-            <button onclick="closeCelebrationModal()" class="btn btn-primary" style="width: 100%; font-weight: 700; color: white;">
-                🚀 Continue Growing Your Business!
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Haptic celebration
-    if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200, 100, 200]);
-    }
-    
-    // Auto-close after 10 seconds
-    setTimeout(() => {
-        if (document.body.contains(modal)) {
-            modal.remove();
+            showView(viewName) {
+                // Hide all views
+                document.querySelectorAll('.view').forEach(view => {
+                    view.classList.add('hidden');
+                });
+                
+                // Show selected view
+                document.getElementById(viewName + '-view').classList.remove('hidden');
+                
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    const onclick = item.getAttribute('onclick');
+                    if (onclick && onclick.includes(viewName)) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                this.currentView = viewName;
+                this.renderViews();
+                
+                // Scroll to top
+                document.getElementById('main-content').scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+            
+            renderViews() {
+                switch (this.currentView) {
+                    case 'dashboard':
+                        this.renderRecentActivity(); // Updated to show both orders and quotations
+                        break;
+                    case 'customers':
+                        this.renderCustomers();
+                        break;
+                    case 'products':
+                        this.setupCategoryFilters();
+                        this.renderProducts();
+                        break;
+                    case 'orders':
+                        this.renderOrders();
+                        break;
+                    case 'quotations': // New view
+                        this.renderQuotations();
+                        break;
+                }
+            }
+            
+            // New: Render recent activity (orders and quotations)
+            renderRecentActivity() {
+                const todayOrders = this.orders.filter(order => order.date === this.selectedDate);
+                const recentQuotations = this.quotations.slice(-3); // Last 3 quotations
+                const container = document.getElementById('recent-activity');
+                
+                if (todayOrders.length === 0 && recentQuotations.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">⏰</div>
+                            <p style="font-weight: 600;">No recent activity</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Create your first order or quotation to get started</p>
+                        </div>`;
+                    return;
+                }
+                
+                let activityHTML = '';
+                
+                // Add recent quotations
+                recentQuotations.forEach(quotation => {
+                    const customer = this.customers.find(c => c.id === quotation.customerId);
+                    const customerName = customer ? customer.name : 'Unknown';
+                    
+                    activityHTML += `
+                        <div class="item-card" onclick="showQuotationDetails(${quotation.id})">
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>📋 ${customerName}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">🆔</span>
+                                        <span>${quotation.quotationNumber}</span>
+                                    </div>
+                                    <div class="item-meta">
+                                        <span class="icon">🕐</span>
+                                        <span>${new Date(quotation.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: 700; color: #7c3aed; margin-bottom: 8px;">
+                                        RM ${quotation.total.toFixed(2)}
+                                    </div>
+                                    <span class="quotation-status status-${quotation.status}">
+                                        ${quotation.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                
+                // Add recent orders
+                const displayCount = Math.min(todayOrders.length, 2);
+                todayOrders.slice(0, displayCount).forEach(order => {
+                    const customer = this.customers.find(c => c.id === order.customerId);
+                    const customerName = customer ? customer.name : 'Unknown';
+                    
+                    activityHTML += `
+                        <div class="item-card" onclick="showOrderDetails(${order.id})">
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>🛒 ${customerName}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">📦</span>
+                                        <span>${order.items.length} items</span>
+                                    </div>
+                                    <div class="item-meta">
+                                        <span class="icon">🕐</span>
+                                        <span>${new Date(order.createdAt).toLocaleTimeString()}</span>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: 700; color: #22d3ee; margin-bottom: 8px;">
+                                        RM ${order.total.toFixed(2)}
+                                    </div>
+                                    <span class="category-btn ${order.status === 'completed' ? 'active' : ''}" style="font-size: 11px; padding: 4px 8px;">
+                                        ${order.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                
+                container.innerHTML = activityHTML;
+            }
+            
+            renderCustomers() {
+                const container = document.getElementById('customers-list');
+                
+                if (this.customers.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">👥</div>
+                            <p style="font-weight: 600;">No customers yet</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Add your first customer to get started</p>
+                        </div>`;
+                    return;
+                }
+                
+                const customersHTML = this.customers.map(customer => {
+                    const customerOrders = this.orders.filter(order => order.customerId === customer.id);
+                    const customerQuotations = this.quotations.filter(quotation => quotation.customerId === customer.id); // New
+                    const customerTotal = customerOrders.reduce((sum, order) => sum + order.total, 0);
+                    
+                    return `
+                        <div class="item-card">
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>${customer.name}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">📞</span>
+                                        <span>${customer.phone}</span>
+                                    </div>
+                                    ${customer.address ? `
+                                        <div class="item-meta">
+                                            <span class="icon">📍</span>
+                                            <span>${customer.address}</span>
+                                        </div>
+                                    ` : ''}
+                                    ${customer.email ? `
+                                        <div class="item-meta">
+                                            <span class="icon">📧</span>
+                                            <span>${customer.email}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="icon-btn primary" onclick="editCustomer(${customer.id})">✏️</button>
+                                    <button class="icon-btn danger" onclick="deleteCustomer(${customer.id})">🗑️</button>
+                                </div>
+                            </div>
+                            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; display: flex; justify-content: space-between; font-size: 14px;">
+                                <span style="color: rgba(255,255,255,0.8);">${customerOrders.length} orders • ${customerQuotations.length} quotes</span>
+                                <span style="font-weight: 700; color: #22d3ee;">RM ${customerTotal.toFixed(2)}</span>
+                            </div>
+                        </div>`;
+                }).join('');
+                
+                container.innerHTML = customersHTML;
+            }
+            
+            renderProducts() {
+                const container = document.getElementById('products-list');
+                
+                if (this.products.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🥬</div>
+                            <p style="font-weight: 600;">No products yet</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Add your first vegetable to get started</p>
+                        </div>`;
+                    return;
+                }
+                
+                const productsHTML = this.products.map(product => {
+                    const stockLevel = product.stock || 0;
+                    const stockColor = stockLevel < 10 ? '#ef4444' : stockLevel < 20 ? '#f59e0b' : '#22c55e';
+                    
+                    return `
+                        <div class="item-card">
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>${product.name}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">💰</span>
+                                        <span>RM ${product.price.toFixed(2)} per ${product.unit}</span>
+                                    </div>
+                                    <div class="item-meta">
+                                        <span class="icon">📦</span>
+                                        <span style="color: ${stockColor};">Stock: ${stockLevel} ${product.unit}</span>
+                                    </div>
+                                    ${product.category ? `
+                                        <span class="category-btn" style="font-size: 11px; padding: 4px 8px; margin-top: 8px;">
+                                            ${product.category}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="icon-btn primary" onclick="editProduct(${product.id})">✏️</button>
+                                    <button class="icon-btn danger" onclick="deleteProduct(${product.id})">🗑️</button>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+                
+                container.innerHTML = productsHTML;
+            }
+            
+            renderOrders() {
+                const todayOrders = this.orders.filter(order => order.date === this.selectedDate);
+                const filteredOrders = todayOrders.filter(order => {
+                    if (this.orderFilter === 'pending') return order.status === 'pending';
+                    if (this.orderFilter === 'completed') return order.status === 'completed';
+                    return true;
+                });
+                
+                const container = document.getElementById('orders-list');
+                
+                if (filteredOrders.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🛒</div>
+                            <p style="font-weight: 600;">No orders found</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Create your first order to get started</p>
+                        </div>`;
+                    return;
+                }
+                
+                const ordersHTML = filteredOrders.map(order => {
+                    const customer = this.customers.find(c => c.id === order.customerId);
+                    const customerName = customer ? customer.name : 'Unknown';
+                    
+                    const itemsPreview = order.items.slice(0, 2).map(item => 
+                        `${item.vegeName}: ${item.quantity} ${item.unit}`
+                    ).join('<br>');
+                    
+                    const moreItems = order.items.length > 2 ? 
+                        `<br><small style="color: rgba(255,255,255,0.7);">+${order.items.length - 2} more items</small>` : '';
+                    
+                    return `
+                        <div class="item-card" onclick="showOrderDetails(${order.id})">
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>${customerName}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">🆔</span>
+                                        <span>#${order.id}</span>
+                                    </div>
+                                    <div class="item-meta">
+                                        <span class="icon">🕐</span>
+                                        <span>${new Date(order.createdAt).toLocaleString()}</span>
+                                    </div>
+                                    <div style="margin-top: 12px; font-size: 14px; line-height: 1.4;">
+                                        ${itemsPreview}${moreItems}
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="category-btn ${order.status === 'completed' ? 'active' : ''}" style="font-size: 11px; padding: 4px 8px; margin-bottom: 8px;">
+                                        ${order.status}
+                                    </span>
+                                    <div style="font-size: 20px; font-weight: 700; color: #22d3ee;">
+                                        RM ${order.total.toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+                
+                container.innerHTML = ordersHTML;
+            }
+            
+            // New: Render quotations
+            renderQuotations() {
+                const filteredQuotations = this.quotations.filter(quotation => {
+                    if (this.quotationFilter === 'pending') return quotation.status === 'pending';
+                    if (this.quotationFilter === 'sent') return quotation.status === 'sent';
+                    if (this.quotationFilter === 'accepted') return quotation.status === 'accepted';
+                    if (this.quotationFilter === 'rejected') return quotation.status === 'rejected';
+                    if (this.quotationFilter === 'expired') return quotation.status === 'expired';
+                    return true;
+                });
+                
+                const container = document.getElementById('quotations-list');
+                
+                if (filteredQuotations.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p style="font-weight: 600;">No quotations found</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Create your first quotation to get started</p>
+                        </div>`;
+                    return;
+                }
+                
+                const quotationsHTML = filteredQuotations.map(quotation => {
+                    const customer = this.customers.find(c => c.id === quotation.customerId);
+                    const customerName = customer ? customer.name : 'Unknown';
+                    
+                    const isExpired = new Date(quotation.validUntil) < new Date();
+                    const actualStatus = isExpired && quotation.status !== 'accepted' ? 'expired' : quotation.status;
+                    
+                    const itemsPreview = quotation.items.slice(0, 2).map(item => 
+                        `${item.vegeName}: ${item.quantity} ${item.unit}`
+                    ).join('<br>');
+                    
+                    const moreItems = quotation.items.length > 2 ? 
+                        `<br><small style="color: rgba(255,255,255,0.7);">+${quotation.items.length - 2} more items</small>` : '';
+                    
+                    return `
+                        <div class="quotation-card" onclick="showQuotationDetails(${quotation.id})">
+                            <span class="quotation-status status-${actualStatus}">
+                                ${actualStatus}
+                            </span>
+                            <div class="item-header">
+                                <div class="item-info">
+                                    <h3>${customerName}</h3>
+                                    <div class="item-meta">
+                                        <span class="icon">🆔</span>
+                                        <span>${quotation.quotationNumber}</span>
+                                    </div>
+                                    <div class="item-meta">
+                                        <span class="icon">📅</span>
+                                        <span>Valid until: ${new Date(quotation.validUntil).toLocaleDateString()}</span>
+                                    </div>
+                                    <div style="margin-top: 12px; font-size: 14px; line-height: 1.4;">
+                                        ${itemsPreview}${moreItems}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quotation-summary">
+                                <div class="quotation-validity">
+                                    Created: ${new Date(quotation.createdAt).toLocaleDateString()}
+                                </div>
+                                <div class="quotation-total">RM ${quotation.total.toFixed(2)}</div>
+                            </div>
+                        </div>`;
+                }).join('');
+                
+                container.innerHTML = quotationsHTML;
+            }
+            
+            setupCategoryFilters() {
+                const categories = ['All', ...new Set(this.products.map(p => p.category).filter(Boolean))].sort();
+                const container = document.getElementById('category-filters');
+                
+                const filtersHTML = categories.map((category, index) => `
+                    <button class="category-btn ${index === 0 ? 'active' : ''}" 
+                            onclick="filterByCategory('${category}')">
+                        ${category}
+                    </button>
+                `).join('');
+                
+                container.innerHTML = filtersHTML;
+            }
+            
+            // New: Setup quotation category filters
+            setupQuotationCategoryFilters() {
+                const categories = ['All', ...new Set(this.products.map(p => p.category).filter(Boolean))].sort();
+                const container = document.getElementById('quotation-category-filters');
+                
+                const filtersHTML = categories.map((category, index) => `
+                    <button class="category-btn ${index === 0 ? 'active' : ''}" 
+                            onclick="filterQuotationByCategory('${category}')">
+                        ${category}
+                    </button>
+                `).join('');
+                
+                container.innerHTML = filtersHTML;
+            }
+            
+            handleCustomerSubmit(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    name: document.getElementById('customer-name').value.trim(),
+                    phone: document.getElementById('customer-phone').value.trim(),
+                    address: document.getElementById('customer-address').value.trim(),
+                    email: document.getElementById('customer-email').value.trim()
+                };
+                
+                // Enhanced validation
+                const errors = this.validateCustomerForm(formData);
+                if (errors.length > 0) {
+                    this.showFormErrors('customer', errors);
+                    return;
+                }
+                
+                if (this.editingCustomer) {
+                    const index = this.customers.findIndex(c => c.id === this.editingCustomer.id);
+                    this.customers[index] = { ...this.editingCustomer, ...formData };
+                    this.showNotification('✅ Customer updated successfully!', 'success');
+                } else {
+                    const newCustomer = { id: Date.now(), ...formData };
+                    this.customers.push(newCustomer);
+                    this.showNotification('✅ Customer added successfully!', 'success');
+                }
+                
+                this.closeCustomerForm();
+                this.saveDataToStorage();
+                this.updateStats();
+                this.renderViews();
+                this.populateQuotationCustomers(); // New: Update quotation customer dropdown
+            }
+            
+            // New: Handle quotation submit
+            handleQuotationSubmit(e) {
+                e.preventDefault();
+                
+                const customerId = parseInt(document.getElementById('quotation-customer').value);
+                const validityDays = parseInt(document.getElementById('quotation-validity').value) || 30;
+                const terms = document.getElementById('quotation-terms').value.trim();
+                
+                if (!customerId) return;
+                
+                const quotationItems = [];
+                this.products.forEach(product => {
+                    const quantityInput = document.getElementById('quotation-quantity-' + product.id);
+                    const priceInput = document.getElementById('quotation-price-' + product.id);
+                    
+                    if (quantityInput && priceInput) {
+                        const quantity = parseFloat(quantityInput.value) || 0;
+                        const price = parseFloat(priceInput.value) || product.price;
+                        
+                        if (quantity > 0) {
+                            quotationItems.push({
+                                vegeId: product.id,
+                                vegeName: product.name,
+                                unit: product.unit,
+                                price: price,
+                                quantity: quantity
+                            });
+                        }
+                    }
+                });
+                
+                if (quotationItems.length === 0) {
+                    this.showNotification('❌ Please add at least one item to the quotation.', 'error');
+                    return;
+                }
+                
+                const total = quotationItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+                const now = new Date();
+                const validUntil = new Date(now.getTime() + (validityDays * 24 * 60 * 60 * 1000));
+                
+                const quotationNumber = this.generateQuotationNumber();
+                
+                const newQuotation = {
+                    id: Date.now(),
+                    customerId: customerId,
+                    quotationNumber: quotationNumber,
+                    date: now.toISOString().split('T')[0],
+                    validUntil: validUntil.toISOString().split('T')[0],
+                    status: 'pending',
+                    items: quotationItems,
+                    total: total,
+                    terms: terms || this.companySettings.defaultTerms,
+                    createdAt: now.toISOString(),
+                    updatedAt: now.toISOString()
+                };
+                
+                if (this.editingQuotation) {
+                    const index = this.quotations.findIndex(q => q.id === this.editingQuotation.id);
+                    this.quotations[index] = { ...this.editingQuotation, ...newQuotation, id: this.editingQuotation.id };
+                    this.showNotification('✅ Quotation updated successfully!', 'success');
+                } else {
+                    this.quotations.unshift(newQuotation);
+                    this.showNotification('✅ Quotation created successfully!', 'success');
+                }
+                
+                this.closeQuotationForm();
+                this.saveDataToStorage();
+                this.updateStats();
+                this.renderViews();
+            }
+            
+            // New: Handle quotation settings submit
+            handleQuotationSettingsSubmit(e) {
+                e.preventDefault();
+                
+                this.companySettings.defaultValidityDays = parseInt(document.getElementById('default-validity').value) || 30;
+                this.companySettings.defaultTerms = document.getElementById('default-terms').value.trim();
+                this.companySettings.quotationPrefix = document.getElementById('quotation-prefix').value.trim() || 'QUO';
+                
+                this.saveDataToStorage();
+                this.showNotification('📋 Quotation settings saved!', 'success');
+            }
+            
+            // New: Generate quotation number
+            generateQuotationNumber() {
+                const prefix = this.companySettings.quotationPrefix || 'QUO';
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                
+                // Find the next sequence number for today
+                const today = now.toISOString().split('T')[0];
+                const todayQuotations = this.quotations.filter(q => q.date === today);
+                const sequence = String(todayQuotations.length + 1).padStart(3, '0');
+                
+                return `${prefix}-${year}${month}${day}-${sequence}`;
+            }
+            
+            validateCustomerForm(formData) {
+                const errors = [];
+                
+                if (!formData.name || formData.name.length < 2) {
+                    errors.push({ field: 'name', message: 'Customer name must be at least 2 characters' });
+                }
+                
+                if (formData.phone && !this.isValidMalaysianPhone(formData.phone)) {
+                    errors.push({ field: 'phone', message: 'Please enter a valid Malaysian phone number' });
+                }
+                
+                if (formData.email && !this.isValidEmail(formData.email)) {
+                    errors.push({ field: 'email', message: 'Please enter a valid email address' });
+                }
+                
+                return errors;
+            }
+            
+            isValidMalaysianPhone(phone) {
+                const patterns = [
+                    /^(\+?6?0)(1[0-46-9])\d{7,8}$/, // Mobile
+                    /^(\+?6?0)(3|4|5|6|7|8|9)\d{7,8}$/ // Landline
+                ];
+                return patterns.some(pattern => pattern.test(phone.replace(/[\s-]/g, '')));
+            }
+            
+            isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+            
+            showFormErrors(formType, errors) {
+                // Clear previous errors
+                document.querySelectorAll('.form-error').forEach(el => {
+                    el.classList.add('hidden');
+                    el.textContent = '';
+                });
+                
+                document.querySelectorAll('.form-input').forEach(el => {
+                    el.classList.remove('error');
+                });
+                
+                // Show new errors
+                errors.forEach(error => {
+                    const input = document.getElementById(`${formType}-${error.field}`);
+                    const errorEl = document.getElementById(`${formType}-${error.field}-error`);
+                    
+                    if (input && errorEl) {
+                        input.classList.add('error');
+                        errorEl.textContent = error.message;
+                        errorEl.classList.remove('hidden');
+                    }
+                });
+            }
+            
+            handleCompanySubmit(e) {
+                e.preventDefault();
+                
+                this.companySettings.name = document.getElementById('company-name').value.trim();
+                this.companySettings.tagline = document.getElementById('company-tagline').value.trim();
+                this.companySettings.phone = document.getElementById('company-phone').value.trim();
+                this.companySettings.email = document.getElementById('company-email').value.trim();
+                this.companySettings.website = document.getElementById('company-website').value.trim();
+                this.companySettings.address = document.getElementById('company-address').value.trim();
+                
+                this.saveDataToStorage();
+                this.showNotification('🏢 Company settings saved!', 'success');
+            }
+            
+            openCustomerForm() {
+                this.editingCustomer = null;
+                document.getElementById('customer-modal-title').textContent = 'Add Customer';
+                document.getElementById('customer-form').reset();
+                this.clearFormErrors();
+                document.getElementById('customer-modal').classList.add('show');
+            }
+            
+            closeCustomerForm() {
+                document.getElementById('customer-modal').classList.remove('show');
+                this.editingCustomer = null;
+                this.clearFormErrors();
+            }
+            
+            // New: Quotation form functions
+            openQuotationForm() {
+                this.editingQuotation = null;
+                document.getElementById('quotation-modal-title').textContent = 'Create Quotation';
+                document.getElementById('quotation-form').reset();
+                document.getElementById('quotation-items').classList.add('hidden');
+                
+                // Set default values
+                document.getElementById('quotation-validity').value = this.companySettings.defaultValidityDays || 30;
+                document.getElementById('quotation-terms').value = this.companySettings.defaultTerms || '';
+                
+                this.populateQuotationCustomers();
+                this.setupQuotationCategoryFilters();
+                document.getElementById('quotation-modal').classList.add('show');
+            }
+            
+            closeQuotationForm() {
+                document.getElementById('quotation-modal').classList.remove('show');
+                this.editingQuotation = null;
+                this.clearQuotationQuantities();
+            }
+            
+            // New: Populate quotation customers dropdown
+            populateQuotationCustomers() {
+                const select = document.getElementById('quotation-customer');
+                const optionsHTML = '<option value="">Choose customer...</option>' +
+                    this.customers.map(customer => 
+                        `<option value="${customer.id}">${customer.name}</option>`
+                    ).join('');
+                select.innerHTML = optionsHTML;
+            }
+            
+            // New: Initialize quotation items
+            initializeQuotationItems() {
+                this.renderQuotationItems('', 'all');
+                document.getElementById('quotation-items').classList.remove('hidden');
+                this.updateQuotationTotal();
+            }
+            
+            // New: Render quotation items
+            renderQuotationItems(searchTerm, category) {
+                if (!category) category = this.selectedQuotationCategory;
+                
+                const container = document.getElementById('quotation-items-list');
+                let itemsHTML = '';
+                
+                const filteredProducts = this.products.filter(product => {
+                    const matchesSearch = !searchTerm || product.name.toLowerCase().includes(searchTerm.toLowerCase());
+                    const matchesCategory = category === 'all' || (product.category && product.category.toLowerCase() === category);
+                    return matchesSearch && matchesCategory;
+                });
+                
+                filteredProducts.forEach(product => {
+                    itemsHTML += `
+                        <div class="quotation-item" id="quotation-item-${product.id}">
+                            <div class="quotation-item-header">
+                                <div class="quotation-item-name">${product.name}</div>
+                                <button type="button" class="quotation-item-remove" onclick="removeQuotationItem(${product.id})">Remove</button>
+                            </div>
+                            <div class="quotation-item-details">
+                                <div>
+                                    <label style="font-size: 12px; color: #6b7280; margin-bottom: 4px; display: block;">Quantity</label>
+                                    <input type="number" step="0.1" min="0" placeholder="0" 
+                                           style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px;"
+                                           onchange="updateQuotationItemTotal(${product.id})" 
+                                           oninput="updateQuotationItemTotal(${product.id})" 
+                                           id="quotation-quantity-${product.id}">
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #6b7280; margin-bottom: 4px; display: block;">Price/Unit (RM)</label>
+                                    <input type="number" step="0.01" min="0" placeholder="${product.price}" value="${product.price}"
+                                           style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px;"
+                                           onchange="updateQuotationItemTotal(${product.id})" 
+                                           oninput="updateQuotationItemTotal(${product.id})" 
+                                           id="quotation-price-${product.id}">
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #6b7280; margin-bottom: 4px; display: block;">Unit</label>
+                                    <div style="padding: 8px; background: #f3f4f6; border-radius: 8px; font-size: 14px; text-align: center; color: #374151;">
+                                        ${product.unit}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quotation-item-total" id="quotation-item-total-${product.id}">RM 0.00</div>
+                        </div>`;
+                });
+                
+                container.innerHTML = itemsHTML;
+            }
+            
+            clearFormErrors() {
+                document.querySelectorAll('.form-error').forEach(el => {
+                    el.classList.add('hidden');
+                    el.textContent = '';
+                });
+                
+                document.querySelectorAll('.form-input').forEach(el => {
+                    el.classList.remove('error');
+                });
+            }
+            
+            // New: Clear quotation quantities
+            clearQuotationQuantities() {
+                this.products.forEach(product => {
+                    const quantityInput = document.getElementById('quotation-quantity-' + product.id);
+                    const priceInput = document.getElementById('quotation-price-' + product.id);
+                    
+                    if (quantityInput) quantityInput.value = '';
+                    if (priceInput) priceInput.value = product.price;
+                });
+            }
+            
+            handleCustomerSearch(query) {
+                if (!this.searchEngine) return;
+                
+                const results = this.searchEngine.search(query, 'customer', { limit: 5 });
+                const resultsContainer = document.getElementById('customer-search-results');
+                
+                if (query.length < 2) {
+                    resultsContainer.classList.add('hidden');
+                    return;
+                }
+                
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div class="search-result-item">No customers found</div>';
+                } else {
+                    const resultsHTML = results.map(result => `
+                        <div class="search-result-item" onclick="selectCustomer(${result.id})">
+                            <strong>${result.highlighted}</strong><br>
+                            <small>${result.data.phone || 'No phone'}</small>
+                        </div>
+                    `).join('');
+                    resultsContainer.innerHTML = resultsHTML;
+                }
+                
+                resultsContainer.classList.remove('hidden');
+            }
+            
+            handleProductSearch(query) {
+                if (!this.searchEngine) return;
+                
+                const results = this.searchEngine.search(query, 'product', { limit: 5 });
+                const resultsContainer = document.getElementById('product-search-results');
+                
+                if (query.length < 2) {
+                    resultsContainer.classList.add('hidden');
+                    return;
+                }
+                
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div class="search-result-item">No products found</div>';
+                } else {
+                    const resultsHTML = results.map(result => `
+                        <div class="search-result-item" onclick="selectProduct(${result.id})">
+                            <strong>${result.highlighted}</strong><br>
+                            <small>RM ${result.data.price} per ${result.data.unit}</small>
+                        </div>
+                    `).join('');
+                    resultsContainer.innerHTML = resultsHTML;
+                }
+                
+                resultsContainer.classList.remove('hidden');
+            }
         }
-    }, 10000);
-}
-
-// Close functions
-function closeUpgradeDialog() {
-    const modal = document.getElementById('upgrade-modal');
-    if (modal) {
-        modal.remove();
-    }
-    clearAddonSelection();
-}
-
-function closeCelebrationModal() {
-    const modal = document.querySelector('.modal');
-    if (modal && modal.style.background === 'rgba(0, 0, 0, 0.8)') {
-        modal.remove();
-    }
-}
-
-// Enhanced customer addition with slot checking
-function addCustomerWithSlotCheck() {
-    const canAdd = app.canAddCustomerEnhanced();
-    
-    if (canAdd.canAdd) {
-        app.openCustomerForm();
-    } else {
-        app.showNotification(canAdd.reason, 'warning');
-        setTimeout(() => {
-            showEnhancedUpgradeDialog();
-        }, 1000);
-    }
-}
-
-// Override the original openCustomerForm to include slot checking
-const originalOpenCustomerForm = window.openCustomerForm;
-window.openCustomerForm = function() {
-    if (app && !app.canAddCustomer()) {
-        addCustomerWithSlotCheck();
-    } else {
-        originalOpenCustomerForm();
-    }
-};
-
-// Quick allocation functions for console/direct access
-function allocate200CustomerSlots() {
-    if (typeof app === 'undefined') {
-        console.error('VegeOrder app not initialized');
-        return;
-    }
-    
-    purchaseQuick200Slots();
-}
-
-function quickUpgradeToPremium() {
-    if (typeof app === 'undefined') {
-        console.error('VegeOrder app not initialized');
-        return;
-    }
-    
-    if (app.customerSlots.plan === 'premium') {
-        app.showNotification('⚠️ Already on Premium plan', 'warning');
-        return;
-    }
-    
-    purchasePremiumPlan();
-}
-
-// Add CSS animations for celebration
-const celebrationCSS = `
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-        40% { transform: translateY(-10px); }
-        60% { transform: translateY(-5px); }
-    }
-    
-    @keyframes slideDown {
-        from { transform: translateY(-100%); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    
-    .addon-package:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 24px rgba(34, 211, 238, 0.2) !important;
-    }
-    
-    .addon-package.selected {
-        border-color: #22d3ee !important;
-        background-color: #f0f9ff !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 24px rgba(34, 211, 238, 0.3) !important;
-    }
-`;
-
-// Inject CSS
-const styleSheet = document.createElement('style');
-styleSheet.textContent = celebrationCSS;
-document.head.appendChild(styleSheet);
-
-// Console commands and initialization
-document.addEventListener('DOMContentLoaded', () => {
-    // Wait for app initialization
-    setTimeout(() => {
-        enhanceVegeOrderWithSlots();
         
-        console.log(`
-🥬 VEGEORDER PRO - ENHANCED CUSTOMER SLOT SYSTEM
-
-🚀 Quick Commands:
-• allocate200CustomerSlots() - Allocate 200 slots directly
-• quickUpgradeToPremium() - Upgrade to Premium plan
-• showEnhancedUpgradeDialog() - Show upgrade options
-• app.customerSlots - View current slot status
-
-📊 Current Status: 
-• Slots: ${typeof app !== 'undefined' ? app.customerSlots?.used || 0 : 0}/${typeof app !== 'undefined' ? app.customerSlots?.total || 10 : 10} used
-• Plan: ${typeof app !== 'undefined' ? app.customerSlots?.plan?.toUpperCase() || 'FREE' : 'FREE'}
-• Remaining: ${typeof app !== 'undefined' ? app.customerSlots?.remaining || 0 : 0} slots available
-
-Ready for unlimited growth! 🚀
-        `);
-    }, 500);
-});
-
-// Auto-demo (uncomment to enable automatic 200-slot allocation after 5 seconds)
-/*
-setTimeout(() => {
-    if (typeof app !== 'undefined' && app.customerSlots.remaining <= 2) {
-        if (confirm('🚀 Demo: Would you like to allocate 200 customer slots automatically?')) {
-            allocate200CustomerSlots();
-        }
-    }
-}, 5000);
-*/
-
-// Export for global access
-window.allocate200CustomerSlots = allocate200CustomerSlots;
-window.quickUpgradeToPremium = quickUpgradeToPremium;
-window.showEnhancedUpgradeDialog = showEnhancedUpgradeDialog;
+        // Enhanced utility classes (same as before)
+        class SearchEngine {
+            constructor() {
+                this.searchIndex = new Map();
+            }
+            
+            search(query, type = null, options = {}) {
+                const { limit = 10 } = options;
+                if (!query || query.length < 2) return [];
+                
+                const searchTerms = query.toLowerCase().split(' ').
